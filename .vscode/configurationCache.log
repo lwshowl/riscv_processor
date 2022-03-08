@@ -1,0 +1,1 @@
+{"buildTargets":["build","clean","lint","obj_dir/Vregfile","sim","verilate","waveform.vcd","waves"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
