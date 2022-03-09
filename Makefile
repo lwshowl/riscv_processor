@@ -1,4 +1,4 @@
-MODULE=regfile
+MODULE=alu
 TEST_BENCH_DIR= ./test_benches
 
 .PHONY:sim

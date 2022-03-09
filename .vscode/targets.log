@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
- 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Mar  8 08:56:44 2022
+# Make data base, printed on Wed Mar  9 22:02:20 2022
 
 # Variables
 
@@ -61,7 +59,7 @@ NAME = DESKTOP-VJROA60
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-6c6cda2d-9730-4982-aeec-8fa2c1032f19.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-5142f926-3ac7-476a-93a5-cec92bb65f8c.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -99,7 +97,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
 MAKELEVEL := 0
 # makefile (from 'Makefile', line 1)
-MODULE = regfile
+MODULE = alu
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -162,10 +160,8 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
-# environment
-MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=76/1024=7%, Rehash=0, Collisions=12/108=11%
+# Load=75/1024=7%, Rehash=0, Collisions=12/107=11%
 
 # Pattern-specific Variable Values
 
@@ -173,15 +169,21 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2064, inode 42529): 11 files, no impossibilities.
+# . (device 2064, inode 42529): 14 files, no impossibilities.
 
-# 11 files, no impossibilities in 1 directories.
+# 14 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
 # No implicit rules.
 
 # Files
+
+# Not a target:
+alu.sv:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 # Not a target:
 all:
@@ -195,7 +197,7 @@ all:
 #  Modification time never checked.
 #  File has not been updated.
 
-waveform.vcd: obj_dir/Vregfile
+waveform.vcd: obj_dir/Valu
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -207,18 +209,18 @@ waveform.vcd: obj_dir/Vregfile
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-07 22:38:46.7670364
+#  Last modified 2022-03-09 20:10:49.7791527
 #  File has been updated.
 #  Successfully updated.
 
-build: obj_dir/Vregfile
+build: obj_dir/Valu
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
 
 # Not a target:
-test_benches/tb_regfile.cpp:
+alu.v:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -241,12 +243,6 @@ sim: waveform.vcd
 #  File does not exist.
 #  File has not been updated.
 
-# Not a target:
-regfile.sv:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
 clean:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
@@ -257,27 +253,26 @@ clean:
 	rm -rf ./obj_dir
 	rm -rf waveform.vcd
 
-obj_dir/Vregfile: .stamp.verilate
+# Not a target:
+test_benches/tb_alu.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 25):
-	@echo
-	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
-lint: regfile.sv
+lint: alu.sv
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 37):
- 
 	verilator --lint-only $(MODULE).v
 
 waves: waveform.vcd
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
+ 
+make: *** No rule to make target 'all'.  Stop.
+ 
 #  File does not exist.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 15):
@@ -285,7 +280,7 @@ waves: waveform.vcd
 	@echo "### WAVES ###"
 	gtkwave waveform.vcd
 
-.stamp.verilate: regfile.v test_benches/tb_regfile.cpp
+.stamp.verilate: alu.v test_benches/tb_alu.cpp
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -295,11 +290,14 @@ waves: waveform.vcd
 	verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
 	@touch .stamp.verilate
 
-# Not a target:
-regfile.v:
+obj_dir/Valu: .stamp.verilate
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+#  recipe to execute (from 'Makefile', line 25):
+	@echo
+	@echo "### BUILDING SIM ###"
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
 # files hash-table stats:
 # Load=17/1024=2%, Rehash=0, Collisions=0/56=0%
@@ -309,12 +307,12 @@ regfile.v:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 26 / storage = 251 B / avg = 9 B
-# current buf: size = 8162 B / used = 251 B / count = 26 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 29 / storage = 260 B / avg = 8 B
+# current buf: size = 8162 B / used = 260 B / count = 29 / avg = 8 B
 
-# strcache performance: lookups = 65 / hit rate = 60%
+# strcache performance: lookups = 68 / hit rate = 57%
 # hash-table stats:
-# Load=26/8192=0%, Rehash=0, Collisions=1/65=2%
-# Finished Make data base on Tue Mar  8 08:56:44 2022
+# Load=29/8192=0%, Rehash=0, Collisions=1/68=1%
+# Finished Make data base on Wed Mar  9 22:02:20 2022
 
  
