@@ -1,12 +1,3 @@
-/*
- * Primitive alu example for Verilator example
- *
- * File name: alu.sv
- * Author: Norbertas Kremeris 2021
- *
- */
-
-
 module alu #(parameter WIDTH = 32)
             (input clk,
              input rst,
