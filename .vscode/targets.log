@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Mar 10 12:41:30 2022
+# Make data base, printed on Thu Mar 10 17:06:21 2022
 
 # Variables
 
@@ -99,7 +99,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
 MAKELEVEL := 0
 # makefile (from 'Makefile', line 1)
-MODULE = memory
+MODULE = decoder
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -173,9 +173,9 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2064, inode 42529): 15 files, no impossibilities.
+# . (device 2064, inode 42529): 18 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 18 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -195,7 +195,13 @@ all:
 #  Modification time never checked.
 #  File has not been updated.
 
-waveform.vcd: obj_dir/Vmemory
+# Not a target:
+decoder.v:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+waveform.vcd: obj_dir/Vdecoder
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -204,23 +210,14 @@ waveform.vcd: obj_dir/Vmemory
 	@echo "### SIMULATING ###"
 	@./obj_dir/V$(MODULE) +verilator+rand+reset+2
 
-obj_dir/Vmemory: .stamp.verilate
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 25):
-	@echo
-	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
-
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-10 12:40:06.2238984
+#  Last modified 2022-03-10 13:48:05.2138984
 #  File has been updated.
 #  Successfully updated.
 
-build: obj_dir/Vmemory
+build: obj_dir/Vdecoder
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -255,12 +252,12 @@ clean:
 	rm -rf waveform.vcd
 
 # Not a target:
-memory.v:
+test_benches/tb_decoder.cpp:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
-lint: memory.v
+lint: decoder.v
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -272,14 +269,23 @@ waves: waveform.vcd
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
- 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 15):
 	@echo
+ 
 	@echo "### WAVES ###"
 	gtkwave waveform.vcd
 
-.stamp.verilate: memory.v test_benches/tb_memory.cpp
+obj_dir/Vdecoder: .stamp.verilate
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 25):
+	@echo
+	@echo "### BUILDING SIM ###"
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+
+.stamp.verilate: decoder.v test_benches/tb_decoder.cpp
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -289,12 +295,6 @@ waves: waveform.vcd
 	verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
 	@touch .stamp.verilate
 
-# Not a target:
-test_benches/tb_memory.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
 # files hash-table stats:
 # Load=16/1024=2%, Rehash=0, Collisions=0/55=0%
 # VPATH Search Paths
@@ -303,12 +303,12 @@ test_benches/tb_memory.cpp:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 268 B / avg = 9 B
-# current buf: size = 8162 B / used = 268 B / count = 29 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 32 / storage = 306 B / avg = 9 B
+# current buf: size = 8162 B / used = 306 B / count = 32 / avg = 9 B
 
-# strcache performance: lookups = 69 / hit rate = 57%
+# strcache performance: lookups = 72 / hit rate = 55%
 # hash-table stats:
-# Load=29/8192=0%, Rehash=0, Collisions=1/69=1%
-# Finished Make data base on Thu Mar 10 12:41:30 2022
+# Load=32/8192=0%, Rehash=0, Collisions=1/72=1%
+# Finished Make data base on Thu Mar 10 17:06:21 2022
 
  

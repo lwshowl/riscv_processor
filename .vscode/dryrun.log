@@ -1,10 +1,14 @@
 make --dry-run --keep-going --print-directory
 make: Entering directory '/home/xy/vscode/rv32i'
 echo
+echo "### VERILATING ###"
+verilator -Wall --trace --x-assign unique --x-initial unique -cc decoder.v --exe ./test_benches/tb_decoder.cpp
+touch .stamp.verilate
+echo
 echo "### BUILDING SIM ###"
-make -C obj_dir -f Vmemory.mk Vmemory
+make -C obj_dir -f Vdecoder.mk Vdecoder
 echo
 echo "### SIMULATING ###"
-./obj_dir/Vmemory +verilator+rand+reset+2
+./obj_dir/Vdecoder +verilator+rand+reset+2
 make: Leaving directory '/home/xy/vscode/rv32i'
  
