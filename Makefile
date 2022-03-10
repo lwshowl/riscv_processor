@@ -1,4 +1,4 @@
-MODULE=alu
+MODULE=decoder
 TEST_BENCH_DIR= ./test_benches
 
 .PHONY:sim
@@ -33,7 +33,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 	@touch .stamp.verilate
 
 .PHONY:lint
-lint: $(MODULE).sv
+lint: $(MODULE).v
 	verilator --lint-only $(MODULE).v
 
 .PHONY: clean
