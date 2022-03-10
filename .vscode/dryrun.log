@@ -7,6 +7,7 @@ touch .stamp.verilate
 echo
 echo "### BUILDING SIM ###"
 make -C obj_dir -f Valu.mk Valu
+ 
 echo
 echo "### SIMULATING ###"
 ./obj_dir/Valu +verilator+rand+reset+2
