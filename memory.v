@@ -30,12 +30,12 @@ module memory #(parameter SIZE = 128,
     end
     
     //输出内容
-    always @(posedge clk) begin
+    always @(*) begin
         if (w_enable_r) begin
-            mem[addr_select_r] <= data_in_r;
+            mem[addr_select_r] = data_in_r;
         end
         else begin
-            data_out_r <= mem[addr_select_r];
+            data_out_r = mem[addr_select_r];
         end
     end
     

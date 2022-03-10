@@ -1,4 +1,4 @@
-MODULE=decoder
+MODULE=tinyrv32
 TEST_BENCH_DIR= ./test_benches
 
 .PHONY:sim

@@ -30,7 +30,7 @@ module regfile #(parameter WIDTH = 32)
     end
     
     //读写
-    always @(posedge clk) begin
+    always @(*) begin
         if (r_enable_reg == 1) begin
             
             if (r_select_reg == 0)begin

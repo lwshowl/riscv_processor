@@ -1,60 +1,73 @@
 module alu #(parameter WIDTH = 32)
             (input clk,
              input rst,
-             input [1:0] op_in,
-             input [WIDTH-1:0] a_in,
-             input [WIDTH-1:0] b_in,
-             input in_valid,
-             output [WIDTH-1:0] out,
-             output out_valid);
+             input [5:0] instr_in,
+             input [4:0] op_in,
+             input [WIDTH-1:0] rs1,
+             input [WIDTH-1:0] rs2,
+             input [WIDTH-1:0] imm,
+             input [4:0] shamt,
+             output [WIDTH-1:0] out);
     
-    reg  [WIDTH-1:0]  a_in_r;
-    reg  [WIDTH-1:0]  b_in_r;
+    `include "instructions.v"
+    
+    reg  [WIDTH-1:0]  rs1_r;
+    reg  [WIDTH-1:0]  rs2_r;
+    reg  [WIDTH-1:0]  imm_r;
     reg               in_valid_r;
     reg  [WIDTH-1:0]  result;
-    reg  [1:0] op_in_r;
-    reg   done;
+    reg  [4:0] op_in_r;
+    reg  [5:0] instr_in_r;
+    reg  [4:0] shamt_r;
     
-    localparam  add = 1;
-    localparam  sub = 2;
-    localparam  nop = 0;
+    
     
     // Register all inputs
     always @ (posedge clk, posedge rst)
     begin
-        if (rst == 1)
-        begin
-            op_in_r    <= '0;
-            a_in_r     <= '0;
-            b_in_r     <= '0;
-            in_valid_r <= '0;
-        end
-        else
-        begin
-            op_in_r    <= op_in;
-            a_in_r     <= a_in;
-            b_in_r     <= b_in;
-            in_valid_r <= in_valid;
-            done       <= 0;
-            
-            if (in_valid_r == 1)
-            begin
-                case (op_in_r)
-                    add: result     <= a_in_r + b_in_r;
-                    sub: result     <= a_in_r + (~b_in_r+1'b1);
-                    default: result <= '0;
-                endcase
-                done <= 1;
-            end
-            else
-            begin
-                result <= '0;
-            end
-            
-        end
+        op_in_r    <= op_in;
+        rs1_r      <= rs1;
+        rs2_r      <= rs2;
+        imm_r      <= imm;
+        instr_in_r <= instr_in;
+        shamt_r    <= shamt;
+        result     <= 0;
     end
     
-    assign out       = result;
-    assign out_valid = done;
+    always @(*) begin
+        case (instr_in_r)
+            i_lb:       result    <= rs1_r + imm_r;
+            i_lh:       result    <= rs1_r + imm_r;
+            i_lw:       result    <= rs1_r + imm_r;
+            i_lbu:       result   <= rs1_r + imm_r;
+            i_lhu:       result   <= rs1_r + imm_r;
+            i_sb:       result    <= rs1_r + imm_r;
+            i_sh:       result    <= rs1_r + imm_r;
+            i_sw:       result    <= rs1_r + imm_r;
+            i_addi:     result    <= rs1_r + imm_r;
+            i_slti:     result[0] <= $signed(rs1_r) < $signed(imm_r);
+            i_sltiu:    result[0] <= rs1_r < imm_r;
+            i_xori:     result    <= rs1_r ^ imm_r;
+            i_ori:      result    <= rs1_r | imm_r;
+            i_andi:     result    <= rs1_r & imm_r;
+            i_slli:     result    <= rs1_r << shamt_r;
+            i_srli:     result    <= rs1_r >> shamt_r;
+            i_srai:     result    <= rs1_r >>> shamt_r;
+            i_add:      result    <= rs1_r + rs2_r;
+            i_sub:      result    <= rs1_r + rs2_r;
+            i_sll:      result    <= rs1_r << rs2_r;
+            i_slt:      result[0] <= $signed(rs1_r) < $signed(imm_r);
+            i_sltu:     result[0] <= rs1_r < rs2_r;
+            i_xor:      result    <= rs1_r ^ rs2_r;
+            i_srl:      result    <= rs1_r >> rs2_r[4:0];
+            i_sra:      result    <= rs1_r >>> rs2_r[4:0];
+            i_or:       result    <= rs1_r | rs2_r;
+            i_and:      result    <= rs1_r & rs2_r;
+            
+            default: result <= '0;
+        endcase
+    end
+    
+    assign out = result;
     
     endmodule;

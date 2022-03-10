@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
- 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Mar 10 17:06:21 2022
+# Make data base, printed on Fri Mar 11 01:04:44 2022
 
 # Variables
 
@@ -61,7 +59,7 @@ NAME = DESKTOP-VJROA60
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-07d79c07-faf9-4903-84f0-3a0639b4ffdf.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f5e24830-76b5-4c65-b202-7ffa7822c2e6.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -77,7 +75,7 @@ PWD = /home/xy/vscode/rv32i
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/11_interop
+WSL_INTEROP = /run/WSL/1588_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/server/remoteExtensionHostProcess
 # environment
@@ -162,10 +160,8 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
-# environment
-MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=76/1024=7%, Rehash=0, Collisions=12/108=11%
+# Load=75/1024=7%, Rehash=0, Collisions=12/107=11%
 
 # Pattern-specific Variable Values
 
@@ -173,9 +169,9 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2064, inode 42529): 18 files, no impossibilities.
+# . (device 2064, inode 42529): 19 files, no impossibilities.
 
-# 18 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -213,7 +209,7 @@ waveform.vcd: obj_dir/Vdecoder
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-10 13:48:05.2138984
+#  Last modified 2022-03-11 01:02:44.4095761
 #  File has been updated.
 #  Successfully updated.
 
@@ -272,9 +268,11 @@ waves: waveform.vcd
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 15):
 	@echo
- 
 	@echo "### WAVES ###"
 	gtkwave waveform.vcd
+ 
+make: *** No rule to make target 'all'.  Stop.
+ 
 
 obj_dir/Vdecoder: .stamp.verilate
 #  Implicit rule search has not been done.
@@ -303,12 +301,12 @@ obj_dir/Vdecoder: .stamp.verilate
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 32 / storage = 306 B / avg = 9 B
-# current buf: size = 8162 B / used = 306 B / count = 32 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 33 / storage = 317 B / avg = 9 B
+# current buf: size = 8162 B / used = 317 B / count = 33 / avg = 9 B
 
-# strcache performance: lookups = 72 / hit rate = 55%
+# strcache performance: lookups = 73 / hit rate = 54%
 # hash-table stats:
-# Load=32/8192=0%, Rehash=0, Collisions=1/72=1%
-# Finished Make data base on Thu Mar 10 17:06:21 2022
+# Load=33/8192=0%, Rehash=0, Collisions=1/73=1%
+# Finished Make data base on Fri Mar 11 01:04:44 2022
 
  
