@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Mar 12 00:22:58 2022
+# Make data base, printed on Sat Mar 12 01:49:47 2022
 
 # Variables
 
@@ -59,7 +59,7 @@ NAME = DESKTOP-VJROA60
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f1ee149c-9a1e-462a-9451-f9795b4db3ea.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-decb7134-56cf-484a-bae4-27b9492575fb.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -167,9 +167,9 @@ WSL_DISTRO_NAME = Ubuntu-20.04
 
 # Directories
 
-# . (device 2064, inode 42529): 21 files, no impossibilities.
+# . (device 2064, inode 42529): 22 files, no impossibilities.
 
-# 21 files, no impossibilities in 1 directories.
+# 22 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -272,6 +272,7 @@ waves: waveform.vcd
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 15):
 	@echo
@@ -296,13 +297,12 @@ waves: waveform.vcd
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 35 / storage = 344 B / avg = 9 B
-# current buf: size = 8162 B / used = 344 B / count = 35 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 36 / storage = 353 B / avg = 9 B
+# current buf: size = 8162 B / used = 353 B / count = 36 / avg = 9 B
 
-# strcache performance: lookups = 75 / hit rate = 53%
+# strcache performance: lookups = 76 / hit rate = 52%
 # hash-table stats:
- 
-# Load=35/8192=0%, Rehash=0, Collisions=1/75=1%
-# Finished Make data base on Sat Mar 12 00:22:58 2022
+# Load=36/8192=0%, Rehash=0, Collisions=1/76=1%
+# Finished Make data base on Sat Mar 12 01:49:48 2022
 
  

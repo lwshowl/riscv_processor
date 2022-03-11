@@ -40,7 +40,7 @@ int main(int argc, char **argv, char **env)
         }
 
         m_trace->dump(sim_time);
-        sim_time++;
+        sim_time++; 
     }
     m_trace->close();
     delete dut;
