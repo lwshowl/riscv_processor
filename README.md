@@ -5,6 +5,7 @@
   
 
     
-### support rv32i instruction set , csr instructions are scheduled
-### multiple clock cycles per instruction , non piplelined,
-### synthesisable for FPGAs
+#### **support rv32i instruction set , csr instructions are scheduled**
+#### **non piplelined**
+#### **multiple clock cycles per instruction**
+#### **synthesisable for little panda kintex-7 base development board**
