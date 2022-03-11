@@ -1,17 +1,24 @@
 module regfile #(parameter WIDTH = 32)
-                (input clk,
+                (input r_clk,
+                 input w_clk,
                  input r_enable,
                  input w_enable,
-                 input [$clog2(WIDTH)-1:0]r_select, input [$clog2(WIDTH)-1:0]w_select, input [WIDTH-1:0]w_val, output [WIDTH-1:0]r_out, output valid);
+                 input [4:0]rs1_select,
+                 input [4:0]rs2_select,
+                 input [4:0]rd_select,
+                 input [WIDTH-1:0]w_val,
+                 output [WIDTH-1:0]rs1_out,
+                 output [WIDTH-1:0]rs2_out);
     
     
     //存储信号寄存器
-    reg  [$clog2(WIDTH)-1:0] r_select_reg;
-    reg  [$clog2(WIDTH)-1:0] w_select_reg;
+    reg  [4:0] rs1_select_reg;
+    reg  [4:0] rs2_select_reg;
+    reg  [4:0] rd_select_reg;
     reg  [WIDTH-1:0] w_val_reg;
-    reg  [WIDTH-1:0] r_out_reg;
-    reg  valid_reg;
+    /* verilator lint_off UNUSED */
     reg  r_enable_reg;
+    /* verilator lint_off UNUSED */
     reg  w_enable_reg;
     
     reg [WIDTH-1:0] r_file [0:31];
@@ -21,32 +28,22 @@ module regfile #(parameter WIDTH = 32)
     end
     
     //存储上升沿上的信号
-    always @(posedge clk) begin
-        r_select_reg <= r_select;
-        w_select_reg <= w_select;
-        w_val_reg    <= w_val;
-        r_enable_reg <= r_enable;
-        w_enable_reg <= w_enable;
+    always @(posedge r_clk) begin
+        rs1_select_reg <= rs1_select;
+        rs2_select_reg <= rs2_select;
+        rd_select_reg  <= rd_select;
+        w_val_reg      <= w_val;
+        r_enable_reg   <= r_enable;
+        w_enable_reg   <= w_enable;
     end
     
-    //读写
-    always @(*) begin
-        if (r_enable_reg == 1) begin
-            
-            if (r_select_reg == 0)begin
-                r_out_reg <= 0;
-            end
-            else begin
-                r_out_reg <= r_file[r_select_reg];
-            end
-            
+    //写
+    always @(negedge w_clk) begin
+        if (w_enable_reg)begin
+            r_file[rd_select_reg] <= w_val_reg;
         end
-        else if (w_enable_reg == 1) begin
-            r_file[w_select_reg] <= w_val_reg;
-        end
-            valid_reg <= 1;
-            end
-            
-            assign r_out = r_out_reg;
-            assign valid = valid_reg;
-            endmodule
+    end
+    
+    assign rs1_out = r_file[rs1_select_reg];
+    assign rs2_out = r_file[rs2_select_reg];
+endmodule

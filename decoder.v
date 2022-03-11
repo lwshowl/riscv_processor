@@ -1,3 +1,4 @@
+`include "instructions.v"
 
 module decoder(input clk,
                input [31:0] instr,
@@ -7,9 +8,8 @@ module decoder(input clk,
                output [2:0] func3,
                output [6:0] func7,
                output [31:0] imm,
+               output [4:0] shamt,
                output [5:0] instr_id);
-    
-    `include "instructions.v"
     
     
     // i type opcode
@@ -65,9 +65,7 @@ module decoder(input clk,
         rs1_r    <= instr[19:15];
         rs2_r    <= instr[24:20];
         func7_r  <= instr[31:25];
-        
     end
-    
     
     //i type decode
     always @(*) begin
@@ -142,7 +140,7 @@ module decoder(input clk,
         case(opcode_r)
             //7'b0110111, // lui
             u_opcode[0]: begin
-                imm_r      = {{12{instr_r[31]}},instr_r[31:12]};
+                imm_r      = {instr_r[31:12],{12{1'b0}}};
                 instr_id_r = i_lui;
             end
             //7'b0010111 // auipc
@@ -189,7 +187,6 @@ module decoder(input clk,
                     default: instr_id_r = 63;
                 endcase
             end
-            
             default: ;
         endcase
     end
@@ -220,6 +217,7 @@ module decoder(input clk,
     always @(*) begin
         case(opcode_r)
             r_opcode: begin
+                imm_r = 0;
                 case(func3_r)
                     3'b000: begin
                         if (func7_r == 0)begin
@@ -262,6 +260,7 @@ module decoder(input clk,
         endcase
     end
     
+    assign shamt    = rs2_r;
     assign rs1      = rs1_r;
     assign rs2      = rs2_r;
     assign rd       = rd_r;

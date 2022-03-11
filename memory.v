@@ -7,6 +7,9 @@ module memory #(parameter SIZE = 128,
                 input [WIDTH - 1:0] data_in,
                 output [WIDTH-1:0] data_out);
     
+    
+    parameter MEM_INIT_FILE = "test.txt";
+    
     //memory
     reg [WIDTH-1:0] mem [0:SIZE-1];
     
@@ -18,8 +21,14 @@ module memory #(parameter SIZE = 128,
     reg [31:0] addr_select_r;
     reg [WIDTH-1:0] data_in_r;
     
-    //输出寄存
-    reg [WIDTH-1:0] data_out_r;
+    
+    initial begin
+        /* verilator lint_off WIDTH */
+        if (MEM_INIT_FILE != "") begin
+            /* verilator lint_off WIDTH */
+            $readmemb(MEM_INIT_FILE, mem);
+        end
+    end
     
     //寄存所有输入信号
     always @(posedge clk) begin
@@ -30,14 +39,11 @@ module memory #(parameter SIZE = 128,
     end
     
     //输出内容
-    always @(*) begin
+    always @(posedge clk) begin
         if (w_enable_r) begin
-            mem[addr_select_r] = data_in_r;
-        end
-        else begin
-            data_out_r = mem[addr_select_r];
+            mem[addr_select_r] <= data_in_r;
         end
     end
     
-    assign data_out = data_out_r;
+    assign data_out = mem[addr_select_r];
 endmodule

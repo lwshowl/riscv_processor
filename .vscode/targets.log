@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+ 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Mar 11 01:04:44 2022
+# Make data base, printed on Sat Mar 12 00:22:58 2022
 
 # Variables
 
@@ -18,8 +20,6 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 WSLENV = VSCODE_WSL_EXT_LOCATION/up
 # default
 .SHELLFLAGS := -c
-# environment
-VSCODE_AGENT_FOLDER = /home/xy/.vscode-server
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -35,7 +35,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/xy/.vscode-server/bin/3c4e3df9e89829dce27b7b5c24508306b151f30d/node
+_ = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/node
 # makefile (from 'Makefile', line 2)
 TEST_BENCH_DIR = ./test_benches
 # makefile (from 'Makefile', line 1)
@@ -53,13 +53,13 @@ VSCODE_CWD = /mnt/d/Microsoft VS Code
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /home/xy/.vscode-server/bin/3c4e3df9e89829dce27b7b5c24508306b151f30d/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/f/Oculus/Support/oculus-runtime:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/d/VMWAREPRO/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/d/Git/cmd:/mnt/h/JDK8/bin:/mnt/h/Node/:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/user2/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/h/esp-idf/tools:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/vmware:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/gradle-7.3.3/bin:/mnt/h/Redis/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/c/Users/xy/Desktop/esp-idf/tools:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/themes:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/e/QQGAM,E/QQGameTempest/Hall.57734/:/snap/bin
+PATH = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/remote-cli:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/f/Oculus/Support/oculus-runtime:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/d/VMWAREPRO/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/d/Git/cmd:/mnt/h/JDK8/bin:/mnt/h/Node/:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/user2/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/h/esp-idf/tools:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/vmware:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/gradle-7.3.3/bin:/mnt/h/Redis/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/c/Users/xy/Desktop/esp-idf/tools:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/themes:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/e/QQGAM,E/QQGameTempest/Hall.57734/:/snap/bin
 # environment
 NAME = DESKTOP-VJROA60
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f5e24830-76b5-4c65-b202-7ffa7822c2e6.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f1ee149c-9a1e-462a-9451-f9795b4db3ea.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -75,9 +75,9 @@ PWD = /home/xy/vscode/rv32i
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/1588_interop
+WSL_INTEROP = /run/WSL/11_interop
 # environment
-VSCODE_AMD_ENTRYPOINT = vs/server/remoteExtensionHostProcess
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 HOME = /home/xy
 # environment
@@ -87,7 +87,7 @@ LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
 LOGNAME = xy
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 CONDA_PROMPT_MODIFIER = false
 # environment
@@ -97,7 +97,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
 MAKELEVEL := 0
 # makefile (from 'Makefile', line 1)
-MODULE = decoder
+MODULE = tinyrv32
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -117,7 +117,7 @@ LIBVIRT_DEFAULT_URI = qemu:///system
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
-VSCODE_WSL_EXT_LOCATION = /mnt/c/Users/xy/.vscode/extensions/ms-vscode-remote.remote-wsl-0.54.6
+VSCODE_WSL_EXT_LOCATION = /mnt/c/Users/xy/.vscode/extensions/ms-vscode-remote.remote-wsl-0.64.2
 # default
 MAKE_COMMAND := make
 # default
@@ -148,8 +148,6 @@ HOSTTYPE = x86_64
 SUFFIXES := 
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
-# environment
-VSCODE_INJECT_NODE_MODULE_LOOKUP_PATH = /home/xy/.vscode-server/bin/3c4e3df9e89829dce27b7b5c24508306b151f30d/remote/node_modules
 # default
 .RECIPEPREFIX := 
 # environment
@@ -161,7 +159,7 @@ VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
 # variable set hash-table stats:
-# Load=75/1024=7%, Rehash=0, Collisions=12/107=11%
+# Load=73/1024=7%, Rehash=0, Collisions=12/105=11%
 
 # Pattern-specific Variable Values
 
@@ -169,9 +167,9 @@ WSL_DISTRO_NAME = Ubuntu-20.04
 
 # Directories
 
-# . (device 2064, inode 42529): 19 files, no impossibilities.
+# . (device 2064, inode 42529): 21 files, no impossibilities.
 
-# 19 files, no impossibilities in 1 directories.
+# 21 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -191,13 +189,7 @@ all:
 #  Modification time never checked.
 #  File has not been updated.
 
-# Not a target:
-decoder.v:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
-waveform.vcd: obj_dir/Vdecoder
+waveform.vcd: obj_dir/Vtinyrv32
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -209,15 +201,30 @@ waveform.vcd: obj_dir/Vdecoder
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-11 01:02:44.4095761
+#  Last modified 2022-03-11 22:56:31.6764688
 #  File has been updated.
 #  Successfully updated.
 
-build: obj_dir/Vdecoder
+build: obj_dir/Vtinyrv32
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
+
+# Not a target:
+test_benches/tb_tinyrv32.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+obj_dir/Vtinyrv32: .stamp.verilate
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 25):
+	@echo
+	@echo "### BUILDING SIM ###"
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
 verilate: .stamp.verilate
 #  Phony target (prerequisite of .PHONY).
@@ -248,12 +255,12 @@ clean:
 	rm -rf waveform.vcd
 
 # Not a target:
-test_benches/tb_decoder.cpp:
+tinyrv32.v:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
-lint: decoder.v
+lint: tinyrv32.v
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -270,27 +277,15 @@ waves: waveform.vcd
 	@echo
 	@echo "### WAVES ###"
 	gtkwave waveform.vcd
- 
-make: *** No rule to make target 'all'.  Stop.
- 
 
-obj_dir/Vdecoder: .stamp.verilate
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 25):
-	@echo
-	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
-
-.stamp.verilate: decoder.v test_benches/tb_decoder.cpp
+.stamp.verilate: tinyrv32.v test_benches/tb_tinyrv32.cpp
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 30):
 	@echo
 	@echo "### VERILATING ###"
-	verilator -Wall --trace --x-assign unique --x-initial unique -cc $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
+	verilator -Wall --cc  --trace  $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
 	@touch .stamp.verilate
 
 # files hash-table stats:
@@ -301,12 +296,13 @@ obj_dir/Vdecoder: .stamp.verilate
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 33 / storage = 317 B / avg = 9 B
-# current buf: size = 8162 B / used = 317 B / count = 33 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 35 / storage = 344 B / avg = 9 B
+# current buf: size = 8162 B / used = 344 B / count = 35 / avg = 9 B
 
-# strcache performance: lookups = 73 / hit rate = 54%
+# strcache performance: lookups = 75 / hit rate = 53%
 # hash-table stats:
-# Load=33/8192=0%, Rehash=0, Collisions=1/73=1%
-# Finished Make data base on Fri Mar 11 01:04:44 2022
+ 
+# Load=35/8192=0%, Rehash=0, Collisions=1/75=1%
+# Finished Make data base on Sat Mar 12 00:22:58 2022
 
  
