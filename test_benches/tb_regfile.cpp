@@ -22,7 +22,7 @@ int main(int argc, char **argv, char **env)
     {
         dut->clk ^= 1;
         dut->eval();
-
+  
         if (dut->clk == 1)
         {
             posedge_count++;

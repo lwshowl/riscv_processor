@@ -1,4 +1,4 @@
-module memory #(parameter SIZE = 128,
+module memory #(parameter SIZE = 256,
                 parameter WIDTH = 32)
                (input clk,
                 input w_enable,
@@ -11,7 +11,7 @@ module memory #(parameter SIZE = 128,
     parameter MEM_INIT_FILE = "test.txt";
     
     //memory
-    reg [WIDTH-1:0] mem [0:SIZE-1];
+    reg [7:0] mem [0:SIZE-1];
     
     //输入寄存
     reg w_enable_r;
@@ -41,9 +41,12 @@ module memory #(parameter SIZE = 128,
     //输出内容
     always @(posedge clk) begin
         if (w_enable_r) begin
-            mem[addr_select_r] <= data_in_r;
+            mem[addr_select_r]    <= data_in_r[7:0];
+            mem[addr_select_r +1] <= data_in_r[15:8];
+            mem[addr_select_r +2] <= data_in_r[23:16];
+            mem[addr_select_r +3] <= data_in_r[31:24];
         end
     end
     
-    assign data_out = mem[addr_select_r];
+    assign data_out = {mem[addr_select_r+3],mem[addr_select_r+2],mem[addr_select_r+1],mem[addr_select_r]};
 endmodule

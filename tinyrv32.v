@@ -8,6 +8,7 @@ module tinyrv32(input clk,
     wire [31:0] pc_imm_in;
     //pc 的输出是31 位内存地址
     wire [31:0] pc_out;
+    wire pc_abs_branch;
     
     //分频时钟
     clock_divider #(.divider (8),.ratio1(1/2),.ratio2 (3/4)) clk_div (
@@ -17,9 +18,12 @@ module tinyrv32(input clk,
     );
     
     pc pc32(
-    .clk (fetch_clk),
+    .clk (clk),
+    .r_clk (fetch_clk),
+    .w_clk (write_clk),
     .rst (rst),
     .branch (b_enable),
+    .abs_branch (pc_abs_branch),
     .immediate (pc_imm_in),
     .pc_out_reg (pc_out)
     );
@@ -114,9 +118,10 @@ module tinyrv32(input clk,
     .out (alu_out)
     );
     //此时是否分支应该也已经计算完毕
-    //btype                   //jal                  //jalr
-    assign b_enable  = (opcode == 7'b1100011) | (opcode == 7'b1101111) | (opcode == 7'b1100111) & alu_out[0];
-    assign pc_imm_in = (instr_id == i_jalr)? (imm32 + rs1_val) : imm32;
+    //btype                   //jal                  
+    assign b_enable      = ((opcode === 7'b1100011) | (opcode === 7'b1101111)) & alu_out[0];
+    assign pc_abs_branch = (opcode === 7'b1100111) & alu_out[0];
+    assign pc_imm_in     = (instr_id == i_jalr)? (alu_out) : imm32;
     
     /****************************************************/
     
@@ -146,15 +151,15 @@ module tinyrv32(input clk,
     (opcode == 7'b0010111) |   //auipc
     (opcode == 7'b0000011) |   //lb lh lw
     (opcode == 7'b0010011) |   //addi slti ……
-    (opcode == 7'b0110011);    //add sub ……
+    (opcode == 7'b0110011) |    //add sub ……
+    (opcode == 7'b1101111) |   //jal
+    (opcode == 7'b1100111);   //jalr
     
-    wire lbu;
-    wire lhu;
     
-    // lb lh lw lbu lhu
+    
     always @(*) begin
         case(opcode)
-            7'b0000011: begin
+            7'b0000011: begin     // lb lh lw lbu lhu
                 case(func3)
                     3'b000: rf_write_val = {{24{dmem_out[7]}},dmem_out[7:0]};  //lb
                     3'b001: rf_write_val = {{16{dmem_out[7]}},dmem_out[15:0]}; //lh
@@ -164,7 +169,9 @@ module tinyrv32(input clk,
                     default : ;
                 endcase
             end
-            default : rf_write_val = alu_out; // 其他指令
+            7'b1101111: rf_write_val = pc_out + 4; //jal
+            7'b1100111: rf_write_val = pc_out + 4; //jalr
+            default : rf_write_val   = alu_out; // 其他指令
         endcase
     end
 endmodule

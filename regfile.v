@@ -40,7 +40,9 @@ module regfile #(parameter WIDTH = 32)
     //写
     always @(negedge w_clk) begin
         if (w_enable_reg)begin
-            r_file[rd_select_reg] <= w_val_reg;
+            if (rd_select_reg != 5'd0)begin
+                r_file[rd_select_reg] <= w_val_reg;
+            end
         end
     end
     

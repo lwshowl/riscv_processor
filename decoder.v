@@ -256,7 +256,7 @@ module decoder(input clk,
         case(instr_r)
             ebreak: instr_id_r  = i_ebreak;
             ecall: instr_id_r   = i_ecall;
-            default: instr_id_r = 63;
+            default: ;
         endcase
     end
     
