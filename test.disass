@@ -1,0 +1,91 @@
+
+test.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text.init:
+
+00000000 <_start>:
+   0:	10010113          	addi	sp,sp,256
+   4:	004000ef          	jal	ra,8 <main>
+
+Disassembly of section .text:
+
+00000008 <main>:
+   8:	fe010113          	addi	sp,sp,-32
+   c:	00812e23          	sw	s0,28(sp)
+  10:	02010413          	addi	s0,sp,32
+  14:	00500793          	li	a5,5
+  18:	fef42623          	sw	a5,-20(s0)
+  1c:	fec42783          	lw	a5,-20(s0)
+  20:	00078513          	mv	a0,a5
+  24:	01c12403          	lw	s0,28(sp)
+  28:	02010113          	addi	sp,sp,32
+  2c:	00008067          	ret
+
+Disassembly of section .eh_frame:
+
+00000030 <.eh_frame>:
+  30:	0010                	0x10
+  32:	0000                	unimp
+  34:	0000                	unimp
+  36:	0000                	unimp
+  38:	00527a03          	0x527a03
+  3c:	7c01                	lui	s8,0xfffe0
+  3e:	0101                	addi	sp,sp,0
+  40:	00020d1b          	0x20d1b
+  44:	0020                	addi	s0,sp,8
+  46:	0000                	unimp
+  48:	0018                	0x18
+  4a:	0000                	unimp
+  4c:	ffbc                	fsw	fa5,120(a5)
+  4e:	ffff                	0xffff
+  50:	0028                	addi	a0,sp,8
+  52:	0000                	unimp
+  54:	4400                	lw	s0,8(s0)
+  56:	200e                	fld	ft0,192(sp)
+  58:	8844                	0x8844
+  5a:	4401                	li	s0,0
+  5c:	080c                	addi	a1,sp,16
+  5e:	5400                	lw	s0,40(s0)
+  60:	0cc8                	addi	a0,sp,596
+  62:	2002                	fld	ft0,0(sp)
+  64:	0e44                	addi	s1,sp,788
+	...
+
+Disassembly of section .stack:
+
+00000100 <__stack-0x100>:
+	...
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	3a434347          	fmsub.d	ft6,ft6,ft4,ft7,rmm
+   4:	2820                	fld	fs0,80(s0)
+   6:	36393567          	0x36393567
+   a:	6234                	flw	fa3,64(a2)
+   c:	6335                	lui	t1,0xd
+   e:	3764                	fld	fs1,232(a4)
+  10:	3732                	fld	fa4,296(sp)
+  12:	2029                	jal	1c <main+0x14>
+  14:	3131                	jal	fffffc20 <__stack+0xfffffa20>
+  16:	312e                	fld	ft2,232(sp)
+  18:	302e                	fld	ft0,232(sp)
+	...
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	1b41                	addi	s6,s6,-16
+   2:	0000                	unimp
+   4:	7200                	flw	fs0,32(a2)
+   6:	7369                	lui	t1,0xffffa
+   8:	01007663          	bgeu	zero,a6,14 <main+0xc>
+   c:	0011                	c.nop	4
+   e:	0000                	unimp
+  10:	1004                	addi	s1,sp,32
+  12:	7205                	lui	tp,0xfffe1
+  14:	3376                	fld	ft6,376(sp)
+  16:	6932                	flw	fs2,12(sp)
+  18:	7032                	flw	ft0,44(sp)
+  1a:	0030                	addi	a2,sp,8
