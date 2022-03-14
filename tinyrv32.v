@@ -178,10 +178,10 @@ module tinyrv32(input clk,
     
     always @(*) begin
         case(opcode)
-            7'b0000011: begin     // lb lh lw lbu lhu
+            7'b0000011: begin                                                           // lb lh lw lbu lhu
                 case(func3)
-                    3'b000: rf_write_val = {{24{mem_data_out[7]}},mem_data_out[7:0]};       //lb
-                    3'b001: rf_write_val = {{16{mem_data_out[7]}},mem_data_out[15:0]};      //lh
+                    3'b000: rf_write_val = {{24{mem_data_out[7]}},mem_data_out[7:0]};   //lb
+                    3'b001: rf_write_val = {{16{mem_data_out[7]}},mem_data_out[15:0]};  //lh
                     3'b010: rf_write_val = mem_data_out;                                //lw
                     3'b100: rf_write_val = {{24{1'b0}},mem_data_out[7:0]};              //lbu
                     3'b101: rf_write_val = {{16{1'b0}},mem_data_out[15:0]};             //lhu

@@ -1,3 +1,4 @@
+// #include <iostream>
 int GCD(int a, int b)
 {
     // initialize the local variables num1 and num2
@@ -23,6 +24,7 @@ int GCD(int a, int b)
 int main()
 {
     // initialize the local variables num1 and num2
-    int a = GCD(99, 30);
+    int a = GCD(565158, 15618);
+    // std::cout << a;
     return a;
 }

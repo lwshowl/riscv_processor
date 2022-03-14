@@ -11,7 +11,7 @@
 #include "svdpi.h"
 #include <iomanip>
 
-#define MAX_SIM_TIME 100000
+#define MAX_SIM_TIME 200000000
 
 vluint64_t sim_time = 0;
 vluint64_t posedge_count = 0;
@@ -211,7 +211,7 @@ int main(int argc, char **argv, char **env)
                     std::cout << "imm:" << (int)dut->tinyrv32__DOT__alu32__DOT__imm_r << " ";
                     std::cout << std::endl;
                     std::string command;
-                    proceed--;  
+                    proceed--;
 
                     do
                     {
@@ -228,7 +228,7 @@ int main(int argc, char **argv, char **env)
                             {
                                 range = std::atoi(command.substr(7, command.size() - 1).c_str());
                             }
-                            for (int addr = 0x500 - range; addr <= 0x500; addr += 4)
+                            for (int addr = 0x1000 - range; addr <= 0x1000; addr += 4)
                             {
                                 CData *val = dut->tinyrv32__DOT__mem__DOT__cells + addr;
                                 std::cout << std::hex << std::setw(4) << std::setfill('0') << addr << ": "
@@ -276,3 +276,60 @@ int main(int argc, char **argv, char **env)
     delete dut;
     exit(EXIT_SUCCESS);
 }
+
+// int main(int argc, char **argv, char **env)
+// {
+//     Vtinyrv32 *dut = new Vtinyrv32;
+
+//     Verilated::traceEverOn(true);
+//     VerilatedVcdC *m_trace = new VerilatedVcdC;
+//     dut->trace(m_trace, 5);
+//     m_trace->open("waveform.vcd");
+
+//     while (sim_time < MAX_SIM_TIME)
+//     {
+//         dut->clk ^= 1;
+//         dut->eval();
+
+//         int t6 = dut->tinyrv32__DOT__rfile32__DOT__r_file[31];
+//         int t5 = dut->tinyrv32__DOT__rfile32__DOT__r_file[30];
+//         if (t6 == 0x20000)
+//         {
+//             if (t5 != 0)
+//             {
+//                 if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 8] != 0)
+//                 {  
+//                     if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 12] != 0)
+//                     {
+//                         if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 8] == dut->tinyrv32__DOT__mem__DOT__cells[t6 + 12])
+//                         {
+//                             std::cout << "halted" << std::endl;
+//                             int signature_start = dut->tinyrv32__DOT__mem__DOT__cells[t6];
+//                             int signature_end = dut->tinyrv32__DOT__mem__DOT__cells[t6 + 8];
+//                             std::ofstream file;
+//                             file.open("signature", std::ios::app);
+
+//                             while (signature_start = !signature_end)
+//                             {
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 7];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 6];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 5];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 4];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 3];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 2];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 1];
+//                                 file << std::hex << dut->tinyrv32__DOT__mem__DOT__cells[signature_start + 0];
+//                                 file << std::endl;
+//                                 signature_start += 8;
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         m_trace->close();
+//         delete dut;
+//         exit(EXIT_SUCCESS);
+//     }
+// }

@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Mar 14 15:04:20 2022
+# Make data base, printed on Mon Mar 14 18:40:56 2022
 
 # Variables
 
@@ -61,7 +61,7 @@ GIT_CURL_VERBOSE = 1
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-d14addff-9d16-43dd-ba1a-a062bd794f1c.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f1f88984-c6c8-44d7-9e15-ac41c97160d9.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -77,7 +77,7 @@ PWD = /home/xy/vscode/rv32i
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/11_interop
+WSL_INTEROP = /run/WSL/23497_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
@@ -160,10 +160,8 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
-# environment
-MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=75/1024=7%, Rehash=0, Collisions=12/107=11%
+# Load=74/1024=7%, Rehash=0, Collisions=12/106=11%
 
 # Pattern-specific Variable Values
 
@@ -273,9 +271,9 @@ lint: tinyrv32.v
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 38):
 	verilator --lint-only $(MODULE).v
- 
 
 waves: waveform.vcd
+ 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -309,6 +307,6 @@ waves: waveform.vcd
 # strcache performance: lookups = 75 / hit rate = 53%
 # hash-table stats:
 # Load=35/8192=0%, Rehash=0, Collisions=1/75=1%
-# Finished Make data base on Mon Mar 14 15:04:20 2022
+# Finished Make data base on Mon Mar 14 18:40:56 2022
 
  

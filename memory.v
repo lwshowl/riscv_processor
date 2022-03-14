@@ -1,4 +1,4 @@
-module memory #(parameter SIZE = 4096,
+module memory #(parameter SIZE = 1048576,
                 parameter WIDTH = 32)
                (input clk,
                 input w_clk,
