@@ -1,29 +1,6 @@
-#include <stdlib.h>
-#include <iostream>
-#include <verilated.h>
-#include <verilated_vcd_c.h>
-#include "Vtinyrv32.h"
 #include "util.h"
 #include "instructions.h"
-#include "fstream"
-#include <string>
-#include "Vtinyrv32__Dpi.h"
-#include "svdpi.h"
-
-#define MAX_SIM_TIME 2000
-
-vluint64_t sim_time = 0;
-vluint64_t posedge_count = 0;
-vluint64_t i = 0;
-vluint64_t fetch_count = 0;
-vluint64_t pos_fetch_times = 0;
-int flag = 0;
-
-#define N 5
-int last_val;
-
-// extern void initmem(const char *in_bool);
-
+#include <iostream>
 std::string enum_to_ins(int id)
 {
     std::string instr;
@@ -169,64 +146,4 @@ std::string enum_to_ins(int id)
         break;
     }
     return instr;
-}
-
-int main(int argc, char **argv, char **env)
-{
-    Vtinyrv32 *dut = new Vtinyrv32;
-    Verilated::traceEverOn(true);
-    VerilatedVcdC *m_trace = new VerilatedVcdC;
-    dut->trace(m_trace, 5);
-    m_trace->open("waveform.vcd");
-
-    int i = 0;
-    int trace = 1;
-    int enrtry = 0;
-    std::string command;
-
-    while (sim_time < MAX_SIM_TIME)
-    {
-        dut->clk ^= 1;
-        if (dut->tinyrv32__DOT__fetch_clk == 1)
-        {
-            if (dut->tinyrv32__DOT__pc_out >= enrtry && dut->tinyrv32__DOT__pc_out < 0x40)
-            {
-                if (fetch_count > pos_fetch_times)
-                {
-                    std::cout << "pc:" << std::hex << dut->tinyrv32__DOT__pc_out << " ";
-                    std::cout << "instr: " << std::hex << dut->tinyrv32__DOT__mem_data_out << " ";
-                    std::cout << enum_to_ins(dut->tinyrv32__DOT__dec__DOT__instr_id_r) << " ";
-                    for (i = 0; i < 32; i++)
-                    {
-                        std::cout << "x" << i << ":";
-                        std::cout << std::dec << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[i] << " ";
-                    }
-                    std::cout << "imm:" << (int)dut->tinyrv32__DOT__alu32__DOT__imm_r << " ";
-                    std::cout << std::endl;
-
-                    int addr = 0;
-                    for (int addr = 0xe0; addr <= 0x100; i++)
-                    {
-                        int val = dut->tinyrv32__DOT__mem__DOT__cells[addr];
-                        std::cout << std::hex << addr << ": " << (int)val << "  ";
-                        addr += 1;
-                    }
-                    std::cout << std::endl
-                              << std::endl;
-                }
-            }
-            pos_fetch_times = fetch_count;
-        }
-        else
-        {
-            fetch_count++;
-        }
-
-        dut->eval();
-        m_trace->dump(sim_time);
-        sim_time++;
-    }
-    m_trace->close();
-    delete dut;
-    exit(EXIT_SUCCESS);
 }

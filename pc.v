@@ -9,8 +9,7 @@ module pc #(parameter WIDTH = 32)
             input abs_branch,
             input [WIDTH-1:0] immediate,
             output reg [WIDTH-1:0] pc_out_reg);
-    
-    
+            
     initial begin
         pc_out_reg = 0;
     end

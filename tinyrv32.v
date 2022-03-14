@@ -30,23 +30,28 @@ module tinyrv32(input clk,
     /********************************************/
     
     //访问指令内存
-    wire imem_w_enable;
-    wire [31:0] imem_data_in;
-    wire imem_r_enable;
+    wire mem_w_enable;
+    wire [31:0] mem_data_in;
+    wire mem_r_enable;
     //指令内存输出的指令
-    wire [31:0] imem_data_out;
+    wire [31:0] instr;
+    wire [31:0] w_addr_select;
+    wire [31:0] r_addr_select;
+    wire [31:0] mem_data_out;
     
-    assign imem_data_in  = 0;     //用不上 指令内存写死
-    assign imem_r_enable = 1;    //无所谓
-    assign imem_w_enable = 0;    //指令内存不可写
+    assign mem_r_enable = 1;    //无所谓
     
-    memory imem(
+    memory mem(
     .clk (clk),
-    .w_enable (imem_w_enable),
-    .r_enable (imem_r_enable),
-    .addr_select(pc_out),
-    .data_in (imem_data_in),
-    .data_out (imem_data_out)
+    .w_clk (write_clk),
+    .w_enable (mem_w_enable),
+    .r_enable (mem_r_enable),
+    .r_addr_select1(pc_out),
+    .r_addr_select2(r_addr_select),
+    .w_addr_select(w_addr_select),
+    .data_in (mem_data_in),
+    .data_out1 (instr),
+    .data_out2 (mem_data_out)
     );
     /*********************************************/
     
@@ -63,11 +68,11 @@ module tinyrv32(input clk,
     wire [5:0] instr_id;
     wire [6:0] opcode;
     
-    assign opcode = imem_data_out[6:0];
+    assign opcode = instr[6:0];
     
     decoder dec(
     .clk (clk),
-    .instr (imem_data_out), //input
+    .instr (instr), //input
     .rs1 (rs1),
     .rs2 (rs2),
     .rd (rd),
@@ -118,60 +123,75 @@ module tinyrv32(input clk,
     .out (alu_out)
     );
     //此时是否分支应该也已经计算完毕
-    //btype                   //jal                  
+    //btype                   //jal
     assign b_enable      = ((opcode === 7'b1100011) | (opcode === 7'b1101111)) & alu_out[0];
     assign pc_abs_branch = (opcode === 7'b1100111) & alu_out[0];
-    assign pc_imm_in     = (instr_id == i_jalr)? (alu_out) : imm32;
+    //绝大多数转移地址由立即数直接给出 ，
+    //jalr 需要进行一次地址计算，原则上来说 alu 只进行内存地址计算，最好是在 ALU 外部计算
+    //但是由于需要实现的功能很简单，所以可以利用 ALU 进行计算
+    assign pc_imm_in = (instr_id == i_jalr) ? (alu_out) : imm32;
     
     /****************************************************/
     
     //访存
-    wire dmem_r_enable = 1;
-    wire dmem_w_enable;
-    wire [31:0] dmem_addr;
-    wire [31:0] dmem_in;
-    wire [31:0] dmem_out;
+    // wire dmem_r_enable = 1;
+    // wire dmem_w_enable;
+    // wire [31:0] dmem_addr;
+    // // wire [31:0] dmem_in;
+    // wire [31:0] dmem_out;
     
-    assign dmem_w_enable = opcode == 7'b0100011 ;//s type opcode
-    assign dmem_addr     = alu_out; //地址已经在ALU 里计算好
-    assign dmem_in       = rs2_val & {{16{func3[1]}},{8{func3[0]}},8'hff}; //要 store 的值为rs2 的 word half byte
+    assign mem_w_enable  = (instr_id == i_sb) | (instr_id == i_sh) | (instr_id == i_sw) ;                           //s type opcode
+    assign w_addr_select = alu_out;                                         //地址已经在ALU 里计算好
+    assign mem_data_in   = rs2_val & {{16{func3[1]}},{8{func3[0]}},8'hff};  //要 store 的值为rs2 的 word half byte
     
-    memory dmem(
-    .clk (clk),
-    .w_enable (dmem_w_enable),
-    .r_enable (dmem_r_enable),
-    .addr_select(dmem_addr),
-    .data_in (dmem_in),
-    .data_out (dmem_out)
-    );
+    assign r_addr_select = alu_out;
+    
+    // memory imem(
+    // .clk (clk),
+    // .w_enable (imem_w_enable),
+    // .r_enable (imem_r_enable),
+    // .addr_select(pc_out),
+    // .data_in (imem_data_in),
+    // .data_out (iinstr)
+    // );
+    
+    
+    // memory dmem(
+    // .clk (clk),
+    // .w_enable (dmem_w_enable),
+    // .r_enable (dmem_r_enable),
+    // .addr_select(dmem_addr),
+    // .data_in (dmem_in),
+    // .data_out (dmem_out)
+    // );
+    
     /**************************************************/
     
     //回写寄存器
-    assign reg_file_write = (opcode == 7'b0110111) |   //lui
-    (opcode == 7'b0010111) |   //auipc
-    (opcode == 7'b0000011) |   //lb lh lw
-    (opcode == 7'b0010011) |   //addi slti ……
-    (opcode == 7'b0110011) |    //add sub ……
-    (opcode == 7'b1101111) |   //jal
-    (opcode == 7'b1100111);   //jalr
-    
-    
+    assign reg_file_write = (opcode == 7'b0110111) |    //lui
+    (opcode == 7'b0010111) |                            //auipc
+    (opcode == 7'b0000011) |                            //lb lh lw
+    (opcode == 7'b0010011) |                            //addi slti ……
+    (opcode == 7'b0110011) |                            //add sub ……
+    (opcode == 7'b1101111) |                            //jal
+    (opcode == 7'b1100111) |                             //jalr
+    (instr_id != i_invalid);                                   //is a valid instruction ?
     
     always @(*) begin
         case(opcode)
             7'b0000011: begin     // lb lh lw lbu lhu
                 case(func3)
-                    3'b000: rf_write_val = {{24{dmem_out[7]}},dmem_out[7:0]};  //lb
-                    3'b001: rf_write_val = {{16{dmem_out[7]}},dmem_out[15:0]}; //lh
-                    3'b010: rf_write_val = dmem_out;                           //lw
-                    3'b100: rf_write_val = {{24{1'b0}},dmem_out[7:0]};           //lbu
-                    3'b101: rf_write_val = {{16{1'b0}},dmem_out[15:0]};          //lhu
+                    3'b000: rf_write_val = {{24{mem_data_out[7]}},mem_data_out[7:0]};       //lb
+                    3'b001: rf_write_val = {{16{mem_data_out[7]}},mem_data_out[15:0]};      //lh
+                    3'b010: rf_write_val = mem_data_out;                                //lw
+                    3'b100: rf_write_val = {{24{1'b0}},mem_data_out[7:0]};              //lbu
+                    3'b101: rf_write_val = {{16{1'b0}},mem_data_out[15:0]};             //lhu
                     default : ;
                 endcase
             end
-            7'b1101111: rf_write_val = pc_out + 4; //jal
-            7'b1100111: rf_write_val = pc_out + 4; //jalr
-            default : rf_write_val   = alu_out; // 其他指令
+            7'b1101111: rf_write_val = pc_out + 4;                                  //jal
+            7'b1100111: rf_write_val = pc_out + 4;                                  //jalr
+            default : rf_write_val   = alu_out;                                     // 其他指令
         endcase
     end
 endmodule

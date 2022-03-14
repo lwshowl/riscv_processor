@@ -17,7 +17,7 @@ module decoder(input clk,
     7'b0000011, //lb lh lw lbu lhu
     7'b0010011, //addi slti sltiu xori ori andi slli srli srai
     7'b1100111, //jalr
-    7'b1110011 //csrrw csrrs csrrc csrrwi csrrsi csrrci
+    7'b1110011 //csrrw csrrs csrrc csrrwi csrrsi csrrci ebreak ecall
     };
     
     //u type opcode
@@ -44,7 +44,9 @@ module decoder(input clk,
     // ecall
     parameter [31:0] ecall = 32'h001000073;
     
+    /* verilator lint_off UNUSED */
     reg  [31:0] instr_r;
+    /* verilator lint_off UNUSED */
     reg  [6:0]  opcode_r;
     reg  [2:0]  func3_r;
     reg  [6:0]  func7_r;
@@ -80,7 +82,7 @@ module decoder(input clk,
                 3'b010:  instr_id_r = i_lw;
                 3'b100:  instr_id_r = i_lbu;
                 3'b101:  instr_id_r = i_lhu;
-                default: instr_id_r = 63;
+                default: instr_id_r = i_invalid;
             endcase
         end
         
@@ -97,15 +99,13 @@ module decoder(input clk,
                 3'b111:  instr_id_r = i_andi;
                 3'b001:  instr_id_r = i_slli;
                 3'b101:  begin
-                    if (func7_r == 7'b0100000)begin
-                        instr_id_r = i_srai;
-                    end
-                    else begin
-                        instr_id_r = i_srli;
-                    end
-                    
+                    case (func7_r)
+                        7'b0100000: instr_id_r = i_srai;
+                        7'b0000000: instr_id_r = i_srli;
+                        default: instr_id_r    = 0;
+                    endcase
                 end
-                default: ;
+                default:instr_id_r = i_invalid ;
             endcase
         end
         
@@ -126,139 +126,103 @@ module decoder(input clk,
                 3'b101:  instr_id_r = i_csrrwi;
                 3'b110:  instr_id_r = i_csrrsi;
                 3'b111:  instr_id_r = i_csrrci;
-                default: instr_id_r = 63;
+                3'b000:  begin
+                    case(instr[31:7])
+                        25'd0 : instr_id_r   = i_ebreak;
+                        25'd8192 :instr_id_r = i_ecall;
+                        default : instr_id_r = i_invalid;
+                    endcase
+                end
+                default: instr_id_r = i_invalid;
             endcase
         end
         
-        default: ;
+        
+        //7'b0110111, // lui
+        u_opcode[0]: begin
+            imm_r      = {instr_r[31:12],{12{1'b0}}};
+            instr_id_r = i_lui;
+        end
+        //7'b0010111 // auipc
+        u_opcode[1]: begin
+            imm_r      = {{12{instr_r[31]}},instr_r[31:12]};
+            instr_id_r = i_auipc;
+        end
+        
+        //j_opcode = 7'b1101111;
+        j_opcode: begin
+            imm_r      = {{11{instr_r[31]}},instr_r[31],instr_r[19:12],instr_r[20],instr_r[30:21],1'b0};
+            instr_id_r = i_jal;
+        end
+        
+        
+        //b_opcode = 7'b1100011 ;
+        b_opcode: begin
+            imm_r = {{19{instr_r[31]}},instr_r[31],instr_r[7],instr_r[30:25],instr_r[11:8],1'b0};
+            //compare fun3 to figure out what instruction
+            case(func3_r)
+                3'b000:  instr_id_r = i_beq;
+                3'b001:  instr_id_r = i_bne;
+                3'b100:  instr_id_r = i_blt;
+                3'b101:  instr_id_r = i_bge;
+                3'b110:  instr_id_r = i_bltu;
+                3'b111:  instr_id_r = i_bgeu;
+                default: instr_id_r = i_invalid;
+            endcase
+        end
+        
+        
+        s_opcode: begin
+            imm_r = {{20{instr_r[31]}},instr_r[31:25],instr_r[11:7]};
+            case(func3_r)
+                3'b000: instr_id_r  = i_sb;
+                3'b001: instr_id_r  = i_sh;
+                3'b010: instr_id_r  = i_sw;
+                default: instr_id_r = i_invalid;
+            endcase
+        end
+        
+        
+        r_opcode: begin
+            imm_r = 0;
+            case(func3_r)
+                3'b000: begin
+                    case (func7_r)
+                        7'b0000000: instr_id_r = i_add;
+                        7'b0100000: instr_id_r = i_sub;
+                        default: instr_id_r    = i_invalid;
+                    endcase
+                end
+                3'b001: instr_id_r = i_sll;
+                3'b010: instr_id_r = i_slt;
+                3'b011: instr_id_r = i_sltu;
+                3'b100: instr_id_r = i_xor;
+                3'b101: begin
+                    case (func7_r)
+                        7'b0000000: instr_id_r = i_srl;
+                        7'b0100000: instr_id_r = i_sra;
+                        default: instr_id_r    = i_invalid;
+                    endcase
+                end
+                3'b110: instr_id_r  = i_or;
+                3'b111: instr_id_r  = i_and;
+                default: instr_id_r = i_invalid;
+            endcase
+        end
+        
+        default: instr_id_r = i_invalid;
         endcase
     end
     
-    
-    //u type decode
-    always @(*) begin
-        case(opcode_r)
-            //7'b0110111, // lui
-            u_opcode[0]: begin
-                imm_r      = {instr_r[31:12],{12{1'b0}}};
-                instr_id_r = i_lui;
-            end
-            //7'b0010111 // auipc
-            u_opcode[1]: begin
-                imm_r      = {{12{instr_r[31]}},instr_r[31:12]};
-                instr_id_r = i_auipc;
-            end
-            default: ;
-        endcase
-    end
-    
-    //j type decode
-    always @(*) begin
-        case(opcode_r)
-            //j_opcode = 7'b1101111;
-            j_opcode: begin
-                imm_r      = {{11{instr_r[31]}},instr_r[31],instr_r[19:12],instr_r[20],instr_r[30:21],1'b0};
-                instr_id_r = i_jal;
-            end
-            
-            default: ;
-        endcase
-    end
-    
-    //b type decode
-    always @(*) begin
-        case(opcode_r)
-            //b_opcode = 7'b1100011 ;
-            b_opcode: begin
-                // imm_r[12]   = instr_r[31];
-                // imm_r[10:5] = instr_r[30:25];
-                // imm_r[4:1]  = instr_r[11:8];
-                // imm_r[11]   = instr_r[7];
-                
-                imm_r = {{19{instr_r[31]}},instr_r[31],instr_r[7],instr_r[30:25],instr_r[11:8],1'b0};
-                //compare fun3 to figure out what instruction
-                case(func3_r)
-                    3'b000:  instr_id_r = i_beq;
-                    3'b001:  instr_id_r = i_bne;
-                    3'b100:  instr_id_r = i_blt;
-                    3'b101:  instr_id_r = i_bge;
-                    3'b110:  instr_id_r = i_bltu;
-                    3'b111:  instr_id_r = i_bgeu;
-                    default: instr_id_r = 63;
-                endcase
-            end
-            default: ;
-        endcase
-    end
-    
-    //s type opcode
-    //s_opcode = 7'b0100011;
-    always @(*) begin
-        case(opcode_r)
-            s_opcode: begin
-                // imm_r[11:5] = instr_r[31:25];
-                // imm_r[4:0]  = instr_r[11:7];
-                
-                imm_r = {{20{instr_r[31]}},instr_r[31:25],instr_r[11:7]};
-                case(func3_r)
-                    3'b000: instr_id_r  = i_sb;
-                    3'b001: instr_id_r  = i_sh;
-                    3'b010: instr_id_r  = i_sw;
-                    default: instr_id_r = 63;
-                endcase
-            end
-            
-            default: ;
-        endcase
-    end
-    
-    // r type opcode
-    //r_opcode = 7'b0110011;
-    always @(*) begin
-        case(opcode_r)
-            r_opcode: begin
-                imm_r = 0;
-                case(func3_r)
-                    3'b000: begin
-                        if (func7_r == 0)begin
-                            instr_id_r = i_add;
-                        end
-                        else begin
-                            instr_id_r = i_sub;
-                        end
-                    end
-                    3'b001: instr_id_r = i_sll;
-                    3'b010: instr_id_r = i_slt;
-                    3'b011: instr_id_r = i_sltu;
-                    3'b100: instr_id_r = i_xor;
-                    3'b101: begin
-                        if (func7_r == 0)begin
-                            instr_id_r = i_srl;
-                        end
-                        else begin
-                            instr_id_r = i_sra;
-                        end
-                    end
-                    3'b110: instr_id_r  = i_or;
-                    3'b111: instr_id_r  = i_and;
-                    default: instr_id_r = 63;
-                endcase
-            end
-            
-            default: ;
-        endcase
-    end
-    
-    
-    //ebreak = 32'h00000073;
-    //ecall  = 32'h001000073;
-    always @(*) begin
-        case(instr_r)
-            ebreak: instr_id_r  = i_ebreak;
-            ecall: instr_id_r   = i_ecall;
-            default: ;
-        endcase
-    end
+    // //ebreak = 32'h00000073;
+    // //ecall  = 32'h001000073;
+    // always @(*) begin
+    //     case(instr_r)
+    //         ebreak: instr_id_r = i_ebreak;
+    //         ecall: instr_id_r  = i_ecall;
+    //         default: ;
+    //     endcase
+    // end
     
     assign shamt    = rs2_r;
     assign rs1      = rs1_r;

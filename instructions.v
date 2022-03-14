@@ -47,5 +47,5 @@ parameter   i_csrrc  = 41;
 parameter   i_csrrwi = 42;
 parameter   i_csrrsi = 43;
 parameter   i_csrrci = 44;
-
+parameter   i_invalid =63 ;
 `endif

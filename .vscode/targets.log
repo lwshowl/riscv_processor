@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Mar 12 01:49:47 2022
+# Make data base, printed on Mon Mar 14 09:39:25 2022
 
 # Variables
 
@@ -53,13 +53,15 @@ VSCODE_CWD = /mnt/d/Microsoft VS Code
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/remote-cli:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/f/Oculus/Support/oculus-runtime:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/d/VMWAREPRO/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/d/Git/cmd:/mnt/h/JDK8/bin:/mnt/h/Node/:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/user2/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/h/esp-idf/tools:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/vmware:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/gradle-7.3.3/bin:/mnt/h/Redis/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/c/Users/xy/Desktop/esp-idf/tools:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/themes:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/e/QQGAM,E/QQGameTempest/Hall.57734/:/snap/bin
+PATH = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/remote-cli:/home/xy/.local/bin:/home/xy/riscv-isa-sim/build:/home/xy/sail-riscv/c_emulator:/home/xy/gnu-riscv-unknown-tools/bin:/home/xy/.local/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/f/Oculus/Support/oculus-runtime:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/d/VMWAREPRO/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/d/Git/cmd:/mnt/h/JDK8/bin:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/user2/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/h/esp-idf/tools:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/vmware:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/gradle-7.3.3/bin:/mnt/h/Redis/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/xy/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/c/Users/xy/Desktop/esp-idf/tools:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/IntelliJ IDEA 2021.3.1/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/themes:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/e/QQGAM,E/QQGameTempest/Hall.57734/:/snap/bin
 # environment
 NAME = DESKTOP-VJROA60
 # environment
+GIT_CURL_VERBOSE = 1
+# environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-decb7134-56cf-484a-bae4-27b9492575fb.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-dad1257a-3aa5-4b9c-9142-76651eb4f898.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -158,8 +160,10 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
+# environment
+MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=73/1024=7%, Rehash=0, Collisions=12/105=11%
+# Load=75/1024=7%, Rehash=0, Collisions=12/107=11%
 
 # Pattern-specific Variable Values
 
@@ -167,9 +171,9 @@ WSL_DISTRO_NAME = Ubuntu-20.04
 
 # Directories
 
-# . (device 2064, inode 42529): 22 files, no impossibilities.
+# . (device 2064, inode 42529): 23 files, no impossibilities.
 
-# 22 files, no impossibilities in 1 directories.
+# 23 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -269,10 +273,10 @@ lint: tinyrv32.v
 	verilator --lint-only $(MODULE).v
 
 waves: waveform.vcd
+ 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
- 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 15):
 	@echo
@@ -297,12 +301,12 @@ waves: waveform.vcd
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 36 / storage = 353 B / avg = 9 B
-# current buf: size = 8162 B / used = 353 B / count = 36 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 37 / storage = 361 B / avg = 9 B
+# current buf: size = 8162 B / used = 361 B / count = 37 / avg = 9 B
 
-# strcache performance: lookups = 76 / hit rate = 52%
+# strcache performance: lookups = 77 / hit rate = 51%
 # hash-table stats:
-# Load=36/8192=0%, Rehash=0, Collisions=1/76=1%
-# Finished Make data base on Sat Mar 12 01:49:48 2022
+# Load=37/8192=0%, Rehash=0, Collisions=1/77=1%
+# Finished Make data base on Mon Mar 14 09:39:26 2022
 
  
