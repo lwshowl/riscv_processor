@@ -1,4 +1,4 @@
-module memory #(parameter SIZE = 1024,
+module memory #(parameter SIZE = 4096,
                 parameter WIDTH = 32)
                (input clk,
                 input w_clk,
@@ -25,7 +25,7 @@ module memory #(parameter SIZE = 1024,
     reg [WIDTH-1:0] data_in_r;
     reg [31:0] w_addr_select_r;
     
-    parameter FILE = "mem.hex";
+    parameter FILE = "./verify/tinyrv32.hex";
     
     
     // export "DPI" task apb_write;//这里的只能够在program里面进行使用

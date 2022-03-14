@@ -125,11 +125,10 @@ module tinyrv32(input clk,
     //此时是否分支应该也已经计算完毕
     //btype                   //jal
     assign b_enable      = ((opcode === 7'b1100011) | (opcode === 7'b1101111)) & alu_out[0];
-    assign pc_abs_branch = (opcode === 7'b1100111) & alu_out[0];
+    assign pc_abs_branch = (instr_id == i_jalr);
     //绝大多数转移地址由立即数直接给出 ，
     //jalr 需要进行一次地址计算，原则上来说 alu 只进行内存地址计算，最好是在 ALU 外部计算
-    //但是由于需要实现的功能很简单，所以可以利用 ALU 进行计算
-    assign pc_imm_in = (instr_id == i_jalr) ? (alu_out) : imm32;
+    assign pc_imm_in = (instr_id == i_jalr) ? (rs1_val + imm32) : imm32;
     
     /****************************************************/
     
@@ -142,7 +141,7 @@ module tinyrv32(input clk,
     
     assign mem_w_enable  = (instr_id == i_sb) | (instr_id == i_sh) | (instr_id == i_sw) ;                           //s type opcode
     assign w_addr_select = alu_out;                                         //地址已经在ALU 里计算好
-    assign mem_data_in   = rs2_val & {{16{func3[1]}},{8{func3[0]}},8'hff};  //要 store 的值为rs2 的 word half byte
+    assign mem_data_in   = rs2_val & {{16{func3[1]}},{8{func3[0]|func3[1]}},8'hff};  //要 store 的值为rs2 的 word half byte
     
     assign r_addr_select = alu_out;
     
@@ -169,13 +168,13 @@ module tinyrv32(input clk,
     
     //回写寄存器
     assign reg_file_write = (opcode == 7'b0110111) |    //lui
-    (opcode == 7'b0010111) |                            //auipc
+    ((opcode == 7'b0010111) |                            //auipc
     (opcode == 7'b0000011) |                            //lb lh lw
     (opcode == 7'b0010011) |                            //addi slti ……
     (opcode == 7'b0110011) |                            //add sub ……
     (opcode == 7'b1101111) |                            //jal
-    (opcode == 7'b1100111) |                             //jalr
-    (instr_id != i_invalid);                                   //is a valid instruction ?
+    (opcode == 7'b1100111))                            //jalr
+    &(instr_id != i_invalid);                            //is a valid instruction ?
     
     always @(*) begin
         case(opcode)
@@ -187,7 +186,7 @@ module tinyrv32(input clk,
                     3'b100: rf_write_val = {{24{1'b0}},mem_data_out[7:0]};              //lbu
                     3'b101: rf_write_val = {{16{1'b0}},mem_data_out[15:0]};             //lhu
                     default : ;
-                endcase
+                endcase 
             end
             7'b1101111: rf_write_val = pc_out + 4;                                  //jal
             7'b1100111: rf_write_val = pc_out + 4;                                  //jalr

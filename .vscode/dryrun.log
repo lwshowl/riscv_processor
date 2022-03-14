@@ -1,14 +1,5 @@
-make --dry-run --always-make --keep-going --print-directory
+make --dry-run --keep-going --print-directory
 make: Entering directory '/home/xy/vscode/rv32i'
-echo
-echo "### VERILATING ###"
-verilator -Wall --cc  --trace  tinyrv32.v --exe ./test_benches/tb_tinyrv32.cpp
-touch .stamp.verilate
-echo
-echo "### BUILDING SIM ###"
-make -C obj_dir -f Vtinyrv32.mk Vtinyrv32
-echo
-echo "### SIMULATING ###"
-./obj_dir/Vtinyrv32 +verilator+rand+reset+2
+touch ./test_benches/Vtinyrv32.cpp
 make: Leaving directory '/home/xy/vscode/rv32i'
  

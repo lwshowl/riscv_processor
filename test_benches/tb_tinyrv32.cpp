@@ -9,8 +9,9 @@
 #include <string>
 #include "Vtinyrv32__Dpi.h"
 #include "svdpi.h"
+#include <iomanip>
 
-#define MAX_SIM_TIME 2000
+#define MAX_SIM_TIME 100000
 
 vluint64_t sim_time = 0;
 vluint64_t posedge_count = 0;
@@ -183,38 +184,83 @@ int main(int argc, char **argv, char **env)
     int trace = 1;
     int enrtry = 0;
     std::string command;
+    int proceed = 1;
 
     while (sim_time < MAX_SIM_TIME)
     {
         dut->clk ^= 1;
         if (dut->tinyrv32__DOT__fetch_clk == 1)
         {
-            if (dut->tinyrv32__DOT__pc_out >= enrtry && dut->tinyrv32__DOT__pc_out < 0x40)
+            if (dut->tinyrv32__DOT__pc_out >= enrtry)
             {
                 if (fetch_count > pos_fetch_times)
                 {
-                    std::cout << "pc:" << std::hex << dut->tinyrv32__DOT__pc_out << " ";
-                    std::cout << "instr: " << std::hex << dut->tinyrv32__DOT__mem_data_out << " ";
+                    std::cout << "pc:" << std::hex << dut->tinyrv32__DOT__mem__DOT__r_addr_select1_r << " ";
+                    // std::cout << "instr: " << std::hex << dut->tinyrv32__DOT__mem_data_out << " ";
                     std::cout << enum_to_ins(dut->tinyrv32__DOT__dec__DOT__instr_id_r) << " ";
-                    for (i = 0; i < 32; i++)
+                    std::cout << "ra: " << std::hex << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[1] << " ";
+                    std::cout << "sp: " << std::hex << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[2]
+                              << "(" << std::dec << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[2] << ") ";
+                    std::cout << "s0: " << std::hex << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[8] << " ";
+                    std::cout << std::endl;
+                    for (i = 3; i < 32; i++)
                     {
                         std::cout << "x" << i << ":";
                         std::cout << std::dec << (int)dut->tinyrv32__DOT__rfile32__DOT__r_file[i] << " ";
                     }
                     std::cout << "imm:" << (int)dut->tinyrv32__DOT__alu32__DOT__imm_r << " ";
                     std::cout << std::endl;
+                    std::string command;
+                    proceed--;  
 
-                    int addr = 0;
-                    for (int addr = 0xe0; addr <= 0x100; i++)
+                    do
                     {
-                        int val = dut->tinyrv32__DOT__mem__DOT__cells[addr];
-                        std::cout << std::hex << addr << ": " << (int)val << "  ";
-                        addr += 1;
-                    }
-                    std::cout << std::endl
-                              << std::endl;
+                        if (proceed > 0)
+                            goto PROCEED;
+                        std::cout << "command: ";
+                        command.clear();
+                        std::cin >> command;
+                        std::cout << std::endl;
+                        if (command.find_first_of("memdump") != std::string::npos)
+                        {
+                            int range = 0x50;
+                            if (command[7])
+                            {
+                                range = std::atoi(command.substr(7, command.size() - 1).c_str());
+                            }
+                            for (int addr = 0x500 - range; addr <= 0x500; addr += 4)
+                            {
+                                CData *val = dut->tinyrv32__DOT__mem__DOT__cells + addr;
+                                std::cout << std::hex << std::setw(4) << std::setfill('0') << addr << ": "
+                                          << std::setw(2) << std::setfill('0')
+                                          << (int)*val
+                                          << std::setw(2) << std::setfill('0')
+                                          << (int)*(val + 1)
+                                          << std::setw(2) << std::setfill('0')
+                                          << (int)*(val + 2)
+                                          << std::setw(2) << std::setfill('0')
+                                          << (int)*(val + 3) << "  ";
+                                std::cout << std::endl;
+                            }
+                        }
+
+                        if (command.find_first_of("t") != std::string::npos)
+                        {
+                            if (command[1])
+                            {
+                                std::string iteration = command.substr(1, command.size() - 1);
+                                proceed = std::atoi(iteration.c_str());
+                            }
+                            else
+                                proceed++;
+                        }
+
+                        if (proceed > 0)
+                            goto PROCEED;
+                    } while (proceed == 0);
                 }
             }
+        PROCEED:
             pos_fetch_times = fetch_count;
         }
         else

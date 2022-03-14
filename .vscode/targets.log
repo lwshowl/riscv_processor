@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Mar 14 09:39:25 2022
+# Make data base, printed on Mon Mar 14 15:04:20 2022
 
 # Variables
 
@@ -61,7 +61,7 @@ GIT_CURL_VERBOSE = 1
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-dad1257a-3aa5-4b9c-9142-76651eb4f898.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-d14addff-9d16-43dd-ba1a-a062bd794f1c.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -171,9 +171,9 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2064, inode 42529): 23 files, no impossibilities.
+# . (device 2064, inode 42529): 21 files, no impossibilities.
 
-# 23 files, no impossibilities in 1 directories.
+# 21 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -197,7 +197,7 @@ waveform.vcd: obj_dir/Vtinyrv32
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 20):
+#  recipe to execute (from 'Makefile', line 21):
 	@echo
 	@echo "### SIMULATING ###"
 	@./obj_dir/V$(MODULE) +verilator+rand+reset+2
@@ -205,7 +205,7 @@ waveform.vcd: obj_dir/Vtinyrv32
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-11 22:56:31.6764688
+#  Last modified 2022-03-14 15:03:31.7286705
 #  File has been updated.
 #  Successfully updated.
 
@@ -225,7 +225,7 @@ obj_dir/Vtinyrv32: .stamp.verilate
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 25):
+#  recipe to execute (from 'Makefile', line 26):
 	@echo
 	@echo "### BUILDING SIM ###"
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
@@ -247,13 +247,15 @@ sim: waveform.vcd
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
+#  recipe to execute (from 'Makefile', line 6):
+	touch ./test_benches/V$(MODULE).cpp
 
 clean:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 41):
+#  recipe to execute (from 'Makefile', line 42):
 	rm -rf .stamp.*;
 	rm -rf ./obj_dir
 	rm -rf waveform.vcd
@@ -269,16 +271,16 @@ lint: tinyrv32.v
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 37):
+#  recipe to execute (from 'Makefile', line 38):
 	verilator --lint-only $(MODULE).v
+ 
 
 waves: waveform.vcd
- 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 15):
+#  recipe to execute (from 'Makefile', line 16):
 	@echo
 	@echo "### WAVES ###"
 	gtkwave waveform.vcd
@@ -287,7 +289,7 @@ waves: waveform.vcd
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 30):
+#  recipe to execute (from 'Makefile', line 31):
 	@echo
 	@echo "### VERILATING ###"
 	verilator -Wall --cc  --trace  $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
@@ -301,12 +303,12 @@ waves: waveform.vcd
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 37 / storage = 361 B / avg = 9 B
-# current buf: size = 8162 B / used = 361 B / count = 37 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 35 / storage = 342 B / avg = 9 B
+# current buf: size = 8162 B / used = 342 B / count = 35 / avg = 9 B
 
-# strcache performance: lookups = 77 / hit rate = 51%
+# strcache performance: lookups = 75 / hit rate = 53%
 # hash-table stats:
-# Load=37/8192=0%, Rehash=0, Collisions=1/77=1%
-# Finished Make data base on Mon Mar 14 09:39:26 2022
+# Load=35/8192=0%, Rehash=0, Collisions=1/75=1%
+# Finished Make data base on Mon Mar 14 15:04:20 2022
 
  

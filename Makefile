@@ -3,6 +3,7 @@ TEST_BENCH_DIR= ./test_benches
 
 .PHONY:sim
 sim: waveform.vcd
+	touch ./test_benches/V$(MODULE).cpp
 
 .PHONY:verilate
 verilate: .stamp.verilate
