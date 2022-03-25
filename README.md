@@ -13,14 +13,11 @@
 | 2609   | 1621  |   自定义 |  256   |
 
 ## 文件夹 
-<br>
 
 ### 根文件夹
 |  *.v                 |      Makefile        | 
 |  ------------------  | -------------------- |  
 |  测试用 verilog 代码  | verilator Makefile   |   
-
-<br>
 
 ### **synthesis**
 
@@ -28,15 +25,11 @@
 |  ------------------    |  
 |  vivado 可综合的verilog  |    
 
-<br>
-
 ### **test_benches**
 
 |  *.cpp                   | 
 |  ------------------      |  
 |  verilator 测试用例        |
-
-<br>
 
 ### **verify**
 
