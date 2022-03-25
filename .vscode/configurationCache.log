@@ -1,1 +1,1 @@
-{"buildTargets":["build","clean","lint","obj_dir/Vboard","sim","touch","verilate","waveform.vcd","waves"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
+{"buildTargets":["build","clean","lint","make","obj_dir/Vboard","sim","touch","verilate","waveform.vcd","waves"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
