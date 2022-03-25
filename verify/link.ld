@@ -7,18 +7,20 @@ _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0x01000;
 MEMORY {
   com : ORIGIN = 0x00000000, LENGTH = 0x00001000
   mem : ORIGIN = 0x00001000, LENGTH = 0x00001000
+  mio : ORIGIN = 0x00002000, LENGTH = 0x00000100
 }
 
 ENTRY(_start)
 
 SECTIONS
 {
-  . = 0x00000100;
+  . = 0x00000000;
   .text.init : { *(.text.init) } > com
-  . = ALIGN(0x1000);
-  
+  . = ALIGN(0x0100);
+
   .text : { *(.text) }  > com
-  . = ALIGN(0x1000);
+  . = ALIGN(0x0100);
+
   .data : { *(.data) } > mem
   .data.string : { *(.data.string)} > mem
   .bss : { *(.bss) } > mem
@@ -31,6 +33,10 @@ SECTIONS
     __stack = _stack;
   } > mem
   _stack_end = .;
+
+  
+  .memoryio : {*(.mappedio)} > mio
+  . = ALIGN(0x0100);
 
   _end = .;
   

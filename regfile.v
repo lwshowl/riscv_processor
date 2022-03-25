@@ -1,6 +1,8 @@
 module regfile #(parameter WIDTH = 32)
                 (input r_clk,
+                /* verilator lint_off UNUSED */
                  input w_clk,
+                /* verilator lint_off UNUSED */
                  input r_enable,
                  input w_enable,
                  input [4:0]rs1_select,

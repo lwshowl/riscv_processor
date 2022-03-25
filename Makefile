@@ -1,9 +1,8 @@
-MODULE=tinyrv32
+MODULE=board
 TEST_BENCH_DIR= ./test_benches
 
 .PHONY:sim
 sim: waveform.vcd
-	touch ./test_benches/V$(MODULE).cpp
 
 .PHONY:verilate
 verilate: .stamp.verilate
@@ -36,6 +35,10 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 .PHONY:lint
 lint: $(MODULE).v
 	verilator --lint-only $(MODULE).v
+
+touch:
+	touch ./test_benches/V$(MODULE).cpp
+
 
 .PHONY: clean
 clean:

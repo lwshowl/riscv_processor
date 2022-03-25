@@ -25,6 +25,7 @@ module memory #(parameter SIZE = 1048576,
     reg [WIDTH-1:0] data_in_r;
     reg [31:0] w_addr_select_r;
     
+    
     parameter FILE = "./verify/tinyrv32.hex";
     
     
@@ -58,12 +59,12 @@ module memory #(parameter SIZE = 1048576,
     
     //寄存所有输入信号
     always @(posedge clk) begin
-        w_enable_r       <= w_enable;
         r_enable_r       <= r_enable;
         r_addr_select1_r <= r_addr_select1;
         r_addr_select2_r <= r_addr_select2;
         data_in_r        <= data_in;
         w_addr_select_r  <= w_addr_select;
+        w_enable_r       <= w_enable;
     end
     
     //写入内容

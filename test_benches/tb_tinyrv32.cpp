@@ -212,19 +212,20 @@ int main(int argc, char **argv, char **env)
                     std::cout << std::endl;
                     std::string command;
                     proceed--;
-
+                    if (enum_to_ins(dut->tinyrv32__DOT__dec__DOT__instr_id_r) == "i_ecall")
+                        goto SIM_EXIT;
                     do
                     {
                         if (proceed > 0)
                             goto PROCEED;
                         std::cout << "command: ";
-                        command.clear();
+                        command.clear();  
                         std::cin >> command;
                         std::cout << std::endl;
                         if (command.find_first_of("memdump") != std::string::npos)
                         {
-                            int range = 0x50;
-                            if (command[7])
+                            int range = 0x50;  
+                            if (command[7])  
                             {
                                 range = std::atoi(command.substr(7, command.size() - 1).c_str());
                             }
@@ -235,11 +236,11 @@ int main(int argc, char **argv, char **env)
                                           << std::setw(2) << std::setfill('0')
                                           << (int)*val
                                           << std::setw(2) << std::setfill('0')
-                                          << (int)*(val + 1)
+                                          << (int)*(val + 1)  
                                           << std::setw(2) << std::setfill('0')
                                           << (int)*(val + 2)
-                                          << std::setw(2) << std::setfill('0')
-                                          << (int)*(val + 3) << "  ";
+                                          << std::setw(2) << std::setfill('0')  
+                                          << (int)*(val + 3) << "  "; 
                                 std::cout << std::endl;
                             }
                         }
@@ -272,6 +273,7 @@ int main(int argc, char **argv, char **env)
         m_trace->dump(sim_time);
         sim_time++;
     }
+SIM_EXIT:
     m_trace->close();
     delete dut;
     exit(EXIT_SUCCESS);
@@ -298,7 +300,7 @@ int main(int argc, char **argv, char **env)
 //             if (t5 != 0)
 //             {
 //                 if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 8] != 0)
-//                 {  
+//                 {
 //                     if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 12] != 0)
 //                     {
 //                         if (dut->tinyrv32__DOT__mem__DOT__cells[t6 + 8] == dut->tinyrv32__DOT__mem__DOT__cells[t6 + 12])

@@ -8,7 +8,7 @@ LINKER = link.ld
 tinyrv32: start.o main.o mis.o sort.o
 	$(CC) $(MARCH) $(ABI) $(LDFLAGS) -T ../$(LINKER)  $^ -o $@.elf
 
-start.o: start.s
+start.o: ../start.s
 	$(CC) -c $(MARCH) $(ABI) $(LDFLAGS) $^ -o $@
 
 main.o: main.cpp
@@ -24,7 +24,7 @@ hex: tinyrv32
 	elf2hex 1 2048 $^.elf > ../tinyrv32.hex
 
 disass: tinyrv32
-	riscv32-unknown-elf-objdump -D tinyrv32.elf > tinyrv32.disass
+	riscv32-unknown-elf-objdump -D tinyrv32.elf > ../tinyrv32.disass
 
 clean:
-	rm *.o *.elf *.hex
+	rm *.o *.elf ../*.hex ../*.disass
