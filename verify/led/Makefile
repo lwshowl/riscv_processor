@@ -19,10 +19,10 @@ delay.o : ../delay.s
 	$(CC) -c $(MARCH) $(ABI) $(OPTI) $(LDFLAGS) $^ -o $@
 
 hex: tinyrv32
-	elf2hex 1 2048 $^.elf > ../tinyrv32.hex
+	elf2hex 1 8192 $^.elf > ../tinyrv32.hex
 
 coe: tinyrv32
-	elf2hex 4 2048 $^.elf > ../tinyrv32.hex4
+	elf2hex 4 8192 $^.elf > ../tinyrv32.hex4
 	../../util/a.out
 
 disass: tinyrv32

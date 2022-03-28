@@ -2,7 +2,7 @@
 .globl _start
 .globl _exit_exceution
 _start:
-    li sp,0x1000
+    li sp,0x2000
     call main
 
 _hlt:
@@ -10,4 +10,4 @@ _hlt:
 
 _exit_exceution:
     ecall
-  
+   

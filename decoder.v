@@ -12,35 +12,26 @@ module decoder(input clk,
                output [5:0] instr_id,
                output [6:0] opcode);
     
-    
     // i type opcode
-    parameter [6:0] i_opcode1 = 7'b0000011; //lb lh lw lbu lhu
-    parameter [6:0] i_opcode2 = 7'b0010011; //addi slti sltiu xori ori andi slli srli srai
-    parameter [6:0] i_opcode3 = 7'b1100111; //jalr
-    parameter [6:0] i_opcode4 = 7'b1110011; //csrrw csrrs csrrc csrrwi csrrsi csrrci ebreak ecall
-    
+    localparam [6:0] i_opcode1 = 7'b0000011; //lb lh lw lbu lhu
+    localparam [6:0] i_opcode2 = 7'b0010011; //addi slti sltiu xori ori andi slli srli srai
+    localparam [6:0] i_opcode3 = 7'b1100111; //jalr
+    localparam [6:0] i_opcode4 = 7'b1110011; //csrrw csrrs csrrc csrrwi csrrsi csrrci ebreak ecall
     //u type opcode
-    parameter [6:0] u_opcode1 = 7'b0110111; // lui
-    parameter [6:0] u_opcode2 = 7'b0010111; // auipc
-
-    
+    localparam [6:0] u_opcode1 = 7'b0110111; // lui
+    localparam [6:0] u_opcode2 = 7'b0010111; // auipc
     //j type opcode
-    parameter [6:0] j_opcode = 7'b1101111;
-    
+    localparam [6:0] j_opcode = 7'b1101111;
     //b type opcode 
-    parameter [6:0] b_opcode = 7'b1100011;
-    
+    localparam [6:0] b_opcode = 7'b1100011;
     //s type opcode
-    parameter [6:0] s_opcode = 7'b0100011;
-    
+    localparam [6:0] s_opcode = 7'b0100011;
     // r type opcode
-    parameter [6:0] r_opcode = 7'b0110011;
-    
+    localparam [6:0] r_opcode = 7'b0110011;
     // ebreak
-    parameter [31:0] ebreak = 32'h00000073;
-    
+    localparam [31:0] ebreak = 32'h00000073;
     // ecall
-    parameter [31:0] ecall = 32'h001000073;
+    localparam [31:0] ecall = 32'h001000073;
     
     /* verilator lint_off UNUSED */
     reg  [31:0] instr_r;
@@ -135,7 +126,6 @@ module decoder(input clk,
             endcase
         end
         
-        
         //7'b0110111, // lui
         u_opcode1: begin
             imm_r      = {instr_r[31:12],{12{1'b0}}};
@@ -143,7 +133,7 @@ module decoder(input clk,
         end
         //7'b0010111 // auipc
         u_opcode2: begin
-            imm_r      = {{12{instr_r[31]}},instr_r[31:12]};
+            imm_r      = {instr_r[31:12],{12{1'b0}}};
             instr_id_r = `i_auipc;
         end
         
@@ -152,7 +142,6 @@ module decoder(input clk,
             imm_r      = {{11{instr_r[31]}},instr_r[31],instr_r[19:12],instr_r[20],instr_r[30:21],1'b0};
             instr_id_r = `i_jal;
         end
-        
         
         //b_opcode = 7'b1100011 ;
         b_opcode: begin
@@ -169,7 +158,6 @@ module decoder(input clk,
             endcase
         end
         
-        
         s_opcode: begin
             imm_r = {{20{instr_r[31]}},instr_r[31:25],instr_r[11:7]};
             case(func3_r)
@@ -179,7 +167,6 @@ module decoder(input clk,
                 default: instr_id_r = `i_invalid;
             endcase
         end
-        
         
         r_opcode: begin
             imm_r = 0;
@@ -211,7 +198,6 @@ module decoder(input clk,
         default: instr_id_r = `i_invalid;
         endcase
     end
-    
     
     assign shamt    = rs2_r;
     assign rs1      = rs1_r;

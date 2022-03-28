@@ -140,12 +140,6 @@ module tinyrv32(input clk,
     /****************************************************/
     
     //访存
-    // wire dmem_r_enable = 1;
-    // wire dmem_w_enable;
-    // wire [31:0] dmem_addr;
-    // // wire [31:0] dmem_in;
-    // wire [31:0] dmem_out;
-    
     assign mem_w_enable  = ((instr_id == `i_sb) | (instr_id == `i_sh) | (instr_id == `i_sw));                         //s type opcode
     assign w_addr_select = alu_out;                                                                                                     //地址已经在ALU 里计算好
     assign mem_data_in   = rs2_val & {{16{func3[1]}},{8{func3[0]|func3[1]}},8'hff};                                                     //要 store 的值为rs2 的 word half byte

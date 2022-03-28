@@ -10,7 +10,7 @@
 #include <iomanip>
 #include "Vboard.h"
 
-#define MAX_SIM_TIME 200000
+#define MAX_SIM_TIME 200000000
 
 vluint64_t sim_time = 0;
 vluint64_t posedge_count = 0;

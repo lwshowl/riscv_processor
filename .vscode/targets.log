@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Mar 25 19:49:18 2022
+# Make data base, printed on Mon Mar 28 12:26:55 2022
 
 # Variables
 
@@ -24,6 +24,8 @@ VSCODE_LOG_NATIVE = false
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
+# environment
+NEMU_HOME = /home/xy/ysyx-workbench/nemu
 # automatic
 @F = $(notdir $@)
 # makefile
@@ -48,6 +50,8 @@ VSCODE_VERBOSE_LOGGING = true
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
 VSCODE_CWD = /mnt/d/Microsoft VS Code
+# environment
+AM_HOME = /home/xy/ysyx-workbench/abstract-machine
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -59,7 +63,7 @@ GIT_CURL_VERBOSE = 1
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-a5cff291-d505-4b4b-a943-4bb0605f0d03.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-122532ac-0c5b-4a7e-8db7-406129dd9a07.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -158,8 +162,10 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu-20.04
+# environment
+MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=74/1024=7%, Rehash=0, Collisions=12/106=11%
+# Load=77/1024=8%, Rehash=0, Collisions=12/109=11%
 
 # Pattern-specific Variable Values
 
@@ -167,9 +173,9 @@ WSL_DISTRO_NAME = Ubuntu-20.04
 
 # Directories
 
-# . (device 2064, inode 42529): 24 files, no impossibilities.
+# . (device 2064, inode 42529): 23 files, no impossibilities.
 
-# 24 files, no impossibilities in 1 directories.
+# 23 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -265,15 +271,15 @@ lint: board.v
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
+make: *** No rule to make target 'all'.  Stop.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 37):
 	verilator --lint-only $(MODULE).v
 
 waves: waveform.vcd
 #  Phony target (prerequisite of .PHONY).
- 
-make: *** No rule to make target 'all'.  Stop.
- 
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
@@ -309,9 +315,9 @@ test_benches/tb_board.cpp:
 # strcache buffers: 1 (0) / strings = 39 / storage = 365 B / avg = 9 B
 # current buf: size = 8162 B / used = 365 B / count = 39 / avg = 9 B
 
-# strcache performance: lookups = 80 / hit rate = 51%
+# strcache performance: lookups = 79 / hit rate = 50%
 # hash-table stats:
-# Load=39/8192=0%, Rehash=0, Collisions=1/80=1%
-# Finished Make data base on Fri Mar 25 19:49:18 2022
+# Load=39/8192=0%, Rehash=0, Collisions=1/79=1%
+# Finished Make data base on Mon Mar 28 12:26:55 2022
 
  
