@@ -1,47 +1,42 @@
-MODULE=board
-TEST_BENCH_DIR= ./test_benches
+TARGET = npc
+OBJ_DIR = ./obj_dir
+TESTBENCH_DIR = ./test_benches
+HOST_DIR = ./hosts
+NEMUHOME := $(shell echo $$NEMU_HOME) 
 
-.PHONY:sim
-sim: waveform.vcd
+V_SRC = /home/xy/npc/rv64
 
-.PHONY:verilate
-verilate: .stamp.verilate
+nemu : build_nemu run_nemu
 
-.PHONY:build
-build: obj_dir/V$(MODULE)
+build_nemu : verilate compile_host recipes copy_obj
+	$(info building nemu)	
+	@ make -C $(NEMU_HOME)
 
-.PHONY:waves
-waves: waveform.vcd
-	@echo
-	@echo "### WAVES ###"
-	gtkwave waveform.vcd
+run_nemu:
+	$(info launching nemu)
+	@ make -C $(NEMU_HOME) run
 
-waveform.vcd: ./obj_dir/V$(MODULE)
-	@echo
-	@echo "### SIMULATING ###"
-	@./obj_dir/V$(MODULE) +verilator+rand+reset+2
+compile_host:
+	$(info compiling hosts)
+	@ g++ -c -Wall -std=c++11 -O2 -o $(HOST_DIR)/host.o $(HOST_DIR)/host.cpp
 
-./obj_dir/V$(MODULE): .stamp.verilate
-	@echo
-	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+recipes: verilate
+	@ $(info verilating target modules)
+	@ cd $(OBJ_DIR)
+	@- make -C $(OBJ_DIR) -f V$(TARGET).mk --silent
 
-.stamp.verilate: $(MODULE).v $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
-	@echo
-	@echo "### VERILATING ###"
-	verilator -Wall --cc  --trace  $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
-	@touch .stamp.verilate
+verilate:
+	@ verilator -Wall --cc --trace -CFLAGS -lstdc++  $(V_SRC)/$(TARGET).v --exe $(TESTBENCH_DIR)/tb_$(TARGET).cpp
 
-.PHONY:lint
-lint: $(MODULE).v
-	verilator --lint-only $(MODULE).v
-
-touch:
-	touch ./test_benches/V$(MODULE).cpp
+copy_obj : recipes
+	$(info copying objects to nemu/isa/npc/verilated)
+	@ mv $(OBJ_DIR)/*.o $(NEMU_HOME)/src/isa/npc/verilated
+	@ mv $(OBJ_DIR)/*.a $(NEMU_HOME)/src/isa/npc/verilated
 
 
-.PHONY: clean
+run :recipes
+	$(OBJ_DIR)/V$(TARGET)
+
 clean:
-	rm -rf .stamp.*;
-	rm -rf ./obj_dir
-	rm -rf waveform.vcd
+	rm $(OBJ_DIR)/*
+

@@ -1,14 +1,17 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/xy/vscode/rv32i'
-echo
-echo "### VERILATING ###"
-verilator -Wall --cc  --trace  board.v --exe ./test_benches/tb_board.cpp
-touch .stamp.verilate
-echo
-echo "### BUILDING SIM ###"
-make -C obj_dir -f Vboard.mk Vboard
-echo
-echo "### SIMULATING ###"
-./obj_dir/Vboard +verilator+rand+reset+2
-make: Leaving directory '/home/xy/vscode/rv32i'
+make: Entering directory '/home/xy/npc/rv64'
+verilator -Wall --cc --trace -CFLAGS -lstdc++  /home/xy/npc/rv64/npc.v --exe ./test_benches/tb_npc.cpp
+compiling hosts
+g++ -c -Wall -std=c++11 -O2 -o ./hosts/host.o ./hosts/host.cpp
+verilating target modules
+cd ./obj_dir
+make -C ./obj_dir -f Vnpc.mk --silent
+copying objects to nemu/isa/npc/verilated
+mv ./obj_dir/*.o /home/xy/ysyx-workbench/nemu/src/isa/npc/verilated
+mv ./obj_dir/*.a /home/xy/ysyx-workbench/nemu/src/isa/npc/verilated
+building nemu
+make -C /home/xy/ysyx-workbench/nemu
+launching nemu
+make -C /home/xy/ysyx-workbench/nemu run
+make: Leaving directory '/home/xy/npc/rv64'
  

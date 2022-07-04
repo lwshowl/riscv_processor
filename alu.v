@@ -1,81 +1,151 @@
 
 `include "instructions.v"
 
-module alu #(parameter WIDTH = 32)
-            (input clk,
-             input [5:0] instr_in,
-             input [WIDTH-1:0] rs1,
-             input [WIDTH-1:0] rs2,
-             input [WIDTH-1:0] imm,
-             input [4:0] shamt,
-             input [31:0] pc,
-             output [WIDTH-1:0] out);
+module alu (/* verilator lint_off UNUSED */
+            input clk,
+            /* verilator lint_off UNUSED */
+             input [6:0] instr_in,
+             input [63:0] rs1,
+             input [63:0] rs2,
+             input [63:0] imm,
+             input [5:0] shamt,
+             input [63:0] pc,
+             output reg [63:0] result);
     
-    reg  [WIDTH-1:0]  rs1_r;
-    reg  [WIDTH-1:0]  rs2_r;
-    reg  [WIDTH-1:0]  imm_r;
-    reg  [WIDTH-1:0]  result;
-    reg  [5:0] instr_in_r;
-    reg  [4:0] shamt_r;
-    reg  [31:0] pc_r;
-    
-    
-    
-    // Register all inputs
-    always @ (posedge clk)
-    begin
-        rs1_r      <= rs1;
-        rs2_r      <= rs2;
-        imm_r      <= imm;
-        instr_in_r <= instr_in;
-        shamt_r    <= shamt;
-        pc_r       <= pc;
-    end
-    
+    /* verilator lint_off UNOPTFLAT */
+    reg [63:0] result_64;
+    /* verilator lint_off UNOPTFLAT */
+    reg [127:0] result_128;
+    wire sign32;
+
+    assign sign32 = result_64[31];
+
     always @(*) begin
-        case (instr_in_r)
-            `i_lui:      result = imm_r;
-            `i_auipc:    result = pc_r + imm_r;
-            `i_jal:      result = 32'd1;
-            `i_jalr:     result = rs1_r + imm_r;
-            `i_beq:      result = (rs1_r == rs2_r) ? 32'd1 : 32'd0;
-            `i_bge:      result = ($signed(rs1_r) >= $signed(rs2_r)) ? 32'd1 : 32'd0;
-            `i_bgeu:     result = (rs1_r >= rs2_r) ? 32'd1 : 32'd0;
-            `i_blt:      result = ($signed(rs1_r) < $signed(rs2_r)) ?  32'd1 : 32'd0;
-            `i_bltu:     result = (rs1_r < rs2_r) ? 32'd1 : 32'd0;
-            `i_bne:      result = (rs1_r != rs2_r) ? 32'd1 : 32'd0;
-            `i_lb:       result = rs1_r + imm_r;
-            `i_lh:       result = rs1_r + imm_r;
-            `i_lw:       result = rs1_r + imm_r;
-            `i_lbu:      result = rs1_r + imm_r;
-            `i_lhu:      result = rs1_r + imm_r;
-            `i_sb:       result = rs1_r + imm_r;
-            `i_sh:       result = rs1_r + imm_r;
-            `i_sw:       result = rs1_r + imm_r;
-            `i_addi:     result = rs1_r + imm_r;
-            `i_slti:     result = ($signed(rs1_r) < $signed(imm_r)) ? 32'd1 : 32'd0;
-            `i_sltiu:    result = (rs1_r < imm_r) ? 32'd1 : 32'd0 ;
-            `i_xori:     result = rs1_r ^ imm_r;
-            `i_ori:      result = rs1_r | imm_r;
-            `i_andi:     result = rs1_r & imm_r;
-            `i_slli:     result = rs1_r << shamt_r;
-            `i_srli:     result = rs1_r >> shamt_r;
-            `i_srai:     result = rs1_r >>> shamt_r;
-            `i_add:      result = rs1_r + rs2_r;
-            `i_sub:      result = (~rs2_r +1'b1) + rs1_r;
-            `i_sll:      result = rs1_r << rs2_r[5:0];
-            `i_slt:      result = ($signed(rs1_r) < $signed(imm_r)) ? 32'd1 : 32'd0;
-            `i_sltu:     result = (rs1_r < rs2_r) ? 32'd1 : 32'd0;
-            `i_xor:      result = rs1_r ^ rs2_r;
-            `i_srl:      result = rs1_r >> rs2_r[4:0];
-            `i_sra:      result = rs1_r >>> rs2_r[4:0];
-            `i_and:      result = rs1_r & rs2_r;
-            `i_or:       result = rs1_r | rs2_r;
+        case (instr_in)
+            `i_lui:      result = imm;
+            `i_auipc:    result = pc + imm;
+            `i_jal:      result = 64'd1;
+            `i_jalr:     result = rs1 + imm;
+            `i_beq:      result = (rs1 == rs2) ? 64'd1 : 64'd0;
+            `i_bge:      result = ($signed(rs1) >= $signed(rs2)) ? 64'd1 : 64'd0;
+            `i_bgeu:     result = (rs1 >= rs2) ? 64'd1 : 64'd0;
+            `i_blt:      result = ($signed(rs1) < $signed(rs2)) ?  64'd1 : 64'd0;
+            `i_bltu:     result = (rs1 < rs2) ? 64'd1 : 64'd0;
+            `i_bne:      result = (rs1 != rs2) ? 64'd1 : 64'd0;
+            `i_lb:       result = rs1 + imm;
+            `i_lh:       result = rs1 + imm;
+            `i_lw:       result = rs1 + imm;
+            `i_ld:       result = rs1 + imm;
+            `i_lbu:      result = rs1 + imm;
+            `i_lhu:      result = rs1 + imm;
+            `i_sb:       result = rs1 + imm;
+            `i_sh:       result = rs1 + imm;
+            `i_sw:       result = rs1 + imm;
+            `i_sd:       result = rs1 + imm;
+            `i_addi:     result = rs1 + imm;
+            `i_slti:     result = ($signed(rs1) < $signed(imm)) ? 64'd1 : 64'd0;
+            `i_sltiu:    result = (rs1 < imm) ? 64'd1 : 64'd0 ;
+            `i_xori:     result = rs1 ^ imm;
+            `i_ori:      result = rs1 | imm;
+            `i_andi:     result = rs1 & imm;
+            `i_slli:     result = rs1 << shamt;
+            `i_srli:     result = rs1 >> shamt;
+            `i_srai:     result = rs1 >>> shamt;
+            `i_add:      result = rs1 + rs2;
+            `i_sub:      result = (~rs2 +1'b1) + rs1;
+            `i_sll:      result = rs1 << rs2[5:0];
+            `i_slt:      result = ($signed(rs1) < $signed(rs2)) ? 64'd1 : 64'd0;
+            `i_sltu:     result = (rs1 < rs2) ? 64'd1 : 64'd0;
+            `i_xor:      result = rs1 ^ rs2;
+            `i_srl:      result = rs1 >> rs2[4:0];
+            `i_sra:      result = rs1 >>> rs2[4:0];
+            `i_and:      result = rs1 & rs2;
+            `i_or:       result = rs1 | rs2;
+            //rv64i
+            `i_lwu:      result = rs1 + imm;
+
+            `i_addw:    begin
+                result_64 = rs1 + rs2;
+                result = {{32{sign32}},result_64[31:0]};
+            end 
+            `i_subw: begin
+                result_64 = rs1 - rs2;
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_sllw:  begin 
+                result_64 = rs1 << rs2[4:0];
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_srlw:  begin 
+                result_64 = {{32{1'd0}},rs1[31:0] >> rs2[4:0]};
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_sraw:  begin 
+                result_64 = {{32{1'd0}},$signed(rs1[31:0]) >>> rs2[4:0]};
+                result = {{32{sign32}},result_64[31:0]};
+            end
             
-            default: result = 0;
+            `i_addiw: begin
+                result_64 = rs1 + imm;
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_slliw: begin
+                result_64 = rs1 << imm[4:0];
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_sraiw: begin
+                result_64 ={{32{1'd0}},$signed(rs1[31:0]) >>> imm[4:0]};
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_srliw: begin
+                result_64 ={{32{1'd0}},rs1[31:0] >> imm[4:0]};
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            //rv64M
+            
+            `i_mul : result = $signed(rs1) * $signed(rs2);
+
+            `i_mulh: begin
+              result_128 = $signed(rs1) * $signed(rs2);
+              result = result_128[127:64];
+            end
+            `i_mulhsu: begin
+                result_128 = $signed(rs1) * $unsigned(rs2);
+                result = result_128[127:64];
+            end
+            `i_mulhu: begin
+                result_128 = $unsigned(rs1) * $unsigned(rs2);
+                result = result_128[127:64];
+            end
+
+            `i_div  : result = $signed(rs1) / $signed(rs2);
+            `i_divu : result = $unsigned(rs1) / $unsigned(rs2);
+            `i_rem : result = $unsigned(rs1) % $signed(rs2);
+            `i_remu : result = $unsigned(rs1) % $unsigned(rs2);
+
+            `i_mulw : begin
+                result_64 = $signed(rs1) * $signed(rs2);
+                result = {{32{sign32}},result_64[31:0]};
+            end
+
+            `i_divw : begin
+                result_64 = $signed(rs1) / $signed(rs2);
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_remw : begin
+                result_64 = $signed(rs1) % $signed(rs2);
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_divuw : begin
+                result_64 = $signed(rs1) / $unsigned(rs2);
+                result = {{32{sign32}},result_64[31:0]};
+            end
+            `i_remuw : begin
+                result_64 = $signed(rs1) % $unsigned(rs2);
+                result = {{32{sign32}},result_64[31:0]};
+            end
+
+            default: result = 64'hdeadbeef;
         endcase
     end
-    
-    assign out = result;
-    
 endmodule

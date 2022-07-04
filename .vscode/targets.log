@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Mar 28 12:26:55 2022
+# Make data base, printed on Mon Jul  4 14:47:27 2022
 
 # Variables
 
@@ -20,8 +22,12 @@ WSLENV = VSCODE_WSL_EXT_LOCATION/up
 .SHELLFLAGS := -c
 # environment
 VSCODE_LOG_NATIVE = false
+# makefile (from 'Makefile', line 1)
+TARGET = npc
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
+# makefile (from 'Makefile', line 3)
+TESTBENCH_DIR = ./test_benches
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
@@ -29,19 +35,19 @@ NEMU_HOME = /home/xy/ysyx-workbench/nemu
 # automatic
 @F = $(notdir $@)
 # makefile
-CURDIR := /home/xy/vscode/rv32i
+CURDIR := /home/xy/npc/rv64
 # makefile
 SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/node
-# makefile (from 'Makefile', line 2)
-TEST_BENCH_DIR = ./test_benches
+_ = /home/xy/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/node
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # 'override' directive
 GNUMAKEFLAGS := 
+# makefile (from 'Makefile', line 2)
+OBJ_DIR = ./obj_dir
 # environment
 XDG_DATA_DIRS = /usr/local/share:/usr/share:/var/lib/snapd/desktop
 # environment
@@ -49,21 +55,21 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
-VSCODE_CWD = /mnt/d/Microsoft VS Code
+VSCODE_CWD = /mnt/d/DevTools/Microsoft VS Code
 # environment
 AM_HOME = /home/xy/ysyx-workbench/abstract-machine
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /home/xy/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/bin/remote-cli:/home/xy/.local/bin:/home/xy/riscv-isa-sim/build:/home/xy/sail-riscv/c_emulator:/home/xy/gnu-riscv-unknown-tools/bin:/home/xy/.local/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/f/Oculus/Support/oculus-runtime:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/d/VMWAREPRO/bin/:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/d/Git/cmd:/mnt/h/JDK8/bin:/mnt/c/Program Files/CMake/bin:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/user2/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/AppData/Roaming/npm:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/h/esp-idf/tools:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/vmware:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/gradle-7.3.3/bin:/mnt/h/Redis/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/xy/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/xy/AppData/Local/Microsoft/WindowsApps:/mnt/d/Microsoft VS Code/bin:/mnt/c/mingw/bin:/mnt/h/GnuWin32/bin:/mnt/h/ARM_GCC_NONE_EABI/bin:/mnt/h/Git/bin:/mnt/h/Git/usr/bin:/mnt/h/OpenOCD-20210407-0.10.0/bin:/mnt/c/Users/xy/Desktop/esp-idf/components/esptool_py/esptool:/mnt/c/Users/xy/Desktop/esp-idf/components/app_update:/mnt/c/Users/xy/Desktop/esp-idf/components/espcoredump:/mnt/c/Users/xy/Desktop/esp-idf/components/partition_table:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s2-elf/esp-2020r3-8.4.0/xtensa-esp32s2-elf/bin:/mnt/c/Users/xy/.espressif/tools/xtensa-esp32s3-elf/esp-2020r3-8.4.0/xtensa-esp32s3-elf/bin:/mnt/c/Users/xy/.espressif/tools/riscv32-esp-elf/1.24.0.123_64eb9ff-8.4.0/riscv32-esp-elf/bin:/mnt/c/Users/xy/.espressif/tools/esp32ulp-elf/2.28.51-esp-20191205/esp32ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/esp32s2ulp-elf/2.28.51-esp-20191205/esp32s2ulp-elf-binutils/bin:/mnt/c/Users/xy/.espressif/tools/cmake/3.16.4/bin:/mnt/c/Users/xy/.espressif/tools/openocd-esp32/v0.10.0-esp32-20200709/openocd-esp32/bin:/mnt/c/Users/xy/.espressif/tools/ninja/1.10.2/:/mnt/c/Users/xy/.espressif/tools/idf-exe/1.0.1/:/mnt/c/Users/xy/.espressif/tools/ccache/3.7/:/mnt/c/Users/xy/.espressif/tools/dfu-util/0.9/dfu-util-0.9-win64:/mnt/c/Users/xy/.espressif/python_env/idf4.4_py3.8_env/Scripts:/mnt/c/Users/xy/Desktop/esp-idf/tools:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/dotnet:/mnt/h/IntelliJ IDEA 2021.3.1/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/bin:/mnt/c/Users/xy/AppData/Local/Programs/oh-my-posh/themes:/mnt/c/Program Files (x86)/GitHub CLI/:/mnt/e/QQGAM,E/QQGameTempest/Hall.57734/:/snap/bin
+PATH = /home/xy/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin/remote-cli:/home/xy/.local/bin:/home/xy/riscv-isa-sim/build:/home/xy/sail-riscv/c_emulator:/home/xy/gnu-riscv-unknown-tools/bin:/home/xy/.local/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/d/DevTools/VMWareWorkstation/bin/:/mnt/c/Program Files/Microsoft/jdk-11.0.12.7-hotspot/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/d/DevTools/Microsoft VS Code/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/Scripts/:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/:/mnt/c/Users/xiang/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/Git/cmd:/snap/bin
 # environment
-NAME = DESKTOP-VJROA60
+NAME = XY-R9000K
 # environment
 GIT_CURL_VERBOSE = 1
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-122532ac-0c5b-4a7e-8db7-406129dd9a07.sock
+VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-75011bbe-a725-4c1c-8d5d-0540ab4efb15.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -71,21 +77,23 @@ LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = 192.168.2.100:0.0
+DISPLAY = 192.168.3.157:0.0
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-PWD = /home/xy/vscode/rv32i
+PWD = /home/xy/npc/rv64
+# environment
+NAVY_HOME = /home/xy/ysyx-workbench/navy-apps
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/11_interop
+WSL_INTEROP = /run/WSL/261_interop
+# environment
+PULSE_SERVER = /mnt/wslg/PulseServer
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 HOME = /home/xy
-# environment
-POWERLINE_COMMAND = oh-my-posh
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
@@ -93,35 +101,31 @@ LOGNAME = xy
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
-CONDA_PROMPT_MODIFIER = false
-# environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
 MAKELEVEL := 0
-# makefile (from 'Makefile', line 1)
-MODULE = board
 # default
 MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
+# makefile (from 'Makefile', line 5)
+NEMUHOME := /home/xy/ysyx-workbench/nemu 
 # environment
-SHLVL = 1
-# environment
-POSH_THEME = /home/xy/ohmyposhv3-v2.json
+SHLVL = 0
 # default
 MAKE_VERSION := 4.2.1
 # environment
 USER = xy
 # makefile
-.DEFAULT_GOAL := sim
+.DEFAULT_GOAL := nemu
 # environment
 LIBVIRT_DEFAULT_URI = qemu:///system
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
-VSCODE_WSL_EXT_LOCATION = /mnt/c/Users/xy/.vscode/extensions/ms-vscode-remote.remote-wsl-0.64.2
+VSCODE_WSL_EXT_LOCATION = /mnt/c/Users/xiang/.vscode/extensions/ms-vscode-remote.remote-wsl-0.66.3
 # default
 MAKE_COMMAND := make
 # default
@@ -138,6 +142,14 @@ MFLAGS = -pqrR
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
 +F = $(notdir $+)
+# makefile (from 'Makefile', line 4)
+HOST_DIR = ./hosts
+# makefile (from 'Makefile', line 7)
+V_SRC = /home/xy/npc/rv64
+# environment
+VSCODE_HANDLES_SIGPIPE = true
+# 'override' directive
+.SHELLSTATUS := 0
 # default
 MAKEFILES := 
 # automatic
@@ -150,10 +162,14 @@ HOSTTYPE = x86_64
 ^F = $(notdir $^)
 # default
 SUFFIXES := 
+# environment
+WAYLAND_DISPLAY = wayland-0
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # default
 .RECIPEPREFIX := 
+# environment
+XDG_RUNTIME_DIR = /mnt/wslg/runtime-dir
 # environment
 LANG = C
 # environment
@@ -161,11 +177,9 @@ TERM = xterm-256color
 # environment
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
-WSL_DISTRO_NAME = Ubuntu-20.04
-# environment
-MOTD_SHOWN = update-motd
+WSL_DISTRO_NAME = Ubuntu20.04
 # variable set hash-table stats:
-# Load=77/1024=8%, Rehash=0, Collisions=12/109=11%
+# Load=83/1024=8%, Rehash=0, Collisions=6/111=5%
 
 # Pattern-specific Variable Values
 
@@ -173,9 +187,9 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2064, inode 42529): 23 files, no impossibilities.
+# . (device 2080, inode 160523): 19 files, no impossibilities.
 
-# 23 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -183,14 +197,13 @@ MOTD_SHOWN = update-motd
 
 # Files
 
-obj_dir/Vboard: .stamp.verilate
+compile_host:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 25):
-	@echo
-	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+#  recipe to execute (from 'Makefile', line 20):
+	$(info compiling hosts)
+	@ g++ -c -Wall -std=c++11 -O2 -o $(HOST_DIR)/host.o $(HOST_DIR)/host.cpp
 
 # Not a target:
 all:
@@ -199,51 +212,44 @@ all:
 #  File does not exist.
 #  File has not been updated.
 
-.PHONY: sim verilate build waves lint clean
+build_nemu: verilate compile_host recipes copy_obj
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-
-waveform.vcd: obj_dir/Vboard
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 20):
-	@echo
-	@echo "### SIMULATING ###"
-	@./obj_dir/V$(MODULE) +verilator+rand+reset+2
-
-touch:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 40):
-	touch ./test_benches/V$(MODULE).cpp
+#  recipe to execute (from 'Makefile', line 12):
+	$(info building nemu)	
+	@ make -C $(NEMU_HOME)
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-23 19:22:14.6527495
+#  Last modified 2022-06-29 15:01:58.459195324
 #  File has been updated.
 #  Successfully updated.
 
-build: obj_dir/Vboard
-#  Phony target (prerequisite of .PHONY).
-#  Implicit rule search has not been done.
-#  File does not exist.
-#  File has not been updated.
-
-# Not a target:
-board.v:
+recipes: verilate
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+#  recipe to execute (from 'Makefile', line 24):
+	@ $(info verilating target modules)
+	@ cd $(OBJ_DIR)
+	@- make -C $(OBJ_DIR) -f V$(TARGET).mk --silent
 
-verilate: .stamp.verilate
-#  Phony target (prerequisite of .PHONY).
+run_nemu:
 #  Implicit rule search has not been done.
-#  File does not exist.
+#  Modification time never checked.
 #  File has not been updated.
+#  recipe to execute (from 'Makefile', line 16):
+	$(info launching nemu)
+	@ make -C $(NEMU_HOME) run
+
+verilate:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 29):
+	@ verilator -Wall --cc --trace -CFLAGS -lstdc++  $(V_SRC)/$(TARGET).v --exe $(TESTBENCH_DIR)/tb_$(TARGET).cpp
 
 # Not a target:
 .DEFAULT:
@@ -251,73 +257,49 @@ verilate: .stamp.verilate
 #  Modification time never checked.
 #  File has not been updated.
 
-sim: waveform.vcd
-#  Phony target (prerequisite of .PHONY).
-#  Implicit rule search has not been done.
-#  File does not exist.
-#  File has not been updated.
-
-clean:
-#  Phony target (prerequisite of .PHONY).
-#  Implicit rule search has not been done.
-#  File does not exist.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 45):
-	rm -rf .stamp.*;
-	rm -rf ./obj_dir
-	rm -rf waveform.vcd
-
-lint: board.v
-#  Phony target (prerequisite of .PHONY).
-#  Implicit rule search has not been done.
-#  File does not exist.
- 
-make: *** No rule to make target 'all'.  Stop.
- 
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 37):
-	verilator --lint-only $(MODULE).v
-
-waves: waveform.vcd
-#  Phony target (prerequisite of .PHONY).
-#  Implicit rule search has not been done.
-#  File does not exist.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 15):
-	@echo
-	@echo "### WAVES ###"
-	gtkwave waveform.vcd
-
-.stamp.verilate: board.v test_benches/tb_board.cpp
+copy_obj: recipes
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 30):
-	@echo
-	@echo "### VERILATING ###"
-	verilator -Wall --cc  --trace  $(MODULE).v --exe $(TEST_BENCH_DIR)/tb_$(MODULE).cpp
-	@touch .stamp.verilate
+#  recipe to execute (from 'Makefile', line 32):
+	$(info copying objects to nemu/isa/npc/verilated)
+	@ mv $(OBJ_DIR)/*.o $(NEMU_HOME)/src/isa/npc/verilated
+	@ mv $(OBJ_DIR)/*.a $(NEMU_HOME)/src/isa/npc/verilated
 
-# Not a target:
-test_benches/tb_board.cpp:
+run: recipes
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 38):
+	$(OBJ_DIR)/V$(TARGET)
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 41):
+	rm $(OBJ_DIR)/*
+
+ 
+nemu: build_nemu run_nemu
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=17/1024=2%, Rehash=0, Collisions=0/56=0%
+# Load=13/1024=1%, Rehash=0, Collisions=1/38=3%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 39 / storage = 365 B / avg = 9 B
-# current buf: size = 8162 B / used = 365 B / count = 39 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 33 / storage = 287 B / avg = 8 B
+# current buf: size = 8162 B / used = 287 B / count = 33 / avg = 8 B
 
-# strcache performance: lookups = 79 / hit rate = 50%
+# strcache performance: lookups = 55 / hit rate = 40%
 # hash-table stats:
-# Load=39/8192=0%, Rehash=0, Collisions=1/79=1%
-# Finished Make data base on Mon Mar 28 12:26:55 2022
+# Load=33/8192=0%, Rehash=0, Collisions=1/55=2%
+# Finished Make data base on Mon Jul  4 14:47:27 2022
 
  
