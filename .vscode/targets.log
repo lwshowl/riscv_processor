@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jul  4 14:47:27 2022
+# Make data base, printed on Fri Jul  8 11:09:57 2022
 
 # Variables
 
@@ -69,7 +69,7 @@ GIT_CURL_VERBOSE = 1
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-75011bbe-a725-4c1c-8d5d-0540ab4efb15.sock
+VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-6c8b4b48-0315-4c59-b13e-fdd8004c15bc.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -87,7 +87,7 @@ NAVY_HOME = /home/xy/ysyx-workbench/navy-apps
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/261_interop
+WSL_INTEROP = /run/WSL/11_interop
 # environment
 PULSE_SERVER = /mnt/wslg/PulseServer
 # environment
@@ -178,8 +178,10 @@ TERM = xterm-256color
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu20.04
+# environment
+MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=83/1024=8%, Rehash=0, Collisions=6/111=5%
+# Load=84/1024=8%, Rehash=0, Collisions=6/112=5%
 
 # Pattern-specific Variable Values
 
@@ -187,9 +189,9 @@ WSL_DISTRO_NAME = Ubuntu20.04
 
 # Directories
 
-# . (device 2080, inode 160523): 19 files, no impossibilities.
+# . (device 2080, inode 160523): 24 files, no impossibilities.
 
-# 19 files, no impossibilities in 1 directories.
+# 24 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -276,11 +278,11 @@ run: recipes
 clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 41):
 	rm $(OBJ_DIR)/*
 
- 
 nemu: build_nemu run_nemu
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -294,12 +296,12 @@ nemu: build_nemu run_nemu
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 33 / storage = 287 B / avg = 8 B
-# current buf: size = 8162 B / used = 287 B / count = 33 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 38 / storage = 334 B / avg = 8 B
+# current buf: size = 8162 B / used = 334 B / count = 38 / avg = 8 B
 
-# strcache performance: lookups = 55 / hit rate = 40%
+# strcache performance: lookups = 60 / hit rate = 36%
 # hash-table stats:
-# Load=33/8192=0%, Rehash=0, Collisions=1/55=2%
-# Finished Make data base on Mon Jul  4 14:47:27 2022
+# Load=38/8192=0%, Rehash=0, Collisions=1/60=2%
+# Finished Make data base on Fri Jul  8 11:09:57 2022
 
  

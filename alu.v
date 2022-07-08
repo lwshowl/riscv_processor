@@ -25,6 +25,7 @@ module alu (/* verilator lint_off UNUSED */
             `i_lui:      result = imm;
             `i_auipc:    result = pc + imm;
             `i_jal:      result = 64'd1;
+            `i_mret:     result = 64'd1;
             `i_jalr:     result = rs1 + imm;
             `i_beq:      result = (rs1 == rs2) ? 64'd1 : 64'd0;
             `i_bge:      result = ($signed(rs1) >= $signed(rs2)) ? 64'd1 : 64'd0;
@@ -145,7 +146,7 @@ module alu (/* verilator lint_off UNUSED */
                 result = {{32{sign32}},result_64[31:0]};
             end
 
-            default: result = 64'hdeadbeef;
+            default: result = 64'd1;
         endcase
     end
 endmodule

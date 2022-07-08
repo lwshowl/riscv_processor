@@ -1,4 +1,5 @@
 `include "instructions.v"
+`include "exceptions.v"
 
 module npc(input clk,
            input rst);
@@ -13,9 +14,11 @@ module npc(input clk,
     //两种分支模式，直接分支，和伪直接分支
     wire pc_rel_branch;
     wire pc_abs_branch;
+    wire pc_exception;
     //分支立即数为32位宽
     wire [63:0] pc_ref_pc;
     wire [63:0] pc_imm_in;
+    wire [63:0] mepc_val;
     //pc 的输出是 指令指针
     wire [63:0] pc_out;
     
@@ -23,9 +26,11 @@ module npc(input clk,
     .clk (w_clk),
     .rst (rst),
     .bubble(memory_bubble),
-    .branch (pc_rel_branch),
+    .exception(pc_exception),
+    .rel_branch (pc_rel_branch),
     .abs_branch (pc_abs_branch),
     .immediate (pc_imm_in),
+    .mtvec(mtvec_val),
     .ref_pc (pc_ref_pc),
     .pc_out_reg (pc_out)
     );
@@ -40,26 +45,31 @@ module npc(input clk,
     // DPI-C接口，内存在外部编程语言中定义
     import "DPI-C" function void npc_mem_read(
     input longint raddr,output longint rdata);
-    
     // 访存
     always @(r_clk) begin
         if(!rst)
             npc_mem_read(pc_out,instr64);
     end
     assign instr32 = instr64[31:0];
+    wire [15:0] fetch_exception = 0;
     /**************译码，生成立即数*************************/
     //译码阶段过程寄存器
     wire [31:0] decode_instr_out;
     wire [63:0] decode_pc_out;
     wire decode_rst;
     wire decode_wen;
-    
-    assign decode_rst = pc_rel_branch | pc_abs_branch;
+    assign decode_rst = pc_rel_branch | pc_abs_branch | fetch_exception > 0 | wb_exception > 0;
     assign decode_wen = ~memory_bubble;
     
     Reg #(32,0) decode_instr (w_clk,decode_rst,instr32,decode_instr_out,decode_wen);
     Reg #(64,0) decode_pc (w_clk,decode_rst,pc_out,decode_pc_out,decode_wen);
-    
+    // 异常寄存器
+    wire [15:0] decode_exception;
+    wire [15:0] fetch_excep_out;
+    wire decode_excep_rst = pc_abs_branch | pc_rel_branch | wb_exception >0;
+    Reg #(16,0) decode_excep(w_clk,decode_excep_rst,fetch_exception,fetch_excep_out,decode_wen);
+    assign decode_exception = 0 | fetch_excep_out;
+
     //译码器的输出
     wire [4:0] rs1;
     wire [4:0] rs2;
@@ -106,7 +116,7 @@ module npc(input clk,
     wire regfile_memr_out;
     wire regfile_memw_out;
     
-    assign regfile_rst = pc_rel_branch | pc_abs_branch;
+    assign regfile_rst = pc_rel_branch | pc_abs_branch | decode_exception > 0 | wb_exception > 0;
     assign regfile_wen = ~memory_bubble;
     
     Reg #(5,0) regfile_rs1 (w_clk,regfile_rst,rs1,regfile_rs1_out,regfile_wen);
@@ -121,7 +131,12 @@ module npc(input clk,
     Reg #(1,0) regfile_regw (w_clk,regfile_rst,reg_w,regfile_regw_out,regfile_wen);
     Reg #(1,0) regfile_memr (w_clk,regfile_rst,mem_r,regfile_memr_out,regfile_wen);
     Reg #(1,0) regfile_memw (w_clk,regfile_rst,mem_w,regfile_memw_out,regfile_wen);
-    
+    // 访存异常寄存器
+    wire [15:0] decode_excep_out;
+    wire [15:0] regfile_exception;
+    wire regfile_excep_rst = pc_rel_branch | pc_abs_branch | wb_exception >0;
+    Reg #(16,0) regfile_excep(w_clk,regfile_excep_rst,decode_excep_out,decode_excep_out,regfile_wen);
+    assign regfile_exception = 0 | decode_excep_out;
     //检查是否有相邻的 ld / st
     reg  ldst_bubbule;
     reg  regld_bubble;
@@ -134,8 +149,7 @@ module npc(input clk,
                                     (alu_opcode_out == 7'b0000011) &     //load
                                             (regfile_rs2_out == alu_rd_out) | (regfile_rs1_out == alu_rd_out) &
                                                                                                 (alu_rd_out != 0));
-    
-
+                                                                                                
     assign memory_bubble = ldst_bubbule | regld_bubble;
     
     //输出值
@@ -178,27 +192,27 @@ module npc(input clk,
                                                 regfile_rs2_out!=0) ? 1 :0;                                            
     
     //两路旁路
-    wire [63:0] alubypass_rs1;
-    wire [63:0] alubypass_rs2;
+    wire [63:0] alubypass_rs1val;
+    wire [63:0] alubypass_rs2val;
     
-    wire [63:0] dmembypass_rs1;
-    wire [63:0] dmembypass_rs2;
+    wire [63:0] dmembypass_rs1val;
+    wire [63:0] dmembypass_rs2val;
     
     wire [63:0] regfile_rs1val;
     wire [63:0] regfile_rs2val;
     
-    assign alubypass_rs1 = regfile_alubypass_rs1 ? alu_result : regfile_rs1valout;
-    assign alubypass_rs2 = regfile_alubypass_rs2 ? alu_result : regfile_rs2valout;
+    assign alubypass_rs1val = regfile_alubypass_rs1 ? alu_result : regfile_rs1valout;
+    assign alubypass_rs2val = regfile_alubypass_rs2 ? alu_result : regfile_rs2valout;
     
-    assign dmembypass_rs1 = regfile_dmembypass_rs1 ? dmem_data_result : regfile_rs1valout;
-    assign dmembypass_rs2 = regfile_dmembypass_rs2 ? dmem_data_result : regfile_rs2valout;
+    assign dmembypass_rs1val = regfile_dmembypass_rs1 ? dmem_data_result : regfile_rs1valout;
+    assign dmembypass_rs2val = regfile_dmembypass_rs2 ? dmem_data_result : regfile_rs2valout;
     
-    assign regfile_rs1val = (regfile_alubypass_rs1) ?  alubypass_rs1 :
-                                (regfile_dmembypass_rs1) ? dmembypass_rs1 :
+    assign regfile_rs1val = (regfile_alubypass_rs1) ?  alubypass_rs1val :
+                                (regfile_dmembypass_rs1) ? dmembypass_rs1val :
                                                                 regfile_rs1valout;
     
-    assign regfile_rs2val = (regfile_alubypass_rs2) ?  alubypass_rs2 :
-                                (regfile_dmembypass_rs2) ? dmembypass_rs2 :
+    assign regfile_rs2val = (regfile_alubypass_rs2) ?  alubypass_rs2val :
+                                (regfile_dmembypass_rs2) ? dmembypass_rs2val :
                                                                 regfile_rs2valout;
     
     /***************ALU(算数,分支和地址计算)**************************/
@@ -217,10 +231,12 @@ module npc(input clk,
     wire  alu_regw_out;
     wire  alu_memr_out;
     wire  alu_memw_out;
-    
-    assign alu_rst = pc_rel_branch | pc_abs_branch | memory_bubble;
+    wire [63:0] alu_result;
+    wire [4:0] alu_zimm_out;
+
+    assign alu_rst = pc_rel_branch | pc_abs_branch | memory_bubble | regfile_exception >0 | wb_exception > 0;
     assign alu_wen = ~memory_bubble;
-    
+    Reg #(5,0)  alu_zimm (w_clk,alu_rst,regfile_rs2_out,alu_zimm_out,alu_wen);
     Reg #(64,0) alu_rs1val (w_clk,alu_rst,regfile_rs1val,alu_rs1val_out,alu_wen);
     Reg #(64,0) alu_rs2val (w_clk,alu_rst,regfile_rs2val,alu_rs2val_out,alu_wen);
     Reg #(5,0) alu_rd      (w_clk,alu_rst,regfile_rd_out,alu_rd_out,alu_wen);
@@ -233,8 +249,12 @@ module npc(input clk,
     Reg #(1,0) alu_regw (w_clk,alu_rst,regfile_regw_out,alu_regw_out,alu_wen);
     Reg #(1,0) alu_memr (w_clk,alu_rst,regfile_memr_out,alu_memr_out,alu_wen);
     Reg #(1,0) alu_memw (w_clk,alu_rst,regfile_memw_out,alu_memw_out,alu_wen);
-    
-    wire [63:0] alu_result;
+    // 异常
+    wire [15:0] regfile_excep_out;
+    wire [15:0] alu_exception;
+    wire alu_exception_rst = pc_abs_branch | pc_rel_branch | wb_exception > 0;
+    Reg #(16,0) alu_excep(w_clk,alu_exception_rst,regfile_exception,regfile_excep_out,alu_wen);
+    assign alu_exception = 16'd0 | regfile_excep_out;
     
     alu alu64(
     .clk (r_clk),
@@ -250,10 +270,12 @@ module npc(input clk,
     //分支预测 branch 不会发生
     //此时是否分支应该也已经计算完毕
     assign pc_rel_branch = alu_branch_out & alu_result[0] & ~pc_abs_branch;
-    assign pc_abs_branch = (alu_instrId_out == `i_jalr);
-    
+    assign pc_abs_branch = (alu_instrId_out == `i_jalr) | (alu_instrId_out == `i_mret);
     //绝大多数转移地址由立即数直接给出,jalr 为立即数与寄存器的和
-    assign pc_imm_in = (alu_instrId_out == `i_jalr) ? alu_result : alu_imm64_out;
+    assign pc_imm_in = (alu_instrId_out == `i_jalr) ? {alu_result[63:1],1'b0} : 
+                                    (alu_instrId_out == `i_mret) ? mepc_val + 64'd4 : 
+                                                                            alu_imm64_out;
+
     assign pc_ref_pc = alu_pc_out;
     
     /**********************访问数据内存******************************/
@@ -271,10 +293,11 @@ module npc(input clk,
     wire dmem_memw_out;
     wire dmem_memr_out;
     wire dmem_branch_out;
-    
+    wire [4:0] dmem_zimm_out;
+
+    assign dmem_rst = alu_exception > 0 | wb_exception >0;
     assign dmem_wen = 1;
-    assign dmem_rst = 0;
-    
+    Reg #(5,0) dmem_zimm(w_clk,dmem_rst,alu_zimm_out,dmem_zimm_out,dmem_wen);
     Reg #(5,0) dmem_rd (w_clk,dmem_rst,alu_rd_out,dmem_rd_out,dmem_wen);
     Reg #(64,0) dmem_pc (w_clk,dmem_rst,alu_pc_out,dmem_pc_out,dmem_wen);
     Reg #(64,0) dmem_result (w_clk,dmem_rst,alu_result,dmem_result_out,dmem_wen);
@@ -287,6 +310,13 @@ module npc(input clk,
     Reg #(1,0) dmem_memw (w_clk,dmem_rst,alu_memw_out,dmem_memw_out,dmem_wen);
     Reg #(1,0) dmem_memr (w_clk,dmem_rst,alu_memr_out,dmem_memr_out,dmem_wen);
     Reg #(1,0) dmem_branch (w_clk,dmem_rst,alu_branch_out,dmem_branch_out,dmem_wen);
+    
+    //异常
+    wire [15:0] alu_excep_out;
+    wire [15:0] dmem_exception;
+    wire dmem_excep_rst = wb_exception > 0;
+    Reg #(16,0) dmem_excep(w_clk,dmem_excep_rst,alu_exception,alu_excep_out,dmem_wen);
+    assign dmem_exception = 0 | alu_excep_out;
     
     //访存
     import "DPI-C" function void npc_mem_write(
@@ -306,12 +336,37 @@ module npc(input clk,
                                 (dmem_instrId_out == `i_lbu) ? {{56{1'b0}},dmem_data_out[7:0]} :
                                 (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
                                 (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
+
     always @(posedge r_clk) begin
         if (dmem_memr_out) begin
             npc_mem_read(dmem_result_out,dmem_data_out);
         end
     end
+
+    wire [63:0] csrval;
+    wire [63:0] mepc_overri;
+    wire [63:0] mcause_overri;
+    wire [63:0] mtvec_val;
+    wire excep_wen;
+    wire csr_wen = dmem_instrId_out == `i_csrrw || dmem_instrId_out == `i_csrrs || dmem_instrId_out == `i_csrrc || dmem_instrId_out == `i_csrrwi || dmem_instrId_out == `i_csrrsi || dmem_instrId_out == `i_csrrci;
     
+    // 如果是csr 指令，则在此读csr
+    CSR csr(
+        .clk(r_clk),
+        .rst(rst),
+        .wen(csr_wen),
+        .excep_wen(excep_wen),
+        .rs1(dmem_rs1val_out),
+        .addr(dmem_imm64_out[11:0]),
+        .instr(dmem_instrId_out),
+        .imm(dmem_zimm_out),
+        .mepc_val(mepc_val),
+        .mtvec_val(mtvec_val),
+        .mcause_overri(mcause_overri),
+        .mepc_overri(mepc_overri),
+        .csrVal(csrval)
+    );
+
     /********************回写****************************/
     wire wb_rst;
     wire wb_wen;
@@ -323,13 +378,14 @@ module npc(input clk,
     wire [63:0] wb_rs1val_out;
     wire [63:0] wb_rs2val_out;
     wire [6:0] wb_opcode_out;
+    wire [63:0] wb_csrval_out;
     wire wb_regw_out;
     wire wb_memw_out;
     wire wb_branch_out;
     
-    assign wb_rst = 0;
+    assign wb_rst = dmem_exception > 0 | wb_exception > 0;
     assign wb_wen = 1;
-
+    Reg #(64,0) wb_csrval (w_clk,wb_rst,csrval,wb_csrval_out,wb_wen);
     Reg #(5,0) wb_rd (w_clk,wb_rst,dmem_rd_out,wb_rd_out,wb_wen);
     Reg #(64,0) wb_pc (w_clk,wb_rst,dmem_pc_out,wb_pc_out,wb_wen);
     Reg #(64,0) wb_result (w_clk,wb_rst,dmem_result_out,wb_result_out,wb_wen);
@@ -341,9 +397,13 @@ module npc(input clk,
     Reg #(1,0) wb_memw (w_clk,wb_rst,dmem_memw_out,wb_memw_out,wb_wen);
     Reg #(1,0) wb_branch (w_clk,wb_rst,dmem_branch_out,wb_branch_out,wb_wen);
     Reg #(7,0) wb_opcode (w_clk,wb_rst,dmem_opcode_out,wb_opcode_out,wb_wen);
-
+    //异常
+    wire [15:0] dmem_excep_out;
+    wire [15:0] wb_exception;
+    Reg #(16,0) wb_excep(w_clk,0,dmem_exception,dmem_excep_out,wb_wen);
+    assign wb_exception = wb_instrId_out == `i_ecall ? `e_ecall | dmem_excep_out : 0 | dmem_exception;
+    
     wire [7:0] wmask;
-
     assign wmask = (wb_instrId_out == `i_sb) ? 1 :
                         (wb_instrId_out == `i_sh) ? 2 :
                             (wb_instrId_out == `i_sw) ? 4 : 
@@ -354,15 +414,20 @@ module npc(input clk,
             npc_mem_write(wb_result_out,wb_rs2val_out,wmask);
         end
     end
-    
+
+    assign pc_exception = wb_exception > 0;
+    assign excep_wen = wb_exception > 0;
+    assign mepc_overri = wb_pc_out;
+    assign mcause_overri = wb_instrId_out == `i_ecall ? 64'd11 : 64'd0;
     
     // 0号寄存器不能被写
     assign wb_rf_wen = wb_regw_out & (wb_rd_out!= 0) & (wb_opcode_out != 7'b1100011);
 
     assign rf_write_val = (wb_opcode_out == 7'b0000011) ? wb_memdata_out : 
-                             (wb_instrId_out == `i_jal) ? wb_pc_out + 4 :
-                                (wb_instrId_out == `i_jalr) ? wb_pc_out+4 :
-                                    wb_result_out;
+                                (wb_opcode_out == 7'b1110011) ? wb_csrval_out :
+                                        (wb_instrId_out == `i_jal) ? wb_pc_out + 4 :
+                                                (wb_instrId_out == `i_jalr) ? wb_pc_out + 4 :
+                                                                                    wb_result_out;
 
 endmodule
     

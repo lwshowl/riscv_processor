@@ -79,6 +79,7 @@
 `define i_remw   7'd68
 `define i_remuw 7'd69
 `define i_lwu 7'd70
+`define i_mret 7'd71
 
 
 `define   i_invalid 7'd127

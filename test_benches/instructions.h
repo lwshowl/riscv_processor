@@ -1,5 +1,5 @@
-#ifndef INSTRUCTIONS_V
-#define INSTRUCTIONS_V
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
 
 //instructions
 #define   i_bubble  0
@@ -49,20 +49,38 @@
 #define   i_csrrsi  44
 #define   i_csrrci  45
 
-// RV64 instructions
+// RV64I instructions
 #define i_sd 46
 #define i_ld 47
 #define i_addw 48
 #define i_subw 49
 #define i_srlw 50
 #define i_sraw 51
-#define i_sllwi_ 52
+#define i_slliw 52
 #define i_sllw 53
-
 #define i_addiw 54
 #define i_sraiw 55
 #define i_srliw 56
 
+// RV32M instructions
+#define i_mul 57
+#define i_mulh 58
+#define i_mulhsu 59
+#define i_mulhu 60
+#define i_div 61
+#define i_divu 62
+#define i_rem 63
+#define i_remu 64
 
-#define   i_invalid 63
+// RV64M instrctions
+#define i_mulw 65
+#define i_divw 66
+#define i_divuw 67
+#define i_remw   68
+#define i_remuw 69
+#define i_lwu 70
+#define i_mret 71
+
+
+#define   i_invalid 127
 #endif

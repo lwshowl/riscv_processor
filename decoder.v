@@ -47,7 +47,7 @@ module decoder(/* verilator lint_off UNUSED */
     wire [6:0] func7;
     
     assign opcode = instr[6:0];
-    assign rd     = (opcode == 7'b0100011 || opcode == 7'b1100011 || opcode == 7'b1110011) ? 5'd0 : instr[11:7];
+    assign rd     = (opcode == 7'b1100011 || opcode == 7'b0100011 ) ? 5'd0 :instr[11:7];
     assign func3  = instr[14:12];
     assign rs1    = instr[19:15];
     assign rs2    = instr[24:20];
@@ -123,9 +123,9 @@ module decoder(/* verilator lint_off UNUSED */
         i_opcode4: begin
             mem_r  = 0;
             mem_w  = 0; 
-            reg_w  = 0;
+            reg_w  = func3[0] | func3[1] | func3[2];
             branch = 0;
-            imm    = {{20{instr[31]}},instr[31:20]};
+            imm    = {{20{1'd0}},instr[31:20]};
             //compare fun3 to figure out what instruction
             case(func3)
                 3'b001:  instr_id = `i_csrrw;
@@ -138,6 +138,7 @@ module decoder(/* verilator lint_off UNUSED */
                     case(instr[31:7])
                         25'd0 : instr_id   = `i_ecall;
                         25'd8192 :instr_id = `i_ebreak;
+                        25'h604000: instr_id = `i_mret;
                         default : instr_id = `i_invalid;
                     endcase
                 end

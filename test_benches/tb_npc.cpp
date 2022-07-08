@@ -36,6 +36,7 @@ void dump_regfile();
 void pipe_pass_test(Vnpc *dut);
 int sanity_check();
 void dump_pc();
+void dump_csr();
 void update_dnpc();
 extern "C" uint64_t run_once();
 extern "C" void npc_reset();
@@ -49,8 +50,6 @@ uint64_t run_once()
     uint64_t pc;
     while (1)
     {
-        if (sanity_check())
-            return pc;
         pc = is_committing();
         if (sim_time < MAX_SIM_TIME && !pc)
         {
@@ -69,8 +68,7 @@ uint64_t run_once()
             break;
     }
 
-    if ((dut->npc__DOT__wb_branch_out | dut->npc__DOT__wb_instrId_out == i_jalr) &&
-        dut->npc__DOT__wb_result_out)
+    if ((dut->npc__DOT__wb_branch_out && dut->npc__DOT__wb_result_out) | dut->npc__DOT__wb_instrId_out == i_jalr | dut->npc__DOT__wb_instrId_out == i_mret | dut->npc__DOT__dmem_excep_out > 0 | dut->npc__DOT__wb_instrId_out == i_ecall)
     {
         if (!dnpc_queue.empty())
         {
@@ -120,6 +118,21 @@ void update_dnpc()
     {
         dnpc_queue.push(dut->npc__DOT__dmem_rs1val_out + dut->npc__DOT__dmem_imm64_out);
         // cout << "update dnpc pc= " << dut->npc__DOT__dmem_pc_out << " sum= " << dut->npc__DOT__dmem_rs1val_out + dut->npc__DOT__dmem_imm64_out;
+    }
+
+    else if (dut->npc__DOT__dmem_excep_out > 0)
+    {
+        dnpc_queue.push(dut->npc__DOT__csr__DOT__mtvec);
+    }
+
+    else if (dut->npc__DOT__wb_instrId_out == i_ecall)
+    {
+        dnpc_queue.push(dut->npc__DOT__csr__DOT__mtvec);
+    }
+
+    else if (dut->npc__DOT__wb_instrId_out == i_mret)
+    {
+        dnpc_queue.push(dut->npc__DOT__csr__DOT__mepc);
     }
 }
 
@@ -172,9 +185,20 @@ int sanity_check()
     return 0;
 }
 
+void dump_csr()
+{
+    cout << "mtvec " << hex << (uint64_t)dut->npc__DOT__csr__DOT__mtvec
+         << " mcause " << hex << (uint64_t)dut->npc__DOT__csr__DOT__mcause
+         << " mepc " << hex << (uint64_t)dut->npc__DOT__csr__DOT__mepc
+         << " mstatus " << hex << (uint64_t)dut->npc__DOT__csr__DOT__mstatus
+         << endl;
+}
+
 void dump_pc()
 {
     cout << "pc out: " << hex << (uint64_t)dut->npc__DOT__pc_out
+         << "pc abs_b: " << hex << (uint64_t)dut->npc__DOT__pc_abs_branch
+         << "pc rel_b: " << hex << (uint64_t)dut->npc__DOT__pc_rel_branch
          << endl;
 }
 
@@ -208,6 +232,10 @@ void dump_wb()
          << " wb rs1val: " << hex << (uint64_t)dut->npc__DOT__wb_rs1val_out
          << " wb rs2val: " << hex << (uint64_t)dut->npc__DOT__wb_rs2val_out
          << " wb result: " << hex << (uint64_t)dut->npc__DOT__wb_result_out
+         << " wb exception: " << hex << (uint64_t)dut->npc__DOT__wb_exception
+         << " wb mcause:" << hex << (uint64_t)dut->npc__DOT__csr__DOT__mcause
+         << " wb mepc:" << hex << (uint64_t)dut->npc__DOT__csr__DOT__mepc
+         << " wb mtvec:" << hex << (uint64_t)dut->npc__DOT__csr__DOT__mtvec
          << endl;
 }
 
@@ -256,20 +284,7 @@ void dump_fetch()
 
 uint64_t is_committing()
 {
-    // if (dut->npc__DOT__wb_regw_out)
-    //     return (uint64_t)dut->npc__DOT__wb_pc_out;
-
-    // else if (dut->npc__DOT__wb_memw_out)
-    //     return (uint64_t)dut->npc__DOT__wb_pc_out;
-
-    // else if (dut->npc__DOT__wb_branch_out & dut->npc__DOT__wb_result_out)
-    //     return (uint64_t)dut->npc__DOT__wb_pc_out;
-
-    // else if (dut->npc__DOT__wb_instrId_out == i_ebreak)
-    //     return (uint64_t)dut->npc__DOT__wb_pc_out;
-    // else
-    //     return 0;
-    if (dut->npc__DOT__wb_instrId_out == i_invalid)
+    if (dut->npc__DOT__wb_instrId_out != i_invalid && dut->npc__DOT__wb_instrId_out != i_bubble)
         return (uint64_t)dut->npc__DOT__wb_pc_out;
     else
         return 0;
