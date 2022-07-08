@@ -1,3 +1,3 @@
 # RISCV
-synthesisable verilog rv32i instruction set cpu
+5 stage pipelined riscv microprocessor
 RV64IMcsr instruction set
