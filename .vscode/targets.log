@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jul  8 11:09:57 2022
+# Make data base, printed on Fri Jul 15 10:16:54 2022
 
 # Variables
 
@@ -20,8 +20,6 @@ make: *** No rule to make target 'all'.  Stop.
 WSLENV = VSCODE_WSL_EXT_LOCATION/up
 # default
 .SHELLFLAGS := -c
-# environment
-VSCODE_LOG_NATIVE = false
 # makefile (from 'Makefile', line 1)
 TARGET = npc
 # automatic
@@ -41,7 +39,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /home/xy/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/node
+_ = /home/xy/.vscode-server/bin/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a/node
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # 'override' directive
@@ -51,8 +49,6 @@ OBJ_DIR = ./obj_dir
 # environment
 XDG_DATA_DIRS = /usr/local/share:/usr/share:/var/lib/snapd/desktop
 # environment
-VSCODE_VERBOSE_LOGGING = true
-# environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
 VSCODE_CWD = /mnt/d/DevTools/Microsoft VS Code
@@ -61,15 +57,13 @@ AM_HOME = /home/xy/ysyx-workbench/abstract-machine
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /home/xy/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin/remote-cli:/home/xy/.local/bin:/home/xy/riscv-isa-sim/build:/home/xy/sail-riscv/c_emulator:/home/xy/gnu-riscv-unknown-tools/bin:/home/xy/.local/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/d/DevTools/VMWareWorkstation/bin/:/mnt/c/Program Files/Microsoft/jdk-11.0.12.7-hotspot/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/d/DevTools/Microsoft VS Code/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/Scripts/:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/:/mnt/c/Users/xiang/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/Git/cmd:/snap/bin
+PATH = /home/xy/.vscode-server/bin/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a/bin/remote-cli:/home/xy/.local/bin:/home/xy/riscv-isa-sim/build:/home/xy/sail-riscv/c_emulator:/home/xy/gnu-riscv-unknown-tools/bin:/home/xy/.local/bin:/home/xy/CSCC69-Pintos/src/utils:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/d/DevTools/VMWareWorkstation/bin/:/mnt/c/Program Files/Microsoft/jdk-11.0.12.7-hotspot/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/d/DevTools/Microsoft VS Code/bin:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/Scripts/:/mnt/c/Users/xiang/AppData/Local/Programs/Python/Python310/:/mnt/c/Users/xiang/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/Git/cmd:/snap/bin
 # environment
 NAME = XY-R9000K
 # environment
-GIT_CURL_VERBOSE = 1
+ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_LOG_STACK = false
-# environment
-VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-6c8b4b48-0315-4c59-b13e-fdd8004c15bc.sock
+VSCODE_IPC_HOOK_CLI = /mnt/wslg/runtime-dir/vscode-ipc-2fc93885-05a0-4c7c-b0d2-580c5af3025a.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -78,8 +72,6 @@ LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:
 %F = $(notdir $%)
 # environment
 DISPLAY = 192.168.3.157:0.0
-# environment
-VSCODE_PIPE_LOGGING = true
 # environment
 PWD = /home/xy/npc/rv64
 # environment
@@ -175,13 +167,11 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-VSCODE_EXTHOST_WILL_SEND_SOCKET = true
-# environment
 WSL_DISTRO_NAME = Ubuntu20.04
 # environment
 MOTD_SHOWN = update-motd
 # variable set hash-table stats:
-# Load=84/1024=8%, Rehash=0, Collisions=6/112=5%
+# Load=79/1024=8%, Rehash=0, Collisions=6/107=6%
 
 # Pattern-specific Variable Values
 
@@ -189,9 +179,9 @@ MOTD_SHOWN = update-motd
 
 # Directories
 
-# . (device 2080, inode 160523): 24 files, no impossibilities.
+# . (device 2080, inode 160523): 26 files, no impossibilities.
 
-# 24 files, no impossibilities in 1 directories.
+# 26 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -225,7 +215,7 @@ build_nemu: verilate compile_host recipes copy_obj
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-29 15:01:58.459195324
+#  Last modified 2022-07-14 13:18:35.551327215
 #  File has been updated.
 #  Successfully updated.
 
@@ -278,7 +268,6 @@ run: recipes
 clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
- 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 41):
 	rm $(OBJ_DIR)/*
@@ -289,6 +278,7 @@ nemu: build_nemu run_nemu
 #  File has not been updated.
 
 # files hash-table stats:
+ 
 # Load=13/1024=1%, Rehash=0, Collisions=1/38=3%
 # VPATH Search Paths
 
@@ -296,12 +286,12 @@ nemu: build_nemu run_nemu
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 38 / storage = 334 B / avg = 8 B
-# current buf: size = 8162 B / used = 334 B / count = 38 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 40 / storage = 349 B / avg = 8 B
+# current buf: size = 8162 B / used = 349 B / count = 40 / avg = 8 B
 
-# strcache performance: lookups = 60 / hit rate = 36%
+# strcache performance: lookups = 62 / hit rate = 35%
 # hash-table stats:
-# Load=38/8192=0%, Rehash=0, Collisions=1/60=2%
-# Finished Make data base on Fri Jul  8 11:09:57 2022
+# Load=40/8192=0%, Rehash=0, Collisions=1/62=2%
+# Finished Make data base on Fri Jul 15 10:16:54 2022
 
  
