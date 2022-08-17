@@ -1,7 +1,7 @@
 `include "instructions.v"
 `include "exceptions.v"
 
-module npc(input clk,
+module top(input clk,
            input rst);
     
     wire w_clk;

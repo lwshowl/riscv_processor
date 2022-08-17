@@ -45,7 +45,6 @@
 `define AXI_SIZE_BYTES_64                                   3'b110
 `define AXI_SIZE_BYTES_128                                  3'b111
 
-
 module axi_rw # (
     parameter RW_DATA_WIDTH     = 64,
     parameter RW_ADDR_WIDTH     = 32,
@@ -65,7 +64,8 @@ module axi_rw # (
     input  [RW_ADDR_WIDTH-1:0]          rw_addr_i,          //IF&MEM输入信号
     input  [7:0]                        rw_size_i,          //IF&MEM输入信号
     input  [7:0]                        rw_len_i,           // burst 长度
-    input                               read_write,         // 读或者写?
+    input                               read_req,           // 读请求
+    input                               write_req,          // 写请求
 
     // Advanced eXtensible Interface
     input                               axi_aw_ready_i,              
@@ -120,7 +120,7 @@ module axi_rw # (
     
     // ------------------State Machine------------------TODO
     localparam AXI_READ  = 1'd0;
-    localparam AXI_WRITE = 1'd1;    
+    localparam AXI_WRITE = 1'd1;
 
     // 写通道状态切换
     localparam  S_WR_IDLE   = 3'd0;
@@ -132,27 +132,26 @@ module axi_rw # (
     localparam  S_WR_DONE   = 3'd6;
 
     reg [2:0] wr_state;
-    reg [31:0] reg_wr_adrs;
+    reg [31:0] reg_wr_addrs;
     reg reg_awvalid,reg_wvalid,reg_w_last;
     reg [7:0] reg_w_len;
     reg [7:0] reg_w_stb;
 
-
     always @(posedge clock) begin
         if(!reset) begin
             wr_state    <= S_WR_IDLE;
-            reg_wr_adrs <= 32'd0;
+            reg_wr_addrs <= 32'd0;
             reg_awvalid <= 1'b0;
             reg_wvalid  <= 1'b0;
             reg_w_last  <= 1'b0;
             reg_w_len   <= 8'd0;
         end else begin
-            case (wr_state)
+            case (write_req)
                 S_WR_IDLE: begin
-                    if(read_write == AXI_WRITE) begin
-                        wr_state <= S_WA_WAIT;
-                        reg_wr_adrs <= rw_addr_i;
-                        reg_w_len   <= rw_len_i;
+                    if(rw_valid_i) begin
+                        wr_state     <= S_WA_WAIT;
+                        reg_wr_addrs <= rw_addr_i;
+                        reg_w_len    <= rw_len_i;
                     end
                     reg_awvalid <= 1'b0;
                     reg_wvalid  <= 1'b0;
@@ -163,7 +162,7 @@ module axi_rw # (
                 S_WA_START: begin
                     wr_state <= S_WD_WAIT;
                     reg_awvalid <= 1'b1;
-                    reg_wvalid < 1'b1;
+                    reg_wvalid <= 1'b1;
                 end
                 S_WD_WAIT: begin
                   if(axi_aw_ready_i) begin
@@ -185,7 +184,7 @@ module axi_rw # (
                 S_WR_WAIT: begin
                     reg_w_last <= 1'b0;
                     if(axi_b_valid_i) begin
-                        wr_state <= S_WR_DONE
+                        wr_state <= S_WR_DONE;
                     end
                 end
                 S_WR_DONE: begin
@@ -204,7 +203,7 @@ module axi_rw # (
     localparam S_RD_DONE = 3'd5;
     
     reg [2:0] rd_state;
-    reg [31:0] reg_rd_adrs;
+    reg [31:0] reg_rd_addrs;
     reg [31:0] reg_rd_len;
     reg reg_arvalid;
 
@@ -215,11 +214,11 @@ module axi_rw # (
           reg_rd_len <= 32'd0;
           reg_arvalid <= 1'b0;
         end else begin
-          case(rd_state)
+          case(read_req)
             S_RD_IDLE:begin
                 if(rw_valid_i) begin
                     rd_state <= S_RA_WAIT;
-                    reg_rd_adrs <= rw_addr_i;
+                    reg_rd_addrs <= rw_addr_i;
                     reg_rd_len <= rw_size_i - 32'd1;
                 end
                 reg_arvalid = 1'b0;
@@ -253,13 +252,13 @@ module axi_rw # (
 
     // ------------------Write Transaction------------------
     parameter AXI_SIZE      = $clog2(AXI_DATA_WIDTH / 8);
-    wire [AXI_ID_WIDTH-1:0] axi_id              = {AXI_ID_WIDTH{1'b0}};
-    wire [AXI_USER_WIDTH-1:0] axi_user          = {AXI_USER_WIDTH{1'b0}};
+    wire [AXI_ID_WIDTH-1:0] axi_id      = {AXI_ID_WIDTH{1'b0}};
+    wire [AXI_USER_WIDTH-1:0] axi_user  = {AXI_USER_WIDTH{1'b0}};
     wire [7:0] axi_len      =  8'b0 ;
     wire [2:0] axi_size     = AXI_SIZE[2:0];
     // 写地址通道  以下没有备注初始化信号的都可能是你需要产生和用到的
     assign axi_aw_valid_o   = reg_awvalid;
-    assign axi_aw_addr_o    = reg_wr_adrs;
+    assign axi_aw_addr_o    = reg_wr_addrs;
     assign axi_aw_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS | `AXI_PROT_SECURE_ACCESS | `AXI_PROT_DATA_ACCESS;  //初始化信号即可
     assign axi_aw_id_o      = axi_id;                                                                           //初始化信号即可
     assign axi_aw_user_o    = axi_user;                                                                         //初始化信号即可
@@ -286,7 +285,7 @@ module axi_rw # (
 
     // Read address channel signals
     assign axi_ar_valid_o   = reg_arvalid;
-    assign axi_ar_addr_o    = reg_rd_adrs;
+    assign axi_ar_addr_o    = reg_rd_addrs;
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS | `AXI_PROT_SECURE_ACCESS | `AXI_PROT_DATA_ACCESS;  //初始化信号即可
     assign axi_ar_id_o      = axi_id;                                                                           //初始化信号即可                        
     assign axi_ar_user_o    = axi_user;                                                                         //初始化信号即可
@@ -298,6 +297,6 @@ module axi_rw # (
     assign axi_ar_qos_o     = 4'h0;                                                                             //初始化信号即可
 
     // Read data channel signals
-    assign axi_r_ready_o    = r_state_read;
+    assign axi_r_ready_o    = axi_r_valid_i;
 
 endmodule
