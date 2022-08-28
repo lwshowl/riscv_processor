@@ -4,7 +4,7 @@ module icache #(WAY_NUMBER = 8)
                 input [63:0] addr_i,
                 input [63:0] ext_data,
                 input axi_last_data,
-                output reg [63:0] axi_r_addr,
+                output reg [63:0] axi_req_addr,
                 output reg axi_r_req,
                 output reg valid_o,
                 output reg [31:0] data_o);
@@ -56,7 +56,7 @@ module icache #(WAY_NUMBER = 8)
     /* check whether the tag of the specified index(line)
      matches any of the line tags in each way
      if the line is valid then set the presence bit
-     */
+    */
     generate
     for(genvar way = 0;way<WAY_NUMBER;way = way+1) begin
         assign presence[way] = (way_tag[way][index] == tag && way_valid[way][index] == true) ? 1 : 0;
@@ -123,7 +123,9 @@ module icache #(WAY_NUMBER = 8)
     */
 
     /* verilator lint_off UNOPTFLAT */
-    reg [WAY_NUMBER-1:0] plru_dir;
+    // plru tree direction struct
+    // tree node number from 1 to way number
+    reg [WAY_NUMBER-1:1] plru_dir;
     wire [$clog2(WAY_NUMBER)-1:0] node_id[$clog2(WAY_NUMBER)-1:0];
     
     // treverse the plru tree , from level 2 , to last non leaf level
@@ -131,7 +133,7 @@ module icache #(WAY_NUMBER = 8)
     assign node_id[0] = 1;
     generate
     for(genvar i = 1;i<$clog2(WAY_NUMBER);i = i + 1) begin
-        assign node_id[i] = plru_dir[node_id[i-1]-1] ? node_id[i-1] << 1 : (node_id[i-1] << 1) +1;
+        assign node_id[i] = plru_dir[node_id[i-1]] ? node_id[i-1] << 1 : (node_id[i-1] << 1) +1;
     end
     endgenerate
 
@@ -140,13 +142,19 @@ module icache #(WAY_NUMBER = 8)
     // treat PLRU nodes as a binary tree , all nodes are non leaf nodes
     // so there are clog2(WAY_NUMBER)-1 non leaf levels
     generate
+        assign plru_dir[1] = (|presence_w[0+:(WAY_NUMBER/2)] && !(|presence_w[(WAY_NUMBER/2)+:WAY_NUMBER/2])) ? 0 : 1;
+        // start from level 2
         for (genvar i = 1; i < $clog2(WAY_NUMBER); i = i+1) begin
-            for (genvar j = 0; j < i**2; j = j+1) begin // for each level there is 2^i nodes
+            for (genvar j = 0; j < 2**i; j = j+1) begin // for each level there is 2^i nodes
                 // for each node , checking if the way number falls in the coresponding range
                 // if true , check if the way number falls in which child node range, set to 0 if is in left child , otherwise 1
                 // if false remain unchanged
-                assign plru_dir[2**i+j] = (cache_hit && (|presence_w[(WAY_NUMBER/(i<<1))*j+:(WAY_NUMBER/(i<<1))]) && !(|presence_w[WAY_NUMBER/(i<<1)*(j+1)+:(WAY_NUMBER/(i<<1))])) ?
-                ((|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j)+:(WAY_NUMBER/(i<<2))] && !(|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j+1)+:WAY_NUMBER/(i<<2)])) ? 0:1) : plru_dir[2**i+j];
+                // is father node pointing to us ?
+                assign plru_dir[2**i+j] = (cache_hit & (((2**i+j) >> 1) + plru_dir[(2**i+j) >> 1] == 2**i+j )) ?
+                // if pointing to us , check if the presence bits falls to children's coresponding range , and set bit
+                ((|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j)+:(WAY_NUMBER/(i<<2))] && !(|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j+1)+:WAY_NUMBER/(i<<2)])) ? 0:1) : 
+                // otherwise remain unchanged
+                plru_dir[2**i+j];
             end
         end
     endgenerate
@@ -156,16 +164,15 @@ module icache #(WAY_NUMBER = 8)
     wire [$clog2(WAY_NUMBER)-1:0] last_node_id = node_id[$clog2(WAY_NUMBER)-1];
 
     // last node specifies the target way number , node id is 1 larger than the target way number
-    assign way_replace = plru_dir[last_node_id-1] ? (last_node_id-1) : last_node_id;
+    assign way_replace = plru_dir[last_node_id] ? (last_node_id-1) : last_node_id;
     
     always @(posedge clk) begin
         if (rst) begin
             // on reset , clear all valid bits on all ways and all lines
             for(integer x = 0; x< WAY_NUMBER; x = x+1) begin
                 for(integer y = 0; y< 64 ;y = y+1)  begin
-                    way_valid[x][y] = 0;
+                    way_valid[x][y] <= 0;
                 end
-                plru_dir = 0;
                 cnt      <= 0;
             end
             // set default state and output valid bit
@@ -183,16 +190,16 @@ module icache #(WAY_NUMBER = 8)
                 end
             end else if (state == state_refill) begin
                 axi_r_req  <= 1;
-                axi_r_addr <= addr_i;
+                axi_req_addr <= addr_i;
                 way_wen[way_replace] <= 1;
                 // refill the entire line
                 if (axi_last_data == 1 && cnt == 32'd64) begin
                     state                  <= state_check;
                     way_valid[way_replace][index] <= 1;
-                    end else begin
-                    way_ram_in[way_replace] <= ext_data[cnt+:8];
-                    cnt <= cnt + 8;
+                    way_tag[way_replace][index] <= tag;
                 end
+                way_ram_in[way_replace] <= ext_data[cnt+:8];
+                cnt <= cnt + 8;
             end // end state_refiil
         end // end not rst
     end // end always

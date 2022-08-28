@@ -1,7 +1,7 @@
 `include "instructions.v"
 `include "exceptions.v"
 
-module top(input clk,
+module core(input clk,
            input rst);
     
     wire w_clk;
@@ -34,23 +34,86 @@ module top(input clk,
     .ref_pc (pc_ref_pc),
     .pc_out_reg (pc_out)
     );
-    
+
+    /******************* axi 接口 *********************/
+    /* verilator lint_off UNUSED */
+    wire [63:0] data_out1;
+    wire trans_done1_o;
+    /* verilator lint_off UNUSED*/
+
+    axi_ctl ac0(
+    .clk(r_clk),
+    .rst(rst),
+
+    // port 1 more privileged
+    .axi_req1(0),
+    .rw_req1(0),
+    .addr1(64'd0),
+    .data1(64'd0),
+    .data_o1(data_out1),
+    .trans_done1(trans_done1_o),
+
+    // port 2 
+    // connected to if stage
+    .axi_req2(if_axi_req),
+    .rw_req2(if_axi_rw),
+    .addr2(pc_out),
+    .data2(64'd0),
+    .data_o2(if_axi_data),
+    .trans_done2(if_axi_done)
+  );
+
     /********************取指***************************/
     // 指令内存输出的值，既为指令
     /* verilator lint_off UNUSED */
-    wire [63:0] instr64;
+    wire [63:0] instr64 /*verilator public_flat_rd*/;
+    // request line of axi 
+    wire if_axi_req;
+    // read write line , 0 for read 1 for write
+    wire if_axi_rw;
+    // axi transcation finish indicate bit
+    wire if_axi_done;
+    // axi data
+    wire [63:0] if_axi_data;
     /* verilator lint_off UNUSED */
     reg [31:0] instr32;
     
-    // DPI-C接口，内存在外部编程语言中定义
-    import "DPI-C" function void npc_mem_read(
-    input longint raddr,output longint rdata);
-    // 访存
-    always @(r_clk) begin
-        if(!rst)
-            npc_mem_read(pc_out,instr64);
-    end
+    // axi read addr , set by icache
+    wire [63:0] if_axi_addr;
+    // cache valid
+    wire ic_valid;
+    // ic data
+    wire [31:0] ic_data;
+
+    icache #(.WAY_NUMBER(8)) ic0
+            (.clk(r_clk),
+             .rst(rst),
+             .addr_i(pc_out),
+             .ext_data(if_axi_data),
+             .axi_last_data(if_axi_done),
+             .axi_req_addr(if_axi_addr),
+             .axi_r_req(if_axi_req),
+             .valid_o(ic_valid),
+             .data_o(ic_data)
+            );
+    
+    // assign rw to 0 , since icache only read
+    assign if_axi_rw = 0;
+
+    // duplicated
+    // // DPI-C接口，内存在外部编程语言中定义
+    // import "DPI-C" function void npc_mem_read(
+    // input longint raddr,output longint rdata);
+    // // 访存
+    // always @(r_clk) begin
+    //     if(!rst)
+    //         npc_mem_read(pc_out,instr64);
+    // end
+
+    // sending instructions if cache visit is finished , otherwise send bubble forward
+    assign instr64 = ic_valid ? {32'd0,ic_data} : 64'd0;
     assign instr32 = instr64[31:0];
+
     wire [15:0] fetch_exception = 0;
     /**************译码，生成立即数*************************/
     //译码阶段过程寄存器
@@ -322,9 +385,11 @@ module top(input clk,
     import "DPI-C" function void npc_mem_write(
     input longint addr,input longint wdata,input byte wmask);
     
+    /* verilator lint_off UNDRIVEN */
     reg [63:0] dmem_data_out;
     wire [63:0] dmem_sextdata_out;
     wire [63:0] dmem_data_result;
+    /* verilator lint_off UNDRIVEN */
 
     // load instructions
     assign dmem_data_result = (dmem_opcode_out == 7'b0000011) ? dmem_sextdata_out : dmem_result_out;
@@ -337,11 +402,12 @@ module top(input clk,
                                 (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
                                 (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
 
-    always @(posedge r_clk) begin
-        if (dmem_memr_out) begin
-            npc_mem_read(dmem_result_out,dmem_data_out);
-        end
-    end
+    // //duplicated
+    // always @(posedge r_clk) begin
+    //     if (dmem_memr_out) begin
+    //         npc_mem_read(dmem_result_out,dmem_data_out);
+    //     end
+    // end
 
     wire [63:0] csrval;
     wire [63:0] mepc_overri;
@@ -430,5 +496,4 @@ module top(input clk,
                                                                                     wb_result_out;
 
 endmodule
-    
     

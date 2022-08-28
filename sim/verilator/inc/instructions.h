@@ -1,6 +1,4 @@
-#ifndef INSTRUCTIONS_H
-#define INSTRUCTIONS_H
-
+#pragma once
 //instructions
 #define   i_bubble  0
 #define   i_lui     1
@@ -83,4 +81,3 @@
 
 
 #define   i_invalid 127
-#endif

@@ -1,12 +1,12 @@
-TARGET = top
+TARGET = core
 OBJ_DIR = ./obj_dir
-TESTBENCH_DIR = ./test_benches
+TESTBENCH_DIR = ./src
 HOST_DIR = ./hosts
-NEMUHOME := $(shell echo $$NEMU_HOME) 
+NEMUHOME := $(shell echo $$NEMU_HOME)
 
-V_SRC =  /home/xy/npc/rv64/rtl/core \
-		 /home/xy/npc/rv64/rtl/bus \
-		 /home/xy/npc/rv64/rtl/templates
+V_INC_DIR = -I/home/xy/npc/rv64/rtl/core \
+		 	-I/home/xy/npc/rv64/rtl/bus \
+		 	-I/home/xy/npc/rv64/rtl/templates
 
 nemu : build_nemu run_nemu
 
@@ -24,7 +24,7 @@ recipes: verilate
 	@- make -C $(OBJ_DIR) -f V$(TARGET).mk --silent
 
 verilate:
-	@ verilator -Wall --cc --trace -CFLAGS -lstdc++  -IV_SRC $(V_SRC)/$(TARGET).v --exe $(TESTBENCH_DIR)/tb_$(TARGET).cpp
+	@ verilator -Wall --cc --trace -CFLAGS -lstdc++ $(V_INC_DIR) $(V_SRC)/$(TARGET).v --exe $(TESTBENCH_DIR)/tb_$(TARGET).cpp
 
 copy_obj : recipes
 	$(info copying objects to nemu/isa/npc/verilated)
