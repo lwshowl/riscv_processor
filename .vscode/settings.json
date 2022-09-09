@@ -59,6 +59,7 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "iomanip": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "bitset": "cpp"
     }
 }

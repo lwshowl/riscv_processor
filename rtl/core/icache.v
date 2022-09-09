@@ -2,9 +2,11 @@ module icache #(WAY_NUMBER = 8)
                (input clk,
                 input rst,
                 input [63:0] addr_i,
-                input [63:0] ext_data,
-                input axi_last_data,
+                input [63:0] axi_data,
+                input axi_done,
                 output reg [63:0] axi_req_addr,
+                output reg [8:0] fifo_idx,
+                output reg fifo_done,
                 output reg axi_r_req,
                 output reg valid_o,
                 output reg [31:0] data_o);
@@ -22,7 +24,7 @@ module icache #(WAY_NUMBER = 8)
      
      64bit word address
      [valid][presence] [tag][block index][block offset]
-     63:12   11:6           5:0
+                        63:12   11:6       5:0
      */
     
     // for each line , there is valid and tag field
@@ -46,13 +48,19 @@ module icache #(WAY_NUMBER = 8)
         .clk(clk),
         .wen(way_wen[j]),
         .index(index),
+        // read offset
         .offset(offset),
+        // write offset , starts from 1 , decrement 1 to start writing at addr 0
+        .w_offset(w_offset[5:0] - 1),
         .data_in(way_ram_in[j]),
         .data_out(way_ram_out[j])
         );
+    
+    // fifo cnt starts from 8 , decrement 8 to starts reading from 0
+    assign way_ram_in[j] = axi_data[(cnt-8)+:8]; 
     end
     endgenerate
-    
+
     /* check whether the tag of the specified index(line)
      matches any of the line tags in each way
      if the line is valid then set the presence bit
@@ -78,37 +86,28 @@ module icache #(WAY_NUMBER = 8)
     
     // kv based multiplexor for way data selection
     // a lut is required to form the mutiplexing mapping
-    wire [31:0] cache_data;
-    localparam lut_entry_len = 32+WAY_NUMBER;
+    reg [$clog2(WAY_NUMBER)-1:0] hit_way;
+    localparam lut_entry_len = $clog2(WAY_NUMBER)+WAY_NUMBER;
     
     // lut is reuiqred to generate kv mutiplexor mapping
-    wire [WAY_NUMBER*lut_entry_len-1:0] mux_lut;
+    wire [(WAY_NUMBER*lut_entry_len)-1:0] mux_lut;
     /*  key in kv mapping , 4 way example
      0000 is default
-     0001 is way one
-     0010 is way two
+     0001 is way zro
+     0010 is way one
      */
-    wire [WAY_NUMBER-1:0] way_key;
+    wire [WAY_NUMBER-1:0] way_key[WAY_NUMBER-1:0];
     generate
     for(genvar i = 0;i<WAY_NUMBER;i = i+1) begin
-        assign way_key                                 = 1<<i[WAY_NUMBER-1:0];
-        assign mux_lut[i*lut_entry_len+:lut_entry_len] = {way_key,way_ram_out[i]};
+        assign way_key[i]                              = 1<<(i[WAY_NUMBER-1:0]);
+        assign mux_lut[i*lut_entry_len+:lut_entry_len] = {way_key[i],i[$clog2(WAY_NUMBER)-1:0]};
     end
     endgenerate
     
     // kv based way_data mutiplexor
     // provided by ysyx.org
-    MuxKey #(.NR_KEY(WAY_NUMBER), .KEY_LEN(WAY_NUMBER), .DATA_LEN(32)) m0 (cache_data, presence_w, 32'b0, mux_lut);
+    MuxKey #(.NR_KEY(WAY_NUMBER), .KEY_LEN(WAY_NUMBER), .DATA_LEN($clog2(WAY_NUMBER))) m0 (hit_way, presence_w, 0, mux_lut);
     
-    /*state machine of the icache procedure
-     whenever input addr is set , the presence bits are imediately confirmed
-     then state is divided into cache hit and miss states
-     */
-    
-    reg [3:0] state;
-    reg [31:0] cnt;
-    localparam state_check  = 4'b0;
-    localparam state_refill = 4'b1;
     
     // PLRU replacement policy
     // for N way cache , N-1 bits is needed to store PLRU state info
@@ -165,7 +164,23 @@ module icache #(WAY_NUMBER = 8)
 
     // last node specifies the target way number , node id is 1 larger than the target way number
     assign way_replace = plru_dir[last_node_id] ? (last_node_id-1) : last_node_id;
+
+    reg [6:0] w_offset;
+
+    /*state machine of the icache procedure
+     whenever input addr is set , the presence bits are imediately confirmed
+     then state is divided into cache hit and miss states
+     */
     
+    reg [3:0] state;
+    reg [31:0] cnt;
+    reg [$clog2(WAY_NUMBER)-1:0] cur_replace_way;
+    localparam state_check  = 4'b0;
+    localparam state_refill = 4'b1;
+
+    assign valid_o = cache_hit;
+    assign data_o = cache_hit ? way_ram_out[hit_way] : 32'd0;
+
     always @(posedge clk) begin
         if (rst) begin
             // on reset , clear all valid bits on all ways and all lines
@@ -173,34 +188,76 @@ module icache #(WAY_NUMBER = 8)
                 for(integer y = 0; y< 64 ;y = y+1)  begin
                     way_valid[x][y] <= 0;
                 end
-                cnt      <= 0;
+            end
+            // reset wen for all ways
+            for(integer x =0;x<WAY_NUMBER; x=x+1) begin
+                way_wen[x] <= 0;
             end
             // set default state and output valid bit
             state   <= state_check;
-            valid_o <= 0;
-            end else begin // begin not rst
-            if (state == state_check) begin
+        end
+        
+        // state machine of icache
+        case(state)
+            // check state
+            state_check: begin
+                // in case of previous write , clear write bit
+                // if there was a write , way_replace will not change since 
+                // now is a retry of the cache visit
+                way_wen[way_replace] <= 0;
                 if (cache_hit) begin
-                    valid_o <= 1;
-                    data_o  <= cache_data;
-                    way_wen[way_replace] <= 0;
+                    state <= state;
+                    // valid_o         <= cache_hit;
+                    // data_o          <= way_ram_out[hit_way];
                 end else begin
-                    valid_o <= 0;
-                    state   <= state_refill;
+                    // set external fifo index to 0
+                    fifo_idx        <= 0;
+                    // init ram counters
+                    w_offset        <= 0;
+                    cnt             <= 0;
+                    axi_r_req       <= 1;
+                    // track which way to replace
+                    cur_replace_way <= way_replace;
+                    // change state to refill
+                    state           <= state_refill;
                 end
-            end else if (state == state_refill) begin
-                axi_r_req  <= 1;
-                axi_req_addr <= addr_i;
-                way_wen[way_replace] <= 1;
+            end
+            // refill state
+            state_refill: begin
+                  // request the entire line (which is the address of (address - offset) )
+                axi_req_addr <= addr_i - {{58{1'b0}},offset};
                 // refill the entire line
-                if (axi_last_data == 1 && cnt == 32'd64) begin
-                    state                  <= state_check;
-                    way_valid[way_replace][index] <= 1;
-                    way_tag[way_replace][index] <= tag;
+                if (w_offset == 7'd65) begin
+                    // after 64 bytes are all filled (replaced an entire line)
+                    // set the target line tag and valid bits
+                    // change state to cache check again , theoratically will fix the cache miss
+                    state                           <= state_check;
+                    fifo_done                       <= 1;
+                    axi_r_req                       <= 0;
+                    way_valid[cur_replace_way][index]   <= 1;
+                    way_tag[cur_replace_way][index]     <= tag;
                 end
-                way_ram_in[way_replace] <= ext_data[cnt+:8];
-                cnt <= cnt + 8;
-            end // end state_refiil
-        end // end not rst
+                // if the axi transcation has been finished , ready to fill the cache line
+                if(axi_done) begin
+                    way_wen[cur_replace_way] <= 1;
+                    if(cnt == 32'd64) begin
+                        // increment fifo_idx every 8 bytes and reset fill cnt to zero
+                        cnt      <= 0;
+                        fifo_idx <= fifo_idx + 64;
+                    end else begin
+                        // ext_data is the element of the axi_ctl fifo (in fact is a 512 bit bus)
+                        // which is a 64 bit interface
+                            // write data to the cache ram once a byte , after every 8 bytes
+                        // fifo_idx which is the idx of the axi_ctl fifo (512 bit bus)
+                        // w_offset is the write offset in the cache ram , after 64 bytes , the entire line is filled
+                        w_offset    <= w_offset + 1;
+                        cnt         <= cnt + 8;
+                    end
+                end // end axi_done
+            end
+            default: begin
+                state <= state_check;
+            end
+        endcase
     end // end always
 endmodule

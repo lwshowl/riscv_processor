@@ -1,5 +1,6 @@
 #pragma once
-#include "sim_conf.h"
+#include <stdint.h>
+#include "verilator.h"
 
 uint64_t is_committing();
 void dump_decode();
@@ -11,14 +12,19 @@ void dump_regfile();
 int sanity_check();
 void dump_pc();
 void dump_csr();
+void dump_icache();
 void update_dnpc();
-extern "C" uint64_t run_once();
+void dump_axi();
+void dump_axi_ctl();
 extern "C" void npc_reset();
 extern "C" void npc_dump_registers(uint64_t *regs);
 extern "C" void invalid_inst(uint64_t addr);
 
-std::queue<uint64_t> dnpc_queue;
-uint64_t dnpc_at_commit;
+extern vluint64_t sim_time;
+extern vluint64_t posedge_count;
+extern Vcore *dut;
+extern std::queue<uint64_t> dnpc_queue;
+extern uint64_t dnpc_at_commit;
 
 static const char *reg_name[] = {
     "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",

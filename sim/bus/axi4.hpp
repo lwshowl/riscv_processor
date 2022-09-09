@@ -4,6 +4,8 @@
 #include <verilated.h>
 #include <condition_variable>
 #include <cstdint>
+#include <iostream>
+#include <set>
 
 #define AUTO_SIG(name, msb, lsb) \
     typename std::conditional <(msb-lsb+1) <=  8, CData, \
@@ -210,7 +212,7 @@ struct axi4 {
     AUTO_IN (rready     , 0, 0);
     axi4() {
         // reset all pointer to zero
-        memset(this,NULL,sizeof(*this));
+        memset(this,0,sizeof(*this));
     }
     void update_input(axi4_ref <A_WIDTH,D_WIDTH,ID_WIDTH> &ref) {
         // aw

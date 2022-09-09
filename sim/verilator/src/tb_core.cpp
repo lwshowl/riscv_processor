@@ -1,12 +1,10 @@
-#include "instructions.h"
+#include "inc/instructions.h"
+#include "inc/tb_core.h"
 #include "inc/core_dump.h"
-#include "simulator/inc/axi_slave_mem.h"
 using namespace std;
 
+Vcore *dut = new Vcore;
 #define MAX_SIM_TIME -1
-vluint64_t sim_time = 0;
-vluint64_t posedge_count = 0;
-uint64_t dnpc_at_commit;
 
 uint64_t run_once()
 {
@@ -16,19 +14,36 @@ uint64_t run_once()
         pc = is_committing();
         if (sim_time < MAX_SIM_TIME && !pc)
         {
-            dut->clk ^= 1;
-            mem_sigs.update_input(mem_ref);
-            dut->eval();
-            mem.beat(mem_sigs_ref);
-            mem_sigs.update_output(mem_ref);
-            sim_time++;
-            // dut-clk == 1 , 刚刚有一个上升沿，所有信息被写入寄存器
+            // 上升沿以前
+            if (dut->clk == 0)
+            {
+                // 上升沿以前 通知slave
+                mem_sigs.update_input(*mem_ref);
+                // 产生上升沿
+                dut->clk ^= 1;
+                dut->eval();
+
+                // 打印必要信息
+                dump_decode();
+                // dump_axi_ctl();
+                // dump_axi();
+                getchar();
+                update_dnpc();
+            }
+            dump_icache();
+
+            // 上升沿已经发生
             if (dut->clk == 1)
             {
-                posedge_count++;
-                update_dnpc();
-                //dump_wb();
+                //产生下降沿
+                dut->clk ^= 1;
+                dut->eval();
+                //下降沿之后 获取slave 的输出，以便下一个上升沿使用
+                mem.beat(mem_sigs_ref);
+                mem_sigs.update_output(*mem_ref);
             }
+
+            sim_time++;
         }
         else
             break;
@@ -50,14 +65,12 @@ uint64_t run_once()
     dut->eval();
     if (dut->clk == 1)
     {
-        //dump_wb();
         update_dnpc();
     }
     dut->clk ^= 1;
     dut->eval();
     if (dut->clk == 1)
     {
-        //dump_wb();
         update_dnpc();
     }
     return pc;

@@ -1,8 +1,72 @@
 `include "instructions.v"
 `include "exceptions.v"
 
-module core(input clk,
-           input rst);
+module core # (
+            parameter RW_DATA_WIDTH     = 64,
+            parameter RW_ADDR_WIDTH     = 64,
+            parameter AXI_DATA_WIDTH    = 64,
+            parameter AXI_ADDR_WIDTH    = 64,
+            parameter AXI_ID_WIDTH      = 4,
+            parameter AXI_STRB_WIDTH    = AXI_DATA_WIDTH/8,
+            parameter AXI_USER_WIDTH    = 1
+            )(
+            // input clk
+            input clk,
+            // reset
+            input rst,
+            // Advanced eXtensible Interface
+            input                               axi_aw_ready,
+            output                              axi_aw_valid,
+            output [AXI_ADDR_WIDTH-1:0]         axi_aw_addr,
+            output [2:0]                        axi_aw_prot,
+            output [AXI_ID_WIDTH-1:0]           axi_aw_id,
+            output [AXI_USER_WIDTH-1:0]         axi_aw_user,
+            output [7:0]                        axi_aw_len,
+            output [2:0]                        axi_aw_size,
+            output [1:0]                        axi_aw_burst,
+            output                              axi_aw_lock,
+            output [3:0]                        axi_aw_cache,
+            output [3:0]                        axi_aw_qos,
+            output [3:0]                        axi_aw_region,
+        
+            input                               axi_w_ready,
+            output                              axi_w_valid,
+            output [AXI_DATA_WIDTH-1:0]         axi_w_data,
+            output [AXI_DATA_WIDTH/8-1:0]       axi_w_strb,
+            output                              axi_w_last,
+            output [AXI_USER_WIDTH-1:0]         axi_w_user,
+        
+            output                              axi_b_ready,
+            input                               axi_b_valid,
+            /* verilator lint_off UNUSED */
+            input  [1:0]                        axi_b_resp,
+            /* verilator lint_off UNUSED */
+            input  [AXI_ID_WIDTH-1:0]           axi_b_id,
+            input  [AXI_USER_WIDTH-1:0]         axi_b_user,
+        
+            input                               axi_ar_ready,
+            output                              axi_ar_valid,
+            output [AXI_ADDR_WIDTH-1:0]         axi_ar_addr,
+            output [2:0]                        axi_ar_prot,
+            output [AXI_ID_WIDTH-1:0]           axi_ar_id,
+            output [AXI_USER_WIDTH-1:0]         axi_ar_user,
+            output [7:0]                        axi_ar_len,
+            output [2:0]                        axi_ar_size,
+            output [1:0]                        axi_ar_burst,
+            output                              axi_ar_lock,
+            output [3:0]                        axi_ar_cache,
+            output [3:0]                        axi_ar_qos,
+            output [3:0]                        axi_ar_region,
+        
+            output                              axi_r_ready,
+            input                               axi_r_valid,
+            input  [1:0]                        axi_r_resp,
+            input  [AXI_DATA_WIDTH-1:0]         axi_r_data,
+            input                               axi_r_last,
+            input  [AXI_ID_WIDTH-1:0]           axi_r_id,
+            input  [AXI_USER_WIDTH-1:0]         axi_r_user
+            
+            );
     
     wire w_clk;
     wire r_clk;
@@ -10,6 +74,94 @@ module core(input clk,
     assign w_clk = clk;
     assign r_clk = ~clk;
     
+    /******************* axi 接口 *********************/
+    /* verilator lint_off UNUSED */
+    wire [63:0] data_out1;
+    wire trans_done1_o;
+    /* verilator lint_off UNUSED*/
+
+    //axi interface
+    /* verilator lint_off UNUSED */
+    axi_ctl ac0(
+    .clk(clk),
+    .rst(rst),
+
+    // port 1 more privileged
+    .axi_req1(0),
+    .rw_req1(0),
+    .addr1(64'd0),
+    .data1(64'd0),
+    .rw_len1(8'd1),
+    .data_o1(data_out1),
+    .axi_done1(trans_done1_o),
+
+    // port 2 
+    // connected to if stage
+    .axi_req2(if_axi_req),
+    .rw_req2(if_axi_rw),
+    .addr2(pc_out),
+    .data2(64'd0),
+    .rw_len2(if_axi_len),
+    .data_o2(if_axi_data),
+    .axi_done2(if_axi_done),
+    
+    // internal fifo interface , 512 bits bus
+    .fifo_idx(if_fifo_idx),
+    .fifo_done(if_fifo_done),
+    
+    // Advanced eXtensible Interface
+    .axi_aw_ready (axi_aw_ready ),
+    .axi_aw_valid (axi_aw_valid ),
+    .axi_aw_addr  (axi_aw_addr  ),
+    .axi_aw_prot  (axi_aw_prot  ),
+    .axi_aw_id    (axi_aw_id    ),
+    .axi_aw_user  (axi_aw_user  ),
+    .axi_aw_len   (axi_aw_len   ),
+    .axi_aw_size  (axi_aw_size  ),
+    .axi_aw_burst (axi_aw_burst ),
+    .axi_aw_lock  (axi_aw_lock  ),
+    .axi_aw_cache (axi_aw_cache ),
+    .axi_aw_qos   (axi_aw_qos   ),
+    .axi_aw_region(axi_aw_region),
+    
+    .axi_w_ready  (axi_w_ready  ),
+    .axi_w_valid  (axi_w_valid  ),
+    .axi_w_data   (axi_w_data   ),
+    .axi_w_strb   (axi_w_strb   ),
+    .axi_w_last   (axi_w_last   ),
+    .axi_w_user   (axi_w_user   ),
+    
+    .axi_b_ready  (axi_b_ready  ),
+    .axi_b_valid  (axi_b_valid  ),
+    .axi_b_resp   (axi_b_resp   ),
+    .axi_b_id     (axi_b_id     ),
+    .axi_b_user   (axi_b_user   ),
+    
+    .axi_ar_ready (axi_ar_ready ),
+    .axi_ar_valid (axi_ar_valid ),
+    .axi_ar_addr  (axi_ar_addr  ),
+    .axi_ar_prot  (axi_ar_prot  ),
+    .axi_ar_id    (axi_ar_id    ),
+    .axi_ar_user  (axi_ar_user  ),
+    .axi_ar_len   (axi_ar_len   ),
+    .axi_ar_size  (axi_ar_size  ),
+    .axi_ar_burst (axi_ar_burst ),
+    .axi_ar_lock  (axi_ar_lock  ),
+    .axi_ar_cache (axi_ar_cache ),
+    .axi_ar_qos   (axi_ar_qos   ),
+    .axi_ar_region(axi_ar_region),
+    
+    .axi_r_ready  (axi_r_ready  ),
+    .axi_r_valid  (axi_r_valid  ),
+    .axi_r_resp   (axi_r_resp   ),
+    .axi_r_data   (axi_r_data   ),
+    .axi_r_last   (axi_r_last   ),
+    .axi_r_id     (axi_r_id     ),
+    .axi_r_user   (axi_r_user   )
+  );
+
+  /************************ pc *******************************/
+
     //pc 的输入
     //两种分支模式，直接分支，和伪直接分支
     wire pc_rel_branch;
@@ -19,13 +171,16 @@ module core(input clk,
     wire [63:0] pc_ref_pc;
     wire [63:0] pc_imm_in;
     wire [63:0] mepc_val;
+    wire pc_bubble;
     //pc 的输出是 指令指针
     wire [63:0] pc_out;
     
+    assign pc_bubble = memory_bubble | ~ic_valid;
+
     pc pc64(
     .clk (w_clk),
     .rst (rst),
-    .bubble(memory_bubble),
+    .bubble(pc_bubble),
     .exception(pc_exception),
     .rel_branch (pc_rel_branch),
     .abs_branch (pc_abs_branch),
@@ -35,49 +190,23 @@ module core(input clk,
     .pc_out_reg (pc_out)
     );
 
-    /******************* axi 接口 *********************/
-    /* verilator lint_off UNUSED */
-    wire [63:0] data_out1;
-    wire trans_done1_o;
-    /* verilator lint_off UNUSED*/
-
-    axi_ctl ac0(
-    .clk(r_clk),
-    .rst(rst),
-
-    // port 1 more privileged
-    .axi_req1(0),
-    .rw_req1(0),
-    .addr1(64'd0),
-    .data1(64'd0),
-    .data_o1(data_out1),
-    .trans_done1(trans_done1_o),
-
-    // port 2 
-    // connected to if stage
-    .axi_req2(if_axi_req),
-    .rw_req2(if_axi_rw),
-    .addr2(pc_out),
-    .data2(64'd0),
-    .data_o2(if_axi_data),
-    .trans_done2(if_axi_done)
-  );
 
     /********************取指***************************/
     // 指令内存输出的值，既为指令
-    /* verilator lint_off UNUSED */
-    wire [63:0] instr64 /*verilator public_flat_rd*/;
+    wire [63:0] instr64;
+    reg [31:0] instr32;
     // request line of axi 
-    wire if_axi_req;
+    /* verilator lint_off UNUSED */
+    wire if_axi_req; 
     // read write line , 0 for read 1 for write
     wire if_axi_rw;
+    // burst len of icache
+    wire [7:0] if_axi_len;
     // axi transcation finish indicate bit
     wire if_axi_done;
     // axi data
     wire [63:0] if_axi_data;
     /* verilator lint_off UNUSED */
-    reg [31:0] instr32;
-    
     // axi read addr , set by icache
     wire [63:0] if_axi_addr;
     // cache valid
@@ -85,20 +214,28 @@ module core(input clk,
     // ic data
     wire [31:0] ic_data;
 
+    // fifo inteface
+    wire [8:0] if_fifo_idx;
+    wire  if_fifo_done;
+
+    assign if_axi_rw = 0;
+    // 8 transfers each burst , in total of 64 bytes
+    assign if_axi_len = 8'd8; // decrements 1 internally
     icache #(.WAY_NUMBER(8)) ic0
-            (.clk(r_clk),
+            (.clk(clk),
              .rst(rst),
              .addr_i(pc_out),
-             .ext_data(if_axi_data),
-             .axi_last_data(if_axi_done),
-             .axi_req_addr(if_axi_addr),
+             .axi_data(if_axi_data),
+             .axi_done(if_axi_done),
              .axi_r_req(if_axi_req),
+             .axi_req_addr(if_axi_addr),
+             .fifo_idx(if_fifo_idx),
+             .fifo_done(if_fifo_done),
              .valid_o(ic_valid),
              .data_o(ic_data)
             );
     
     // assign rw to 0 , since icache only read
-    assign if_axi_rw = 0;
 
     // duplicated
     // // DPI-C接口，内存在外部编程语言中定义
@@ -381,28 +518,28 @@ module core(input clk,
     Reg #(16,0) dmem_excep(w_clk,dmem_excep_rst,alu_exception,alu_excep_out,dmem_wen);
     assign dmem_exception = 0 | alu_excep_out;
     
-    //访存
-    import "DPI-C" function void npc_mem_write(
-    input longint addr,input longint wdata,input byte wmask);
     
     /* verilator lint_off UNDRIVEN */
     reg [63:0] dmem_data_out;
     wire [63:0] dmem_sextdata_out;
     wire [63:0] dmem_data_result;
     /* verilator lint_off UNDRIVEN */
-
+    
     // load instructions
     assign dmem_data_result = (dmem_opcode_out == 7'b0000011) ? dmem_sextdata_out : dmem_result_out;
-
+    
     assign dmem_sextdata_out = (dmem_instrId_out == `i_lb) ? {{56{dmem_data_out[7]}},dmem_data_out[7:0]} :
-                                (dmem_instrId_out == `i_lh) ?  {{48{dmem_data_out[15]}},dmem_data_out[15:0]} :
-                                (dmem_instrId_out == `i_lw) ? {{32{dmem_data_out[31]}},dmem_data_out[31:0]} :
-                                (dmem_instrId_out == `i_ld ) ? dmem_data_out :
-                                (dmem_instrId_out == `i_lbu) ? {{56{1'b0}},dmem_data_out[7:0]} :
-                                (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
-                                (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
-
+    (dmem_instrId_out == `i_lh) ?  {{48{dmem_data_out[15]}},dmem_data_out[15:0]} :
+    (dmem_instrId_out == `i_lw) ? {{32{dmem_data_out[31]}},dmem_data_out[31:0]} :
+    (dmem_instrId_out == `i_ld ) ? dmem_data_out :
+    (dmem_instrId_out == `i_lbu) ? {{56{1'b0}},dmem_data_out[7:0]} :
+    (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
+    (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
+    
     // //duplicated
+    // //访存
+    // import "DPI-C" function void npc_mem_write(
+    // input longint addr,input longint wdata,input byte wmask);
     // always @(posedge r_clk) begin
     //     if (dmem_memr_out) begin
     //         npc_mem_read(dmem_result_out,dmem_data_out);
@@ -477,7 +614,7 @@ module core(input clk,
     
     always @(posedge r_clk) begin
         if (wb_memw_out) begin
-            npc_mem_write(wb_result_out,wb_rs2val_out,wmask);
+            // npc_mem_write(wb_result_out,wb_rs2val_out,wmask);
         end
     end
 

@@ -40,6 +40,10 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
             size_t file_size = file.tellg();
             file.seekg(std::ios_base::beg);
             if (start_addr >= mem_size || file_size > mem_size - start_addr) {
+                std::cout << "start addr: "<<start_addr << std::endl;
+                std::cout << "mem size: "<< mem_size << std::endl;
+                std::cout << "filesize: " << file_size << std::endl;
+
                 std::cerr << "memory size is not big enough for init file." << std::endl;
                 file_size = mem_size;
             }

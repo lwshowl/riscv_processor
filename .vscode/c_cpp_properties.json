@@ -4,9 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/obj_dir/",
                 "/usr/share/verilator/include/**",
-                "/usr/share/verilator/include/vltstd/"
+                "/usr/share/verilator/include/vltstd/",
+                "${workspaceFolder}/sim/difftest",
+                "${workspaceFolder}/sim",
+                "/usr/share/verilator/include",
+                "${workspaceFolder}/sim/verilator/obj_dir"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -67,6 +67,9 @@ module axi_rw # (
     input                               read_req,           // 读请求
     input                               write_req,          // 写请求
 
+    // external fifo interface
+    output                              rfifo_wen,
+
     // Advanced eXtensible Interface
     input                               axi_aw_ready_i,
     output                              axi_aw_valid_o,
@@ -140,7 +143,7 @@ module axi_rw # (
   reg [7:0] reg_w_stb;
 
   always @(posedge clock) begin
-    if(!reset) begin
+    if(reset) begin
       wr_state    <= S_WR_IDLE;
       reg_wr_addrs <= 64'd0;
       reg_awvalid <= 1'b0;
@@ -154,7 +157,7 @@ module axi_rw # (
           if(rw_valid_i && write_req) begin
             wr_state     <= S_WA_WAIT;
             reg_wr_addrs <= rw_addr_i;
-            reg_w_len    <= rw_len_i;
+            reg_w_len    <= rw_len_i - 8'd1;
           end
           reg_awvalid <= 1'b0;
           reg_wvalid  <= 1'b0;
@@ -215,7 +218,7 @@ module axi_rw # (
   reg reg_arvalid;
 
   always @(posedge clock) begin
-    if(!reset) begin
+    if(reset) begin
       rd_state <= S_RD_IDLE;
       reg_rd_addrs <= 64'd0;
       reg_rd_len <= 8'd0;
@@ -225,7 +228,7 @@ module axi_rw # (
       case(rd_state)
         S_RD_IDLE: begin
           if(rw_valid_i && read_req) begin
-            rd_state <= S_RD_WAIT;
+            rd_state <= S_RA_WAIT;
             reg_rd_addrs <= rw_addr_i;
             reg_rd_len <= rw_len_i - 8'd1;
           end
@@ -242,18 +245,22 @@ module axi_rw # (
           if(axi_ar_ready_i) begin
             rd_state <= S_RD_PROC;
             reg_arvalid <= 1'b0;
+            axi_r_ready_o <= 1;
           end
         end
         S_RD_PROC: begin
           if(axi_r_valid_i) begin
             data_read_o <= axi_r_data_i;
+            rfifo_wen   <= 1;
             if(axi_r_last_i) begin
               rd_state <= S_RD_DONE;
+              axi_r_ready_o <= 0;
             end
           end
         end
         S_RD_DONE: begin
           rd_state <= S_RD_IDLE;
+          rfifo_wen <= 0;
         end
         default: begin
           rd_state <= S_RD_IDLE;
@@ -266,7 +273,7 @@ module axi_rw # (
 
   // ------------------Write Transaction------------------
   parameter AXI_SIZE      = $clog2(AXI_DATA_WIDTH / 8);
-  wire [AXI_ID_WIDTH-1:0] axi_id      = {AXI_ID_WIDTH{1'b0}};
+  wire [AXI_ID_WIDTH-1:0] axi_id      = {AXI_ID_WIDTH{1'b1}};
   wire [AXI_USER_WIDTH-1:0] axi_user  = {AXI_USER_WIDTH{1'b0}};
   wire [7:0] axi_len      =  8'b0 ;
   wire [2:0] axi_size     = AXI_SIZE[2:0];
@@ -311,7 +318,5 @@ module axi_rw # (
   assign axi_ar_qos_o     = 4'h0;                                                                             //初始化信号即可
   assign axi_ar_region_o = 4'h0;
 
-  // Read data channel signals
-  assign axi_r_ready_o    = axi_r_valid_i;
 
 endmodule
