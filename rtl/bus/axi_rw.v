@@ -178,6 +178,7 @@ module axi_rw # (
         end
         S_WD_PROC: begin
           if(axi_w_ready_i) begin
+
             if(reg_w_len == 8'd0) begin
               wr_state <= S_WR_WAIT;
               reg_wvalid <= 1'b0;
@@ -293,7 +294,7 @@ module axi_rw # (
 
   // 写数据通道
   assign axi_w_valid_o    = reg_wvalid;
-  assign axi_w_data_o     = rw_w_data_i ;
+  assign axi_w_data_o     = rw_w_data_i;
   assign axi_w_strb_o     = rw_size_i;
   assign axi_w_last_o     = 1'b0;
   assign axi_w_user_o     = axi_user;                                                                         //初始化信号即可

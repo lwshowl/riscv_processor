@@ -11,7 +11,7 @@ void dump_axi_ctl()
     cout << " axi control state: " << (uint64_t)dut->core__DOT__ac0__DOT__state
          << " axi fifo cnt: " << (uint64_t)dut->core__DOT__ac0__DOT__cnt
          << " axi fifo data: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rdata
-         << " axi fifo wen: " << (uint64_t)dut->core__DOT__ac0__DOT__fifo_wen
+         << " axi fifo wen: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_fifo_wen
          << endl;
 
     // check if an axi req has finished
@@ -30,7 +30,6 @@ void dump_axi_ctl()
 void dump_axi()
 {
     cout << " axi rw valid: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rw_valid
-
          << " axi rd state: " << (uint64_t)dut->core__DOT__ac0__DOT__a0__DOT__rd_state
          << " axi ar valid: " << (uint64_t)dut->axi_ar_valid
          << " axi ar ready: " << (uint64_t)dut->axi_ar_ready

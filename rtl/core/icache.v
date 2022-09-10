@@ -1,11 +1,11 @@
 module icache #(WAY_NUMBER = 8)
                (input clk,
                 input rst,
-                input [63:0] addr_i,
-                input [63:0] axi_data,
+                input [63:0] axi_addr_i,
+                input [63:0] axi_data_i,
                 input axi_done,
                 output reg [63:0] axi_req_addr,
-                output reg [8:0] fifo_idx,
+                output reg [8:0] axi_fifo_idx,
                 output reg fifo_done,
                 output reg axi_r_req,
                 output reg valid_o,
@@ -14,9 +14,9 @@ module icache #(WAY_NUMBER = 8)
     localparam true = 1;
     
     // 4k bytes set , 64 bytes block for 64 blocks(lines)
-    wire [5:0] index  = addr_i[11:6];
-    wire [5:0] offset = addr_i[5:0];
-    wire [51:0] tag   = addr_i[63:12];
+    wire [5:0] index  = axi_addr_i[11:6];
+    wire [5:0] offset = axi_addr_i[5:0];
+    wire [51:0] tag   = axi_addr_i[63:12];
     
     /* for set associative cache , block offset width is the width of numbers of bytes in a block
      block index width is the width of the number of the blocks ,which is TOTALSIZE / BLOCKSIZE
@@ -39,6 +39,8 @@ module icache #(WAY_NUMBER = 8)
     reg [7:0] way_ram_in [WAY_NUMBER-1:0];
     reg [31:0] way_ram_out [WAY_NUMBER-1:0];
     reg way_wen [WAY_NUMBER-1:0];
+
+    reg [3:0] write_mask;
     
     // generate number of ram block for each way
     generate
@@ -49,15 +51,13 @@ module icache #(WAY_NUMBER = 8)
         .wen(way_wen[j]),
         .index(index),
         // read offset
-        .offset(offset),
+        .r_offset(offset),
         // write offset , starts from 1 , decrement 1 to start writing at addr 0
-        .w_offset(w_offset[5:0] - 1),
+        .w_offset(w_offset[5:0]),
+        .write_mask(write_mask),
         .data_in(way_ram_in[j]),
         .data_out(way_ram_out[j])
         );
-    
-    // fifo cnt starts from 8 , decrement 8 to starts reading from 0
-    assign way_ram_in[j] = axi_data[(cnt-8)+:8]; 
     end
     endgenerate
 
@@ -211,7 +211,7 @@ module icache #(WAY_NUMBER = 8)
                     // data_o          <= way_ram_out[hit_way];
                 end else begin
                     // set external fifo index to 0
-                    fifo_idx        <= 0;
+                    axi_fifo_idx        <= 0;
                     // init ram counters
                     w_offset        <= 0;
                     cnt             <= 0;
@@ -227,7 +227,7 @@ module icache #(WAY_NUMBER = 8)
                   // request the entire line (which is the address of (address - offset) )
                 axi_req_addr <= addr_i - {{58{1'b0}},offset};
                 // refill the entire line
-                if (w_offset == 7'd65) begin
+                if (axi_fifo_idx == 9'd512) begin
                     // after 64 bytes are all filled (replaced an entire line)
                     // set the target line tag and valid bits
                     // change state to cache check again , theoratically will fix the cache miss
@@ -240,19 +240,10 @@ module icache #(WAY_NUMBER = 8)
                 // if the axi transcation has been finished , ready to fill the cache line
                 if(axi_done) begin
                     way_wen[cur_replace_way] <= 1;
-                    if(cnt == 32'd64) begin
-                        // increment fifo_idx every 8 bytes and reset fill cnt to zero
-                        cnt      <= 0;
-                        fifo_idx <= fifo_idx + 64;
-                    end else begin
-                        // ext_data is the element of the axi_ctl fifo (in fact is a 512 bit bus)
-                        // which is a 64 bit interface
-                            // write data to the cache ram once a byte , after every 8 bytes
-                        // fifo_idx which is the idx of the axi_ctl fifo (512 bit bus)
-                        // w_offset is the write offset in the cache ram , after 64 bytes , the entire line is filled
-                        w_offset    <= w_offset + 1;
-                        cnt         <= cnt + 8;
-                    end
+                    write_mask <= 8'd8;
+                    way_ram_in[cur_replace_way] <= axi_data_i;
+                    axi_fifo_idx <= axi_fifo_idx + 64;
+                    w_offset    <= way_wen[cur_replace_way] ? w_offset + 8 : w_offset;
                 end // end axi_done
             end
             default: begin

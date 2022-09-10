@@ -70,9 +70,12 @@ module core # (
     
     wire w_clk;
     wire r_clk;
-    
     assign w_clk = clk;
     assign r_clk = ~clk;
+
+    wire axi_fifo_wen;
+    wire [8:0] axi_fifo_idx;
+    wire axi_fifo_done;
     
     /******************* axi 接口 *********************/
     /* verilator lint_off UNUSED */
@@ -87,11 +90,11 @@ module core # (
     .rst(rst),
 
     // port 1 more privileged
-    .axi_req1(0),
-    .rw_req1(0),
-    .addr1(64'd0),
-    .data1(64'd0),
-    .rw_len1(8'd1),
+    .axi_req1(dmem_axi_req),
+    .rw_req1(dmem_axi_rw),
+    .addr1(dmem_axi_addr),
+    .data1(dmem_axi_data_i),
+    .rw_len1(dmem_axi_len),
     .data_o1(data_out1),
     .axi_done1(trans_done1_o),
 
@@ -106,9 +109,10 @@ module core # (
     .axi_done2(if_axi_done),
     
     // internal fifo interface , 512 bits bus
-    .fifo_idx(if_fifo_idx),
-    .fifo_done(if_fifo_done),
-    
+    .cache_fifo_idx(axi_fifo_idx),
+    .cache_fifo_done(axi_fifo_done),
+    .cache_fifo_wen(axi_fifo_wen),
+
     // Advanced eXtensible Interface
     .axi_aw_ready (axi_aw_ready ),
     .axi_aw_valid (axi_aw_valid ),
@@ -214,9 +218,6 @@ module core # (
     // ic data
     wire [31:0] ic_data;
 
-    // fifo inteface
-    wire [8:0] if_fifo_idx;
-    wire  if_fifo_done;
 
     assign if_axi_rw = 0;
     // 8 transfers each burst , in total of 64 bytes
@@ -229,23 +230,11 @@ module core # (
              .axi_done(if_axi_done),
              .axi_r_req(if_axi_req),
              .axi_req_addr(if_axi_addr),
-             .fifo_idx(if_fifo_idx),
-             .fifo_done(if_fifo_done),
+             .fifo_idx(axi_fifo_idx),
+             .fifo_done(axi_fifo_done),
              .valid_o(ic_valid),
              .data_o(ic_data)
             );
-    
-    // assign rw to 0 , since icache only read
-
-    // duplicated
-    // // DPI-C接口，内存在外部编程语言中定义
-    // import "DPI-C" function void npc_mem_read(
-    // input longint raddr,output longint rdata);
-    // // 访存
-    // always @(r_clk) begin
-    //     if(!rst)
-    //         npc_mem_read(pc_out,instr64);
-    // end
 
     // sending instructions if cache visit is finished , otherwise send bubble forward
     assign instr64 = ic_valid ? {32'd0,ic_data} : 64'd0;
@@ -415,7 +404,7 @@ module core # (
                                 (regfile_dmembypass_rs2) ? dmembypass_rs2val :
                                                                 regfile_rs2valout;
     
-    /***************ALU(算数,分支和地址计算)**************************/
+    /***************ALU(算数,分支和地址 计算)**************************/
     // ALU阶段过程寄存器
     wire alu_rst;
     wire alu_wen;
@@ -525,35 +514,77 @@ module core # (
     wire [63:0] dmem_data_result;
     /* verilator lint_off UNDRIVEN */
     
-    // load instructions
-    assign dmem_data_result = (dmem_opcode_out == 7'b0000011) ? dmem_sextdata_out : dmem_result_out;
     
-    assign dmem_sextdata_out = (dmem_instrId_out == `i_lb) ? {{56{dmem_data_out[7]}},dmem_data_out[7:0]} :
-    (dmem_instrId_out == `i_lh) ?  {{48{dmem_data_out[15]}},dmem_data_out[15:0]} :
-    (dmem_instrId_out == `i_lw) ? {{32{dmem_data_out[31]}},dmem_data_out[31:0]} :
-    (dmem_instrId_out == `i_ld ) ? dmem_data_out :
-    (dmem_instrId_out == `i_lbu) ? {{56{1'b0}},dmem_data_out[7:0]} :
-    (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
-    (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
+    // data cache ,
+    // write to data cache will only be valid in the next cycle ,
+    // so that , if dmem and wb stage is commiting an instruction at the same time , dmem will be a cycle slower ,
+    // which means theses two instructions commit one by one
+    wire [63:0]  dmem_axi_data_o;
+    wire [63:0]  dmem_axi_data_i;
+    wire dmem_axi_done;
+    wire dmem_axi_req;
+    wire dmem_axi_rw;
+    wire [63:0] dmem_axi_addr;
+    wire [7:0] dmem_axi_len;
+    wire [63:0] dmem_data_out;
+    wire dmem_valid;
     
-    // //duplicated
-    // //访存
-    // import "DPI-C" function void npc_mem_write(
-    // input longint addr,input longint wdata,input byte wmask);
-    // always @(posedge r_clk) begin
-    //     if (dmem_memr_out) begin
-    //         npc_mem_read(dmem_result_out,dmem_data_out);
-    //     end
-    // end
+    assign dmem_axi_len = 8'd8;
 
+    // how many bytes should be written ?
+    wire [7:0] wmask;
+    assign wmask = (wb_instrId_out == `i_sb) ? 1 :
+                        (wb_instrId_out == `i_sh) ? 2 :
+                            (wb_instrId_out == `i_sw) ? 4 : 
+                                (wb_instrId_out == `i_sd) ? 8 : 0;
+    
+    dcache #(.WAY_NUMBER(8)) dc0
+    (.clk(clk),
+    .rst(rst),
+    // core interface
+    .cache_rw(dmem_memr_out),
+    .core_addr_i(dmem_result_out), 
+    .core_data_i(dmem_rs2val_out), // riscv only writes to ram with the data in rs2
+    .write_mask(wmask),
+    .valid_o(dmem_valid),
+    .data_o(dmem_data_out)
+    // axi interface
+    .axi_data_i(dmem_axi_data_i),
+    .axi_data_o(dmem_axi_data_o),
+    .axi_done(dmem_axi_done),
+    .axi_req(dmem_axi_req),
+    .axi_rw(dmem_axi_rw),
+    .axi_req_addr(dmem_axi_addr),
+    .axi_fifo_idx(axi_fifo_idx),
+    .axi_fifo_wen(axi_fifo_wen),
+    .axi_fifo_done(axi_fifo_done),
+    );
+    
+    // solve width and signedness of the read data
+    assign dmem_sextdata_out = (dmem_instrId_out == `i_lb) ? {{56{dmem_data_out[7]}},dmem_data_out[7:0]} :
+            (dmem_instrId_out == `i_lh) ?  {{48{dmem_data_out[15]}},dmem_data_out[15:0]} :
+            (dmem_instrId_out == `i_lw) ? {{32{dmem_data_out[31]}},dmem_data_out[31:0]} :
+            (dmem_instrId_out == `i_ld ) ? dmem_data_out :
+            (dmem_instrId_out == `i_lbu) ? {{56{1'b0}},dmem_data_out[7:0]} :
+            (dmem_instrId_out == `i_lhu) ? {{48{1'b0}},dmem_data_out[15:0]} :
+            (dmem_instrId_out == `i_lwu) ? {{32{1'b0}},dmem_data_out[31:0]} : 64'hdeadbeef;
+
+    // the data passed to next stage
+    // if the instruction is a load instruction , then pass the read data to next stage
+    // other wise pass the result of the alu
+    assign dmem_data_result = (dmem_opcode_out == 7'b0000011) ? dmem_sextdata_out : dmem_result_out;
+            
+    // CSR instructions
+    // since CSR never reads memory, we can simply put csr instrutions to be executed at mem stage
     wire [63:0] csrval;
     wire [63:0] mepc_overri;
     wire [63:0] mcause_overri;
     wire [63:0] mtvec_val;
     wire excep_wen;
-    wire csr_wen = dmem_instrId_out == `i_csrrw || dmem_instrId_out == `i_csrrs || dmem_instrId_out == `i_csrrc || dmem_instrId_out == `i_csrrwi || dmem_instrId_out == `i_csrrsi || dmem_instrId_out == `i_csrrci;
-    
-    // 如果是csr 指令，则在此读csr
+    wire csr_wen = dmem_instrId_out == `i_csrrw || dmem_instrId_out == `i_csrrs || 
+            dmem_instrId_out == `i_csrrc || dmem_instrId_out == `i_csrrwi || 
+            dmem_instrId_out == `i_csrrsi || dmem_instrId_out == `i_csrrci;
+            
     CSR csr(
         .clk(r_clk),
         .rst(rst),
@@ -605,19 +636,6 @@ module core # (
     wire [15:0] wb_exception;
     Reg #(16,0) wb_excep(w_clk,0,dmem_exception,dmem_excep_out,wb_wen);
     assign wb_exception = wb_instrId_out == `i_ecall ? `e_ecall | dmem_excep_out : 0 | dmem_exception;
-    
-    wire [7:0] wmask;
-    assign wmask = (wb_instrId_out == `i_sb) ? 1 :
-                        (wb_instrId_out == `i_sh) ? 2 :
-                            (wb_instrId_out == `i_sw) ? 4 : 
-                                (wb_instrId_out == `i_sd) ? 8 : 0;
-    
-    always @(posedge r_clk) begin
-        if (wb_memw_out) begin
-            // npc_mem_write(wb_result_out,wb_rs2val_out,wmask);
-        end
-    end
-
     assign pc_exception = wb_exception > 0;
     assign excep_wen = wb_exception > 0;
     assign mepc_overri = wb_pc_out;
@@ -631,6 +649,5 @@ module core # (
                                         (wb_instrId_out == `i_jal) ? wb_pc_out + 4 :
                                                 (wb_instrId_out == `i_jalr) ? wb_pc_out + 4 :
                                                                                     wb_result_out;
-
 endmodule
     

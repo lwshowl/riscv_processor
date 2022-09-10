@@ -5,7 +5,7 @@
 
 #define bin_path "../cpu_test/build/add-riscv64-nemu.bin"
 
-extern uint64_t run_once();
+extern uint64_t core_run_once();
 extern void core_reset();
 using namespace std;
 
@@ -17,5 +17,5 @@ int main()
     mem_ref = new axi4_ref<64,64,4>(mem_ptr);
     // init cpu core
     core_reset();
-    run_once();
+    core_run_once();
 }

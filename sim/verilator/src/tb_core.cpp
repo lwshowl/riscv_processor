@@ -6,7 +6,7 @@ using namespace std;
 Vcore *dut = new Vcore;
 #define MAX_SIM_TIME -1
 
-uint64_t run_once()
+uint64_t core_run_once()
 {
     uint64_t pc;
     while (1)

@@ -7,73 +7,72 @@ module axi_ctl #(
   parameter AXI_STRB_WIDTH = AXI_DATA_WIDTH/8,
   parameter AXI_USER_WIDTH = 1
 ) (
-  input                             clk          ,
-  input                             rst          ,
+  input                             clk            ,
+  input                             rst            ,
   //port 1
-  input                             axi_req1     ,
-  input                             rw_req1      ,
-  input      [                63:0] addr1        ,
-  input      [                63:0] data1        ,
-  input      [                 7:0] rw_len1      ,
-  output reg [                63:0] data_o1      ,
-  output reg                        axi_done1  ,
+  input                             axi_req1       ,
+  input                             rw_req1        ,
+  input      [                63:0] addr1          ,
+  input      [                63:0] data1          ,
+  input      [                 7:0] rw_len1        ,
+  output reg [                63:0] data_o1        ,
+  output reg                        axi_done1      ,
   //port 2
-  input                             axi_req2     ,
-  input                             rw_req2      ,
-  input      [                63:0] addr2        ,
-  input      [                63:0] data2        ,
-  input      [                 7:0] rw_len2      ,
-  output reg [                63:0] data_o2      ,
-  output reg                        axi_done2  ,
-
+  input                             axi_req2       ,
+  input                             rw_req2        ,
+  input      [                63:0] addr2          ,
+  input      [                63:0] data2          ,
+  input      [                 7:0] rw_len2        ,
+  output reg [                63:0] data_o2        ,
+  output reg                        axi_done2      ,
   // fifo interface
-  input   [8:0] fifo_idx,
-  input   fifo_done,
-
+  input      [                 8:0] cache_fifo_idx ,
+  input                             cache_fifo_done,
+  input                             cache_fifo_wen ,
   // Advanced eXtensible Interface
-  input                             axi_aw_ready ,
-  output                            axi_aw_valid ,
-  output     [  AXI_ADDR_WIDTH-1:0] axi_aw_addr  ,
-  output     [                 2:0] axi_aw_prot  ,
-  output     [    AXI_ID_WIDTH-1:0] axi_aw_id    ,
-  output     [  AXI_USER_WIDTH-1:0] axi_aw_user  ,
-  output     [                 7:0] axi_aw_len   ,
-  output     [                 2:0] axi_aw_size  ,
-  output     [                 1:0] axi_aw_burst ,
-  output                            axi_aw_lock  ,
-  output     [                 3:0] axi_aw_cache ,
-  output     [                 3:0] axi_aw_qos   ,
-  output     [                 3:0] axi_aw_region,
-  input                             axi_w_ready  ,
-  output                            axi_w_valid  ,
-  output     [  AXI_DATA_WIDTH-1:0] axi_w_data   ,
-  output     [AXI_DATA_WIDTH/8-1:0] axi_w_strb   ,
-  output                            axi_w_last   ,
-  output     [  AXI_USER_WIDTH-1:0] axi_w_user   ,
-  output                            axi_b_ready  ,
-  input                             axi_b_valid  ,
-  input      [                 1:0] axi_b_resp   ,
-  input      [    AXI_ID_WIDTH-1:0] axi_b_id     ,
-  input      [  AXI_USER_WIDTH-1:0] axi_b_user   ,
-  input                             axi_ar_ready ,
-  output                            axi_ar_valid ,
-  output     [  AXI_ADDR_WIDTH-1:0] axi_ar_addr  ,
-  output     [                 2:0] axi_ar_prot  ,
-  output     [    AXI_ID_WIDTH-1:0] axi_ar_id    ,
-  output     [  AXI_USER_WIDTH-1:0] axi_ar_user  ,
-  output     [                 7:0] axi_ar_len   ,
-  output     [                 2:0] axi_ar_size  ,
-  output     [                 1:0] axi_ar_burst ,
-  output                            axi_ar_lock  ,
-  output     [                 3:0] axi_ar_cache ,
-  output     [                 3:0] axi_ar_qos   ,
-  output     [                 3:0] axi_ar_region,
-  output                            axi_r_ready  ,
-  input                             axi_r_valid  ,
-  input      [                 1:0] axi_r_resp   ,
-  input      [  AXI_DATA_WIDTH-1:0] axi_r_data   ,
-  input                             axi_r_last   ,
-  input      [    AXI_ID_WIDTH-1:0] axi_r_id     ,
+  input                             axi_aw_ready   ,
+  output                            axi_aw_valid   ,
+  output     [  AXI_ADDR_WIDTH-1:0] axi_aw_addr    ,
+  output     [                 2:0] axi_aw_prot    ,
+  output     [    AXI_ID_WIDTH-1:0] axi_aw_id      ,
+  output     [  AXI_USER_WIDTH-1:0] axi_aw_user    ,
+  output     [                 7:0] axi_aw_len     ,
+  output     [                 2:0] axi_aw_size    ,
+  output     [                 1:0] axi_aw_burst   ,
+  output                            axi_aw_lock    ,
+  output     [                 3:0] axi_aw_cache   ,
+  output     [                 3:0] axi_aw_qos     ,
+  output     [                 3:0] axi_aw_region  ,
+  input                             axi_w_ready    ,
+  output                            axi_w_valid    ,
+  output     [  AXI_DATA_WIDTH-1:0] axi_w_data     ,
+  output     [AXI_DATA_WIDTH/8-1:0] axi_w_strb     ,
+  output                            axi_w_last     ,
+  output     [  AXI_USER_WIDTH-1:0] axi_w_user     ,
+  output                            axi_b_ready    ,
+  input                             axi_b_valid    ,
+  input      [                 1:0] axi_b_resp     ,
+  input      [    AXI_ID_WIDTH-1:0] axi_b_id       ,
+  input      [  AXI_USER_WIDTH-1:0] axi_b_user     ,
+  input                             axi_ar_ready   ,
+  output                            axi_ar_valid   ,
+  output     [  AXI_ADDR_WIDTH-1:0] axi_ar_addr    ,
+  output     [                 2:0] axi_ar_prot    ,
+  output     [    AXI_ID_WIDTH-1:0] axi_ar_id      ,
+  output     [  AXI_USER_WIDTH-1:0] axi_ar_user    ,
+  output     [                 7:0] axi_ar_len     ,
+  output     [                 2:0] axi_ar_size    ,
+  output     [                 1:0] axi_ar_burst   ,
+  output                            axi_ar_lock    ,
+  output     [                 3:0] axi_ar_cache   ,
+  output     [                 3:0] axi_ar_qos     ,
+  output     [                 3:0] axi_ar_region  ,
+  output                            axi_r_ready    ,
+  input                             axi_r_valid    ,
+  input      [                 1:0] axi_r_resp     ,
+  input      [  AXI_DATA_WIDTH-1:0] axi_r_data     ,
+  input                             axi_r_last     ,
+  input      [    AXI_ID_WIDTH-1:0] axi_r_id       ,
   input      [  AXI_USER_WIDTH-1:0] axi_r_user
 );
 
@@ -92,9 +91,9 @@ module axi_ctl #(
   wire [63:0] axi_wdata;
   /* verilator lint_off UNDRIVEN */
   wire [7:0] axi_rw_size;
-  reg [7:0] axi_rw_len;
+  reg  [7:0] axi_rw_len ;
 
-  assign axi_rw_size   = 8'd1;
+  assign axi_rw_size = 8'd1;
 
   assign axi_read_req  = ~axi_rw_req;
   assign axi_write_req = axi_rw_req;
@@ -106,25 +105,26 @@ module axi_ctl #(
   /* verilator lint_off UNUSED */
   reg axi_rw_req  ;
   reg axi_req_size;
-
   // port selector
   reg port_sel;
 
   // data fifo for axi to access
-  wire fifo_wen;
+  wire fifo_wen = cache_fifo_wen | axi_fifo_wen;
   reg [64*8-1:0] fifo;
 
+  reg r_last;
+
+
   // state machine
-  reg [ 3:0] state               ;
-  reg [31:0] cnt                 ;
-  localparam state_wait       = 0;
-  localparam state_axi_trans  = 1;
-  localparam state_last_trans = 2;
-  localparam state_axi_fifo   = 3;
+  reg [ 3:0] state              ;
+  reg [31:0] cnt                ;
+  localparam state_wait      = 0;
+  localparam state_axi_trans = 1;
+  localparam state_axi_fifo  = 2;
 
   always @(posedge clk) begin
     if(rst) begin
-      state <= state_wait;
+      state     <= state_wait;
       axi_done1 <= 0;
       axi_done2 <= 0;
     end
@@ -137,55 +137,62 @@ module axi_ctl #(
             axi_rw_req   <= axi_req1 ? rw_req1 : rw_req2;
             axi_req_addr <= axi_req1 ? addr1 : addr2;
             axi_req_data <= axi_req1 ? data1 : data2;
-            axi_rw_len <= axi_req1 ? rw_len1 : rw_len2;
+            axi_rw_len   <= axi_req1 ? rw_len1 : rw_len2;
             state        <= state_axi_trans;
             cnt          <= 0;
-            axi_rw_valid <= 1;
           end else begin
-            axi_rw_valid <= 0;
           end
-        end
-
-        state_axi_trans : begin
           axi_rw_valid <= 0;
+        end
+        // read transcation
+        state_axi_trans : begin
+          axi_rw_valid <= 1;
+          // synchronize with axi_rw ,when axi_r_last comes,
+          // last r_data will be latched into axi_r_data
+          // so that r_last and last axi_rdata comes together
+          r_last       <= axi_r_last;
           // read transcation
           if(axi_rw_req == read_req) begin
-            if(axi_r_last) begin
-              state <= state_last_trans;
+            if(r_last) begin
+              state <= state_axi_fifo;
             end
             if(fifo_wen) begin
               fifo[cnt+:64] <= axi_rdata;
-              cnt            <= cnt + 64;
+              cnt           <= cnt + 64;
             end
           end
-
           // write transcation
           else begin
-
-
+            if(fifo_wen) begin
+              fifo[cnt+:64] <= axi_req_data;
+              cnt           <= cnt + 64;
+            end
+            // all 512 bits has been written
+            if(cnt == 32'd512) begin
+              axi_rw_valid <= 1;
+              // when write complete , jump to fifo stage
+              if(axi_b_valid) begin
+                state <= state_axi_fifo;
+              end
+            end
           end
         end
- 
-        // the last axi data will be written to fifo
-        state_last_trans: begin
-          fifo[cnt+:64]  <= axi_rdata;
-          state          <= state_axi_fifo; 
-        end
-
         // exchange data between caches and axi controller
         state_axi_fifo : begin
           axi_done1 <= port_sel == 0 ? 1:0;
           axi_done2 <= port_sel == 1 ? 1:0;
-          data_o1     <= fifo[fifo_idx+:64];
-          data_o2     <= fifo[fifo_idx+:64];
-          if(fifo_done) begin
-            state       <= state_wait;
+          data_o1   <= fifo[cache_fifo_idx+:64];
+          data_o2   <= fifo[cache_fifo_idx+:64];
+          if(cache_fifo_done) begin
+            state <= state_wait;
           end
         end
       endcase
     end
   end
 
+
+  wire axi_fifo_wen;
 
   axi_rw a0 (
     .clock          (clk          ),
@@ -197,12 +204,12 @@ module axi_ctl #(
     .rw_w_data_i    (axi_wdata    ), //IF&MEM输入信号
     .rw_addr_i      (axi_req_addr ), //IF&MEM输入信号
     .rw_size_i      (axi_rw_size  ), //IF&MEM输入信号
-    .rw_len_i       (axi_rw_len), // burst 长度
+    .rw_len_i       (axi_rw_len   ), // burst 长度
     .read_req       (axi_read_req ), // 读请求
     .write_req      (axi_write_req), // 写请求
-
+    
     //fifo interface
-    .rfifo_wen      (fifo_wen),
+    .rfifo_wen      (axi_fifo_wen     ),
     
     // Advanced eXtensible Interface
     .axi_aw_ready_i (axi_aw_ready ),
