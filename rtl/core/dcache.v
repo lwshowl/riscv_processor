@@ -1,15 +1,16 @@
 module dcache #(WAY_NUMBER = 8)
                (input                       clk,
                 input                       rst,
+                // core interface
                 input                       cache_rw,
                 input           [3:0]       write_mask,
                 input           [63:0]      core_addr_i,
                 input           [63:0]      core_data_i,
                 // axi_ctl interface
                 input                       axi_done,
-                input                       axi_fifo_wen,
                 input           [63:0]      axi_data_i,
-                output          [63:0]      axi_data_o,
+                output reg                  axi_fifo_wen,
+                output reg      [63:0]      axi_data_o,
                 output reg      [63:0]      axi_req_addr,
                 output reg      [8:0]       axi_fifo_idx,
                 output reg                  axi_fifo_done,
@@ -50,15 +51,19 @@ module dcache #(WAY_NUMBER = 8)
     // for each way , there is a precense bit to control way behaviors
     reg presence [WAY_NUMBER-1:0];
     // wires connecting to internal ram
-    wire [7:0] way_ram_in [WAY_NUMBER-1:0];
-    wire [31:0] way_ram_out [WAY_NUMBER-1:0];
-    reg way_wen [WAY_NUMBER-1:0];
-    reg [3:0] ram_write_mask;
+    reg  [63:0] way_ram_in [WAY_NUMBER-1:0];
+    wire [63:0] way_ram_out [WAY_NUMBER-1:0];
+    reg         way_wen [WAY_NUMBER-1:0];
     
+    reg  [3:0]  ram_write_mask;
+    reg  [5:0]  w_offset;
+    reg  [5:0]  r_offset;
+
+
     // generate number of ram block for each way
     generate
     for(genvar j = 0;j<WAY_NUMBER;j = j+1) begin
-        cache_ram #(.O_WIDTH(32)) ram
+        cache_ram #(.O_WIDTH(64)) ram
         (
         .clk(clk),
         .wen(way_wen[j]),
@@ -150,7 +155,6 @@ module dcache #(WAY_NUMBER = 8)
     end
     endgenerate
 
-
     // update PLRU bits
     // treat PLRU nodes as a binary tree , all nodes are non leaf nodes
     // so there are clog2(WAY_NUMBER)-1 non leaf levels
@@ -179,24 +183,20 @@ module dcache #(WAY_NUMBER = 8)
     // last node specifies the target way number , node id is 1 larger than the target way number
     assign way_replace = plru_dir[last_node_id] ? (last_node_id-1) : last_node_id;
 
-    reg [6:0] w_offset;
-
-    /*state machine of the icache procedure
+    /*state machine of the dcache procedure
      whenever input addr is set , the presence bits are imediately confirmed
      then state is divided into cache hit and miss states
      */
     
-    reg [5:0] r_offset;
-
     reg [3:0] state;
     reg [31:0] cnt;
     reg [$clog2(WAY_NUMBER)-1:0] cur_replace_way;
-    localparam state_check          = 4'b0;
-    localparam state_write_dirty    = 4'b1;
-    localparam state_refill         = 4'b2;
+    localparam state_check          = 4'd0;
+    localparam state_write_dirty    = 4'd1;
+    localparam state_refill         = 4'd2;
 
     assign valid_o = cache_hit;
-    assign data_o = cache_hit ? way_ram_out[hit_way] : 32'd0;
+    assign data_o = cache_hit ? way_ram_out[hit_way] : 64'd0;
 
     always @(posedge clk) begin
         if (rst) begin
@@ -227,30 +227,33 @@ module dcache #(WAY_NUMBER = 8)
                 way_wen[way_replace] <= 0;
                 if (cache_hit) begin
                     if(cache_rw == `CACHE_WRITE) begin
-                        r_offset                <= 0;
-                        w_offset                <= offset;
-                        way_ram_in[hit_way]     <= core_data_i;
-                        way_wen[hit_way]        <= 1;
-                        ram_write_mask          <= write_mask;
-                        line_dirty[hit_way]     <= 1;
+                        r_offset                        <= 0;
+                        w_offset                        <= offset;
+                        way_ram_in[hit_way]             <= core_data_i;
+                        way_wen[hit_way]                <= 1;
+                        ram_write_mask                  <= write_mask;
+                        // if write to cache , set dirty bits
+                        line_dirty[hit_way][index]      <= 1;
                     end
                     // valid_o         <= cache_hit;
                     // data_o          <= way_ram_out[hit_way];
                 end else begin
-                    way_wen[hit_way]    <= 0;
-                    // set external fifo index to 0
-                    axi_fifo_idx        <= 0;
-                    // init ram counters
-                    w_offset            <= 0;
-                    cnt                 <= 0;
-                    // request axi , addr is the block addr (no offset)
-                    axi_req             <= line_dirty[way_replace] ? 0 : 1;                   // if the line is dirty , request axi write later
-                    axi_rw              <= line_dirty[way_replace] ? `AXI_WRITE : `AXI_READ;  // if the line is dirty , request write first
-                    axi_req_addr        <= addr_i - {{58{1'b0}},offset};
-                    // track which way to replace
-                    cur_replace_way     <= way_replace;
-                    // change state to refill
-                    state               <= line_dirty[way_replace] ? state_write_dirty : state_refill;
+                    if(core_addr_i >= 64'h0000_0000_8000_8000) begin 
+                        way_wen[hit_way]    <= 0;
+                        // set external fifo index to 0
+                        axi_fifo_idx        <= 0;
+                        // init ram counters
+                        w_offset            <= 0;
+                        cnt                 <= 0;
+                        // request axi , addr is the block addr (no offset)
+                        axi_req             <= line_dirty[way_replace][index] ? 0 : 1;                   // if the line is dirty , request axi write later
+                        axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;  // if the line is dirty , request write first
+                        axi_req_addr        <= core_addr_i - {{58{1'b0}},offset};
+                        // track which way to replace
+                        cur_replace_way     <= way_replace;
+                        // change state to refill
+                        state               <= line_dirty[way_replace] ? state_write_dirty : state_refill;
+                    end
                 end
             end
             // if the way being replaced is dirty , write back to ram first
@@ -283,16 +286,15 @@ module dcache #(WAY_NUMBER = 8)
             state_refill: begin
                 // request the entire line (which is the address of (address - offset) )
                 // refill the entire line
-                if (axi_fifo_idx == 9'd512) begin
+                if (cnt == 32'd64) begin
                     // after 64 bytes are all filled (replaced an entire line)
                     // set the target line tag and valid bits
                     // change state to cache check again , theoratically will fix the cache miss
                     state                                   <= state_check;
-                    fifo_done                               <= 1;
+                    axi_fifo_done                           <= 1;
                     axi_req                                 <= 0;
                     line_valid[cur_replace_way][index]      <= 1;
                     line_tag[cur_replace_way][index]        <= tag;
-                    line_dirty[cur_replace_way][index]      <= 0;
                 end
                 // if the axi transcation has been finished , ready to fill the cache line
                 if(axi_done) begin
@@ -300,6 +302,8 @@ module dcache #(WAY_NUMBER = 8)
                     ram_write_mask              <= 4'd8;
                     way_wen[cur_replace_way]    <= 1;
                     way_ram_in[cur_replace_way] <= axi_data_i;
+                    cnt                         <= cnt + 8;
+                    w_offset                    <= cnt[5:0];
                     axi_fifo_idx                <= axi_fifo_idx + 64;
                 end // end axi_done
             end

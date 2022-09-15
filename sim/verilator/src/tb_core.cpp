@@ -1,10 +1,19 @@
-#include "inc/instructions.h"
-#include "inc/tb_core.h"
-#include "inc/core_dump.h"
+#include "include/instructions.h"
+#include "include/tb_core.h"
+#include "include/core_dump.h"
 using namespace std;
 
 Vcore *dut = new Vcore;
 #define MAX_SIM_TIME -1
+
+
+
+void core_dump_registers(uint64_t *regs)
+{
+    for (int i = 0; i < 32; i++)
+        regs[i] = dut->core__DOT__registerFile__DOT__registers[i];
+}
+
 
 uint64_t core_run_once()
 {
@@ -23,14 +32,16 @@ uint64_t core_run_once()
                 dut->clk ^= 1;
                 dut->eval();
 
-                // 打印必要信息
-                dump_decode();
-                // dump_axi_ctl();
-                // dump_axi();
-                getchar();
                 update_dnpc();
             }
-            dump_icache();
+
+            // 上升沿后打印必要信息
+            // dump_axi_ctl();
+            // dump_icache();
+            // dump_axi();
+            // std::cout << "sim time: " << sim_time << std::endl; 
+            // dump_decode();
+            // getchar();
 
             // 上升沿已经发生
             if (dut->clk == 1)
@@ -49,7 +60,9 @@ uint64_t core_run_once()
             break;
     }
 
-    if ((dut->core__DOT__wb_branch_out && dut->core__DOT__wb_result_out) | dut->core__DOT__wb_instrId_out == i_jalr | dut->core__DOT__wb_instrId_out == i_mret | dut->core__DOT__dmem_excep_out > 0 | dut->core__DOT__wb_instrId_out == i_ecall)
+    if ((dut->core__DOT__wb_branch_out && dut->core__DOT__wb_result_out) // if there is branch
+            | dut->core__DOT__wb_instrId_out == i_jalr | dut->core__DOT__wb_instrId_out == i_mret 
+                | dut->core__DOT__dmem_excep_out > 0 | dut->core__DOT__wb_instrId_out == i_ecall)
     {
         if (!dnpc_queue.empty())
         {
@@ -57,6 +70,7 @@ uint64_t core_run_once()
             dnpc_queue.pop();
         }
     }
+
     else
         dnpc_at_commit = 0;
 

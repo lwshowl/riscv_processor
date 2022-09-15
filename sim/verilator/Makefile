@@ -7,23 +7,32 @@ NEMUHOME := $(shell echo $$NEMU_HOME)
 CXX = g++
 
 C_SRC_DIR = ~/npc/rv64/sim/verilator/src
+#local flags
+
+CFLAGS += -fPIC
+CFLAGS += -I./include -I./src -I./obj_dir -I./
+CFLAGS += -I$(VERILATOR_INC) -I$(VERILATOR_INC)/vltstd
+
+
+# verilator flags
 
 V_FLAGS =   -Wall -cc --trace --exe \
 			-I../../rtl/core \
 		 	-I../../rtl/bus \
-		 	-I../../rtl/templates
+		 	-I../../rtl/templates \
 
-VC_FLAGS =  -CFLAGS -I./inc \
+VC_FLAGS =  -CFLAGS -I./include \
 			-CFLAGS -I./src \
 			-CFLAGS -I./obj_dir \
 			-CFLAGS -I./ \
 			-CFLAGS -I../ \
 			-CFLAGS -I../../ \
-			-CFLAGS -g
+			-CFLAGS -g \
+		 	-CFLAGS -fPIC
 
-VC_LDFLAGS = -LDFLAGS ../build_tb/core_dump.o \
-			 -LDFLAGS ../build_tb/util.o \
-			 -LDFLAGS -lpthread
+
+VC_LDFLAGS += -LDFLAGS ../build_tb/core_dump.o
+VC_LDFLAGS += -LDFLAGS ../build_tb/util.o
 
 OBJS += ./build_tb/core_dump.o 
 OBJS += ./build_tb/util.o
@@ -44,13 +53,13 @@ run_nemu:
 # build recipes for verilated exectuable (link cpp and verilated model together)
 recipes: verilate $(OBJS)
 	@ cd $(OBJ_DIR)
-	@ make -C $(OBJ_DIR) -f V$(TARGET).mk --silent
+	@ make -C $(OBJ_DIR) -f V$(TARGET).mk LIBS+=-ldl -lm -lstdc++ --silent
 
 # build cpp
 ./build_tb/%.o: ./src/%.cpp
 	@echo + CXX $<
 	@mkdir -p $(dir $@)
-	@$(CXX) -I./inc -I./src -I./obj_dir -I./ -I$(VERILATOR_INC) -I$(VERILATOR_INC)/vltstd -c -o $@ $<
+	@$(CXX) $(CFLAGS) -c -o $@ $<
 
 # veriate verilog file
 verilate:

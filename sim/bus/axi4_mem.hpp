@@ -35,6 +35,15 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
             }
             else return false;
         }
+
+        void* get_mem(){
+            return (void*)this->mem;
+        }
+
+        size_t get_prog_size(){
+            return this->prog_size;
+        }
+
         void load_binary(const char *init_file, uint64_t start_addr = 0) {
             std::ifstream file(init_file,std::ios::in | std::ios::binary | std::ios::ate);
             size_t file_size = file.tellg();
@@ -47,6 +56,7 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
                 std::cerr << "memory size is not big enough for init file." << std::endl;
                 file_size = mem_size;
             }
+            this->prog_size = file_size;
             file.read((char*)mem+start_addr,file_size);
         }
     protected:
@@ -66,6 +76,7 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
         }
     private:
         uint8_t *mem;
+        size_t prog_size;
         size_t mem_size;
 };
 

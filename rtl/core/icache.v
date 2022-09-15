@@ -1,22 +1,25 @@
 module icache #(WAY_NUMBER = 8)
                (input clk,
                 input rst,
-                input [63:0] axi_addr_i,
-                input [63:0] axi_data_i,
-                input axi_done,
-                output reg [63:0] axi_req_addr,
-                output reg [8:0] axi_fifo_idx,
-                output reg fifo_done,
-                output reg axi_r_req,
-                output reg valid_o,
-                output reg [31:0] data_o);
+                // core interface
+                input           [63:0]  core_addr_i,
+                output reg      [31:0]  data_o,
+                output reg              valid_o,
+                // axi interface
+                input                   axi_done,
+                input           [63:0]  axi_data_i,
+                output reg      [63:0]  axi_req_addr,
+                output reg      [8:0]   axi_fifo_idx,
+                output reg              axi_fifo_done,
+                output reg              axi_req
+                );
     
     localparam true = 1;
     
     // 4k bytes set , 64 bytes block for 64 blocks(lines)
-    wire [5:0] index  = axi_addr_i[11:6];
-    wire [5:0] offset = axi_addr_i[5:0];
-    wire [51:0] tag   = axi_addr_i[63:12];
+    wire [5:0] offset = core_addr_i[5:0];
+    wire [5:0] index  = core_addr_i[11:6];
+    wire [51:0] tag   = core_addr_i[63:12];
     
     /* for set associative cache , block offset width is the width of numbers of bytes in a block
      block index width is the width of the number of the blocks ,which is TOTALSIZE / BLOCKSIZE
@@ -29,18 +32,19 @@ module icache #(WAY_NUMBER = 8)
     
     // for each line , there is valid and tag field
     // tags are 52 bits long and each set has 64 blocks(lines) so there is 64 tags
-    reg [51:0] way_tag [WAY_NUMBER-1:0][63:0];
+    reg [51:0] line_tag [WAY_NUMBER-1:0][63:0];
     // valid bit for each block
     // same applies to every way
-    reg way_valid [WAY_NUMBER-1:0][63:0];
+    reg line_valid [WAY_NUMBER-1:0][63:0];
     // for each way , there is a precense bit to control way behaviors
     reg presence [WAY_NUMBER-1:0];
     // wires connecting to internal ram
-    reg [7:0] way_ram_in [WAY_NUMBER-1:0];
-    reg [31:0] way_ram_out [WAY_NUMBER-1:0];
-    reg way_wen [WAY_NUMBER-1:0];
+    wire [31:0] way_ram_out [WAY_NUMBER-1:0];
+    reg  [63:0] way_ram_in [WAY_NUMBER-1:0];
+    reg        way_wen [WAY_NUMBER-1:0];
+    reg  [5:0] w_offset;
 
-    reg [3:0] write_mask;
+    reg  [3:0] ram_write_mask;
     
     // generate number of ram block for each way
     generate
@@ -54,7 +58,7 @@ module icache #(WAY_NUMBER = 8)
         .r_offset(offset),
         // write offset , starts from 1 , decrement 1 to start writing at addr 0
         .w_offset(w_offset[5:0]),
-        .write_mask(write_mask),
+        .write_mask(ram_write_mask),
         .data_in(way_ram_in[j]),
         .data_out(way_ram_out[j])
         );
@@ -67,7 +71,7 @@ module icache #(WAY_NUMBER = 8)
     */
     generate
     for(genvar way = 0;way<WAY_NUMBER;way = way+1) begin
-        assign presence[way] = (way_tag[way][index] == tag && way_valid[way][index] == true) ? 1 : 0;
+        assign presence[way] = (line_tag[way][index] == tag && line_valid[way][index] == true) ? 1 : 0;
     end
     endgenerate
     
@@ -148,8 +152,7 @@ module icache #(WAY_NUMBER = 8)
                 // for each node , checking if the way number falls in the coresponding range
                 // if true , check if the way number falls in which child node range, set to 0 if is in left child , otherwise 1
                 // if false remain unchanged
-                // is father node pointing to us ?
-                assign plru_dir[2**i+j] = (cache_hit & (((2**i+j) >> 1) + plru_dir[(2**i+j) >> 1] == 2**i+j )) ?
+                assign plru_dir[2**i+j] = (cache_hit & (((2**i+j) >> 1) + plru_dir[(2**i+j) >> 1] == 2**i+j )) ? // is father node pointing to us ?
                 // if pointing to us , check if the presence bits falls to children's coresponding range , and set bit
                 ((|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j)+:(WAY_NUMBER/(i<<2))] && !(|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j+1)+:WAY_NUMBER/(i<<2)])) ? 0:1) : 
                 // otherwise remain unchanged
@@ -164,8 +167,6 @@ module icache #(WAY_NUMBER = 8)
 
     // last node specifies the target way number , node id is 1 larger than the target way number
     assign way_replace = plru_dir[last_node_id] ? (last_node_id-1) : last_node_id;
-
-    reg [6:0] w_offset;
 
     /*state machine of the icache procedure
      whenever input addr is set , the presence bits are imediately confirmed
@@ -186,7 +187,7 @@ module icache #(WAY_NUMBER = 8)
             // on reset , clear all valid bits on all ways and all lines
             for(integer x = 0; x< WAY_NUMBER; x = x+1) begin
                 for(integer y = 0; y< 64 ;y = y+1)  begin
-                    way_valid[x][y] <= 0;
+                    line_valid[x][y] <= 0;
                 end
             end
             // reset wen for all ways
@@ -203,48 +204,54 @@ module icache #(WAY_NUMBER = 8)
             state_check: begin
                 // in case of previous write , clear write bit
                 // if there was a write , way_replace will not change since 
-                // now is a retry of the cache visit
+                // now is a retry of the last cache visit
                 way_wen[way_replace] <= 0;
                 if (cache_hit) begin
                     state <= state;
                     // valid_o         <= cache_hit;
                     // data_o          <= way_ram_out[hit_way];
                 end else begin
-                    // set external fifo index to 0
-                    axi_fifo_idx        <= 0;
-                    // init ram counters
-                    w_offset        <= 0;
-                    cnt             <= 0;
-                    axi_r_req       <= 1;
-                    // track which way to replace
-                    cur_replace_way <= way_replace;
-                    // change state to refill
-                    state           <= state_refill;
+                    if(core_addr_i >= 64'h0000_0000_8000_0000) begin
+                        // set external fifo index to 0
+                        axi_fifo_idx    <= 0;
+                        // init ram counters
+                        w_offset        <= 0;
+                        cnt             <= 0;
+                        // fire an axi request
+                        axi_req         <= 1;
+                        axi_req_addr    <= core_addr_i - {{58{1'b0}},offset};
+                        // track which way to replace
+                        cur_replace_way <= way_replace;
+                        // change state to refill
+                        state           <= state_refill;
+                    end
                 end
             end
-            // refill state
+           // refill state
             state_refill: begin
-                  // request the entire line (which is the address of (address - offset) )
-                axi_req_addr <= addr_i - {{58{1'b0}},offset};
+                // request the entire line (which is the address of (address - offset) )
                 // refill the entire line
-                if (axi_fifo_idx == 9'd512) begin
+                // if the axi transcation has been finished , ready to fill the cache line
+                if(axi_done) begin
+                    // write 8 bytes a time to cache_ram
+                    ram_write_mask              <= 4'd8;
+                    way_wen[cur_replace_way]    <= 1;
+                    way_ram_in[cur_replace_way] <= axi_data_i;
+                    cnt                         <= cnt + 8;
+                    w_offset                    <= cnt[5:0];
+                    axi_fifo_idx                <= axi_fifo_idx + 64;
+                end // end axi_done
+
+                if (cnt == 32'd64) begin
                     // after 64 bytes are all filled (replaced an entire line)
                     // set the target line tag and valid bits
                     // change state to cache check again , theoratically will fix the cache miss
-                    state                           <= state_check;
-                    fifo_done                       <= 1;
-                    axi_r_req                       <= 0;
-                    way_valid[cur_replace_way][index]   <= 1;
-                    way_tag[cur_replace_way][index]     <= tag;
+                    state                                   <= state_check;
+                    axi_fifo_done                           <= 1;
+                    axi_req                                 <= 0;
+                    line_valid[cur_replace_way][index]      <= 1;
+                    line_tag[cur_replace_way][index]        <= tag;
                 end
-                // if the axi transcation has been finished , ready to fill the cache line
-                if(axi_done) begin
-                    way_wen[cur_replace_way] <= 1;
-                    write_mask <= 8'd8;
-                    way_ram_in[cur_replace_way] <= axi_data_i;
-                    axi_fifo_idx <= axi_fifo_idx + 64;
-                    w_offset    <= way_wen[cur_replace_way] ? w_offset + 8 : w_offset;
-                end // end axi_done
             end
             default: begin
                 state <= state_check;

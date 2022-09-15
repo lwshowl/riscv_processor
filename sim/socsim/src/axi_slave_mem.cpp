@@ -1,4 +1,4 @@
-#include "inc/axi_slave_mem.h"
+#include "include/axi_slave_mem.h"
 
 extern Vcore *dut;
 
@@ -44,5 +44,4 @@ void axi_mem_connect(axi4_ptr<64, 64, 4> &ptr)
     ptr.rvalid = &(dut->axi_r_valid);
 
     assert(ptr.check());
-    printf("\033[1;32m axi4 slave memory connected \033[0m\n");
 }

@@ -60,6 +60,9 @@
         "typeinfo": "cpp",
         "iomanip": "cpp",
         "queue": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp",
+        "codecvt": "cpp"
     }
 }

@@ -15,7 +15,7 @@ module axi_ctl #(
   input      [                63:0] addr1          ,
   input      [                63:0] data1          ,
   input      [                 7:0] rw_len1        ,
-  output reg [                63:0] data_o1        ,
+  output     [                63:0] data_o1        ,
   output reg                        axi_done1      ,
   //port 2
   input                             axi_req2       ,
@@ -23,7 +23,7 @@ module axi_ctl #(
   input      [                63:0] addr2          ,
   input      [                63:0] data2          ,
   input      [                 7:0] rw_len2        ,
-  output reg [                63:0] data_o2        ,
+  output     [                63:0] data_o2        ,
   output reg                        axi_done2      ,
   // fifo interface
   input      [                 8:0] cache_fifo_idx ,
@@ -76,8 +76,8 @@ module axi_ctl #(
   input      [  AXI_USER_WIDTH-1:0] axi_r_user
 );
 
-  localparam read_req  = 0;
-  localparam write_req = 1;
+  `define READ_REQ   1'b0
+  `define WRITE_REQ  1'b1
   localparam fifo_len  = 8;
 
 
@@ -109,7 +109,7 @@ module axi_ctl #(
   reg port_sel;
 
   // data fifo for axi to access
-  wire fifo_wen = cache_fifo_wen | axi_fifo_wen;
+  wire fifo_wen = (axi_rw_req == `WRITE_REQ  && cache_fifo_wen) | axi_fifo_wen;
   reg [64*8-1:0] fifo;
 
   reg r_last;
@@ -134,15 +134,14 @@ module axi_ctl #(
         state_wait : begin
           if((axi_req1 | axi_req2) && axi_ready) begin
             port_sel     <= axi_req1 ? 0:1;
-            axi_rw_req   <= axi_req1 ? rw_req1 : rw_req2;
             axi_req_addr <= axi_req1 ? addr1 : addr2;
             axi_req_data <= axi_req1 ? data1 : data2;
+            axi_rw_req   <= axi_req1 ? rw_req1 : rw_req2;
             axi_rw_len   <= axi_req1 ? rw_len1 : rw_len2;
             state        <= state_axi_trans;
             cnt          <= 0;
-          end else begin
           end
-          axi_rw_valid <= 0;
+            axi_rw_valid <= 0;
         end
         // read transcation
         state_axi_trans : begin
@@ -152,7 +151,7 @@ module axi_ctl #(
           // so that r_last and last axi_rdata comes together
           r_last       <= axi_r_last;
           // read transcation
-          if(axi_rw_req == read_req) begin
+          if(axi_rw_req == `READ_REQ) begin
             if(r_last) begin
               state <= state_axi_fifo;
             end
@@ -179,10 +178,10 @@ module axi_ctl #(
         end
         // exchange data between caches and axi controller
         state_axi_fifo : begin
-          axi_done1 <= port_sel == 0 ? 1:0;
-          axi_done2 <= port_sel == 1 ? 1:0;
-          data_o1   <= fifo[cache_fifo_idx+:64];
-          data_o2   <= fifo[cache_fifo_idx+:64];
+          axi_done1 <= port_sel == 0; 
+          axi_done2 <= port_sel == 1;
+          // data_o1   <= fifo[cache_fifo_idx+:64];
+          // data_o2   <= fifo[cache_fifo_idx+:64];
           if(cache_fifo_done) begin
             state <= state_wait;
           end
@@ -190,6 +189,9 @@ module axi_ctl #(
       endcase
     end
   end
+
+  assign data_o1 = fifo[cache_fifo_idx+:64];
+  assign data_o2 = fifo[cache_fifo_idx+:64];
 
 
   wire axi_fifo_wen;

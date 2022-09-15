@@ -102,7 +102,7 @@ module core # (
     // connected to if stage
     .axi_req2(if_axi_req),
     .rw_req2(if_axi_rw),
-    .addr2(pc_out),
+    .addr2(if_axi_addr),
     .data2(64'd0),
     .rw_len2(if_axi_len),
     .data_o2(if_axi_data),
@@ -225,15 +225,17 @@ module core # (
     icache #(.WAY_NUMBER(8)) ic0
             (.clk(clk),
              .rst(rst),
-             .addr_i(pc_out),
-             .axi_data(if_axi_data),
-             .axi_done(if_axi_done),
-             .axi_r_req(if_axi_req),
-             .axi_req_addr(if_axi_addr),
-             .fifo_idx(axi_fifo_idx),
-             .fifo_done(axi_fifo_done),
+             // core interface
+             .core_addr_i(pc_out),
              .valid_o(ic_valid),
-             .data_o(ic_data)
+             .data_o(ic_data),
+             // axi interface
+             .axi_done(if_axi_done),
+             .axi_req(if_axi_req),
+             .axi_data_i(if_axi_data),
+             .axi_req_addr(if_axi_addr),
+             .axi_fifo_idx(axi_fifo_idx),
+             .axi_fifo_done(axi_fifo_done)
             );
 
     // sending instructions if cache visit is finished , otherwise send bubble forward
@@ -532,7 +534,7 @@ module core # (
     assign dmem_axi_len = 8'd8;
 
     // how many bytes should be written ?
-    wire [7:0] wmask;
+    wire [3:0] wmask;
     assign wmask = (wb_instrId_out == `i_sb) ? 1 :
                         (wb_instrId_out == `i_sh) ? 2 :
                             (wb_instrId_out == `i_sw) ? 4 : 
@@ -547,7 +549,7 @@ module core # (
     .core_data_i(dmem_rs2val_out), // riscv only writes to ram with the data in rs2
     .write_mask(wmask),
     .valid_o(dmem_valid),
-    .data_o(dmem_data_out)
+    .data_o(dmem_data_out),
     // axi interface
     .axi_data_i(dmem_axi_data_i),
     .axi_data_o(dmem_axi_data_o),
@@ -557,7 +559,7 @@ module core # (
     .axi_req_addr(dmem_axi_addr),
     .axi_fifo_idx(axi_fifo_idx),
     .axi_fifo_wen(axi_fifo_wen),
-    .axi_fifo_done(axi_fifo_done),
+    .axi_fifo_done(axi_fifo_done)
     );
     
     // solve width and signedness of the read data
@@ -616,9 +618,9 @@ module core # (
     wire wb_regw_out;
     wire wb_memw_out;
     wire wb_branch_out;
-    
     assign wb_rst = dmem_exception > 0 | wb_exception > 0;
     assign wb_wen = 1;
+
     Reg #(64,0) wb_csrval (w_clk,wb_rst,csrval,wb_csrval_out,wb_wen);
     Reg #(5,0) wb_rd (w_clk,wb_rst,dmem_rd_out,wb_rd_out,wb_wen);
     Reg #(64,0) wb_pc (w_clk,wb_rst,dmem_pc_out,wb_pc_out,wb_wen);
@@ -650,4 +652,3 @@ module core # (
                                                 (wb_instrId_out == `i_jalr) ? wb_pc_out + 4 :
                                                                                     wb_result_out;
 endmodule
-    

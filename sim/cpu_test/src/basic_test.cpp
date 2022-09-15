@@ -1,6 +1,13 @@
 #include <stdint.h>
 
-int main(){
-  uint64_t var = 1;
-  return var;
+unsigned add_two(unsigned a, unsigned b)
+{
+  return a + b;
+}
+
+int main()
+{
+  unsigned a = 1;
+  unsigned b = 2;
+  return add_two(a, b);
 }

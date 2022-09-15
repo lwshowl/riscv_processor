@@ -1,6 +1,5 @@
-#include "inc/core_dump.h"
-#include "inc/nemu.h"
-#include "instructions.h"
+#include "include/core_dump.h"
+#include "include/instructions.h"
 #include <iostream>
 #include <iomanip>
 #include <bitset>
@@ -9,28 +8,35 @@ using namespace std;
 void dump_axi_ctl()
 {
     cout << " axi control state: " << (uint64_t)dut->core__DOT__ac0__DOT__state
-         << " axi fifo cnt: " << (uint64_t)dut->core__DOT__ac0__DOT__cnt
-         << " axi fifo data: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rdata
-         << " axi fifo wen: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_fifo_wen
+         << ",axi rw: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rw_req
+         << ",axi req1: " << (uint64_t)dut->core__DOT__dmem_axi_req
+         << ",axi req2: " << (uint64_t)dut->core__DOT__if_axi_req
+         << ",axi ctl addr: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_req_addr
+         << ",axi port sel: " << (uint64_t)dut->core__DOT__ac0__DOT__port_sel
+         << ",axi fifo cnt: " << (uint64_t)dut->core__DOT__ac0__DOT__cnt
+         << ",axi fifo data: " << std::hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__ac0__DOT__axi_rdata
+         << ",axi fifo wen: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_fifo_wen
          << endl;
 
     // check if an axi req has finished
-    int ac0_state_fifo = 3;
-    if (dut->core__DOT__ac0__DOT__state == ac0_state_fifo)
+    const int ac0_state_fifo = 2;
+
+    // if (dut->core__DOT__ac0__DOT__state == ac0_state_fifo)
+    // {
+    cout << " ac0: an axi request has finished , fifo dump: " << endl;
+    for (uint64_t i : dut->core__DOT__ac0__DOT__fifo)
     {
-        cout << " ac0: an axi request has finished , fifo dump: " << endl;
-        for (uint64_t i : dut->core__DOT__ac0__DOT__fifo)
-        {
-            cout << std::hex << std::setfill('0') << std::setw(8) << (uint64_t)i << " ";
-        }
-        cout << endl;
+        cout << std::hex << std::setfill('0') << std::setw(8) << (uint64_t)i << " ";
     }
+    cout << endl;
+    // }
 }
 
 void dump_axi()
 {
     cout << " axi rw valid: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rw_valid
          << " axi rd state: " << (uint64_t)dut->core__DOT__ac0__DOT__a0__DOT__rd_state
+         << " axi wr state: " << (uint64_t)dut->core__DOT__ac0__DOT__a0__DOT__wr_state
          << " axi ar valid: " << (uint64_t)dut->axi_ar_valid
          << " axi ar ready: " << (uint64_t)dut->axi_ar_ready
          << " axi r valid: " << (uint64_t)dut->axi_r_valid
@@ -43,13 +49,16 @@ void dump_axi()
 void dump_icache()
 {
     cout << " cache addr: " << std::hex << (uint64_t)dut->core__DOT__pc_out
+         << " cache state: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__state
          << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__ic0__DOT__presence_w)
          << " cache data: " << hex << setfill('0') << setw(8) << (uint64_t)dut->core__DOT__ic0__DOT__way_ram_out[dut->core__DOT__ic0__DOT__hit_way]
          << " cache replace: " << (uint64_t)dut->core__DOT__ic0__DOT__way_replace
-         << " cache state: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__state
-         << " cache waddr: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__w_offset
-         << " cache fifo: " << std::hex << (uint64_t)dut->core__DOT__if_axi_data
+         << " cache w_offset: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__w_offset
+         << " cache axi data: " << std::hex << (uint64_t)dut->core__DOT__if_axi_data
          << " cache fifo cnt: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__cnt
+         << " cache axi done: " << std::hex << (uint64_t)dut->core__DOT__if_axi_done
+         << " cache way wen: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__way_wen[dut->core__DOT__ic0__DOT__cur_replace_way]
+         << " cache way ramin: " << hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__ic0__DOT__way_ram_in[dut->core__DOT__dc0__DOT__cur_replace_way]
          << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__ic0__DOT__m0__DOT__i0__DOT__lut_out)
          << endl;
     int cache_refill = 1;
@@ -116,13 +125,8 @@ void core_reset()
     dut->eval();
     dut->clk ^= 1;
     dut->eval();
-    dut->rst = 0;
-}
 
-void core_dump_registers(uint64_t *regs)
-{
-    for (int i = 0; i < 32; i++)
-        regs[i] = dut->core__DOT__registerFile__DOT__registers[i];
+    dut->rst = 0;
 }
 
 // void core_mem_read(long long raddr, long long *rdata)
