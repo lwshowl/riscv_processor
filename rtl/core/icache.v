@@ -3,8 +3,8 @@ module icache #(WAY_NUMBER = 8)
                 input rst,
                 // core interface
                 input           [63:0]  core_addr_i,
-                output reg      [31:0]  data_o,
-                output reg              valid_o,
+                output          [31:0]  data_o,
+                output                  valid_o,
                 // axi interface
                 input                   axi_done,
                 input           [63:0]  axi_data_i,
@@ -42,10 +42,11 @@ module icache #(WAY_NUMBER = 8)
     wire [31:0] way_ram_out [WAY_NUMBER-1:0];
     reg  [63:0] way_ram_in [WAY_NUMBER-1:0];
     reg        way_wen [WAY_NUMBER-1:0];
-    reg  [5:0] w_offset;
-
-    reg  [3:0] ram_write_mask;
     
+    reg  [3:0] ram_write_mask;
+    reg  [63:0] ram_r_addr;
+    reg  [63:0] ram_w_addr;
+
     // generate number of ram block for each way
     generate
     for(genvar j = 0;j<WAY_NUMBER;j = j+1) begin
@@ -53,11 +54,10 @@ module icache #(WAY_NUMBER = 8)
         (
         .clk(clk),
         .wen(way_wen[j]),
-        .index(index),
         // read offset
-        .r_offset(offset),
+        .r_addr(ram_r_addr),
         // write offset , starts from 1 , decrement 1 to start writing at addr 0
-        .w_offset(w_offset[5:0]),
+        .w_addr(ram_w_addr),
         .write_mask(ram_write_mask),
         .data_in(way_ram_in[j]),
         .data_out(way_ram_out[j])
@@ -179,8 +179,10 @@ module icache #(WAY_NUMBER = 8)
     localparam state_check  = 4'b0;
     localparam state_refill = 4'b1;
 
+    // assign valid_o = cache_hit;
     assign valid_o = cache_hit;
-    assign data_o = cache_hit ? way_ram_out[hit_way] : 32'd0;
+    assign data_o = way_ram_out[hit_way];
+    assign ram_r_addr = core_addr_i;
 
     always @(posedge clk) begin
         if (rst) begin
@@ -205,9 +207,12 @@ module icache #(WAY_NUMBER = 8)
                 // in case of previous write , clear write bit
                 // if there was a write , way_replace will not change since 
                 // now is a retry of the last cache visit
-                way_wen[way_replace] <= 0;
+                axi_fifo_done               <= 0;           // release axi_ctl transcation
+                for(byte i=0;i<WAY_NUMBER-1;i=i+1)          // disable all write 
+                    way_wen[i[2:0]] <= 0;
                 if (cache_hit) begin
-                    state <= state;
+                    // ram_r_addr                      <= core_addr_i;
+                    state                           <= state;
                     // valid_o         <= cache_hit;
                     // data_o          <= way_ram_out[hit_way];
                 end else begin
@@ -215,7 +220,7 @@ module icache #(WAY_NUMBER = 8)
                         // set external fifo index to 0
                         axi_fifo_idx    <= 0;
                         // init ram counters
-                        w_offset        <= 0;
+                        ram_w_addr      <= core_addr_i - {{58{1'b0}},offset};
                         cnt             <= 0;
                         // fire an axi request
                         axi_req         <= 1;
@@ -227,7 +232,7 @@ module icache #(WAY_NUMBER = 8)
                     end
                 end
             end
-           // refill state
+            // refill state
             state_refill: begin
                 // request the entire line (which is the address of (address - offset) )
                 // refill the entire line
@@ -238,7 +243,7 @@ module icache #(WAY_NUMBER = 8)
                     way_wen[cur_replace_way]    <= 1;
                     way_ram_in[cur_replace_way] <= axi_data_i;
                     cnt                         <= cnt + 8;
-                    w_offset                    <= cnt[5:0];
+                    ram_w_addr                  <= axi_req_addr + {{32{1'b0}},cnt};
                     axi_fifo_idx                <= axi_fifo_idx + 64;
                 end // end axi_done
 
@@ -251,6 +256,7 @@ module icache #(WAY_NUMBER = 8)
                     axi_req                                 <= 0;
                     line_valid[cur_replace_way][index]      <= 1;
                     line_tag[cur_replace_way][index]        <= tag;
+                    way_wen[cur_replace_way]                <= 0;
                 end
             end
             default: begin

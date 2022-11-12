@@ -9,7 +9,7 @@ CXX = g++
 C_SRC_DIR = ~/npc/rv64/sim/verilator/src
 #local flags
 
-CFLAGS += -fPIC
+CFLAGS += -fPIC -g
 CFLAGS += -I./include -I./src -I./obj_dir -I./
 CFLAGS += -I$(VERILATOR_INC) -I$(VERILATOR_INC)/vltstd
 
@@ -32,10 +32,10 @@ VC_FLAGS =  -CFLAGS -I./include \
 
 
 VC_LDFLAGS += -LDFLAGS ../build_tb/core_dump.o
-VC_LDFLAGS += -LDFLAGS ../build_tb/util.o
+VC_LDFLAGS += -LDFLAGS ../build_tb/utils.o
 
 OBJS += ./build_tb/core_dump.o 
-OBJS += ./build_tb/util.o
+OBJS += ./build_tb/utils.o
 
 # to verilated model in nemu
 nemu : build_nemu run_nemu
@@ -53,7 +53,7 @@ run_nemu:
 # build recipes for verilated exectuable (link cpp and verilated model together)
 recipes: verilate $(OBJS)
 	@ cd $(OBJ_DIR)
-	@ make -C $(OBJ_DIR) -f V$(TARGET).mk LIBS+=-ldl -lm -lstdc++ --silent
+	@ make -C $(OBJ_DIR) -f V$(TARGET).mk LIBS+=$(LIBS) SC_LIBS+=$(SC_LIBS) -lm -lstdc++ --silent
 
 # build cpp
 ./build_tb/%.o: ./src/%.cpp

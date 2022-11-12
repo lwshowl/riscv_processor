@@ -16,6 +16,7 @@ void dump_icache();
 void update_dnpc();
 void dump_axi();
 void dump_axi_ctl();
+void dump_dcache();
 extern "C" void npc_reset();
 extern "C" void npc_dump_registers(uint64_t *regs);
 extern "C" void invalid_inst(uint64_t addr);

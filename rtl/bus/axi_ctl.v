@@ -27,6 +27,7 @@ module axi_ctl #(
   output reg                        axi_done2      ,
   // fifo interface
   input      [                 8:0] cache_fifo_idx ,
+  input      [                63:0] cache_fifo_data_i,
   input                             cache_fifo_done,
   input                             cache_fifo_wen ,
   // Advanced eXtensible Interface
@@ -114,13 +115,13 @@ module axi_ctl #(
 
   reg r_last;
 
-
   // state machine
   reg [ 3:0] state              ;
   reg [31:0] cnt                ;
   localparam state_wait      = 0;
   localparam state_axi_trans = 1;
-  localparam state_axi_fifo  = 2;
+  localparam state_write     = 2;
+  localparam state_axi_fifo  = 3;
 
   always @(posedge clk) begin
     if(rst) begin
@@ -163,28 +164,38 @@ module axi_ctl #(
           // write transcation
           else begin
             if(fifo_wen) begin
-              fifo[cnt+:64] <= axi_req_data;
+              fifo[cnt+:64] <= cache_fifo_data_i;
               cnt           <= cnt + 64;
             end
             // all 512 bits has been written
             if(cnt == 32'd512) begin
               axi_rw_valid <= 1;
-              // when write complete , jump to fifo stage
-              if(axi_b_valid) begin
-                state <= state_axi_fifo;
-              end
+              cnt          <= 0;
+              state        <= state_write;
             end
           end
         end
+
+        state_write: begin
+          if(axi_fifo_ren)
+            cnt <= cnt + 64;
+          if(axi_b_valid) begin
+            state <= state_axi_fifo;
+          end
+        end
+
         // exchange data between caches and axi controller
         state_axi_fifo : begin
-          axi_done1 <= port_sel == 0; 
-          axi_done2 <= port_sel == 1;
-          // data_o1   <= fifo[cache_fifo_idx+:64];
-          // data_o2   <= fifo[cache_fifo_idx+:64];
           if(cache_fifo_done) begin
             state <= state_wait;
+            axi_done1 <= 0;
+            axi_done2 <= 0;
+          end else begin
+            axi_done1 <= port_sel == 0; 
+            axi_done2 <= port_sel == 1;
           end
+          // data_o1   <= fifo[cache_fifo_idx+:64];
+          // data_o2   <= fifo[cache_fifo_idx+:64];
         end
       endcase
     end
@@ -192,9 +203,11 @@ module axi_ctl #(
 
   assign data_o1 = fifo[cache_fifo_idx+:64];
   assign data_o2 = fifo[cache_fifo_idx+:64];
+  assign axi_wdata = fifo[cnt+:64];
 
 
   wire axi_fifo_wen;
+  wire axi_fifo_ren;
 
   axi_rw a0 (
     .clock          (clk          ),
@@ -211,7 +224,8 @@ module axi_ctl #(
     .write_req      (axi_write_req), // 写请求
     
     //fifo interface
-    .rfifo_wen      (axi_fifo_wen     ),
+    .rfifo_wen      (axi_fifo_wen),
+    .wfifo_ren      (axi_fifo_ren),
     
     // Advanced eXtensible Interface
     .axi_aw_ready_i (axi_aw_ready ),

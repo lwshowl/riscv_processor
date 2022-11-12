@@ -9,8 +9,8 @@ module regfile (input clk,
     
     reg [63:0] registers [31:0];
 
-    assign r_out1 = r_addr1 == 0 ? 0 : registers[r_addr1];
-    assign r_out2 = r_addr2 == 0 ? 0 : registers[r_addr2];
+    assign r_out1 = r_addr1 == 0 ? 0 : r_addr1 == waddr ? wdata : registers[r_addr1];
+    assign r_out2 = r_addr2 == 0 ? 0 : r_addr2 == waddr ? wdata : registers[r_addr2];
 
     always @(posedge clk) begin
         if (wen)

@@ -69,6 +69,7 @@ module axi_rw # (
 
     // external fifo interface
     output                              rfifo_wen,
+    output                              wfifo_ren,
 
     // Advanced eXtensible Interface
     input                               axi_aw_ready_i,
@@ -141,6 +142,7 @@ module axi_rw # (
   reg reg_awvalid,reg_wvalid,reg_w_last;
   reg [7:0] reg_w_len;
   reg [7:0] reg_w_stb;
+  reg fiforen_r;
 
   always @(posedge clock) begin
     if(reset) begin
@@ -168,7 +170,6 @@ module axi_rw # (
         S_WA_START: begin
           wr_state <= S_WD_WAIT;
           reg_awvalid <= 1'b1;
-          reg_wvalid <= 1'b1;
         end
         S_WD_WAIT: begin
           if(axi_aw_ready_i) begin
@@ -177,11 +178,12 @@ module axi_rw # (
           end
         end
         S_WD_PROC: begin
+          reg_wvalid <= 1'b1;
           if(axi_w_ready_i) begin
-
+            fiforen_r     <= reg_wvalid ? 1:0;
             if(reg_w_len == 8'd0) begin
-              wr_state <= S_WR_WAIT;
-              reg_wvalid <= 1'b0;
+              wr_state   <= S_WR_WAIT;
+              // reg_wvalid <= 1'b0;
               reg_w_last <= 1'b1;
             end
             else begin
@@ -190,6 +192,7 @@ module axi_rw # (
           end
         end
         S_WR_WAIT: begin
+          fiforen_r  <= 0;
           reg_w_last <= 1'b0;
           if(axi_b_valid_i) begin
             wr_state <= S_WR_DONE;
@@ -204,6 +207,8 @@ module axi_rw # (
       endcase
     end
   end
+
+  assign wfifo_ren = fiforen_r;
 
   // 读通道状态切换
   localparam S_RD_IDLE = 3'd0;

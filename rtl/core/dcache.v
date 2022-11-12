@@ -2,6 +2,7 @@ module dcache #(WAY_NUMBER = 8)
                (input                       clk,
                 input                       rst,
                 // core interface
+                input                       dcache_req,
                 input                       cache_rw,
                 input           [3:0]       write_mask,
                 input           [63:0]      core_addr_i,
@@ -9,15 +10,16 @@ module dcache #(WAY_NUMBER = 8)
                 // axi_ctl interface
                 input                       axi_done,
                 input           [63:0]      axi_data_i,
+                output reg      [63:0]      axi_fifo_data_o,
                 output reg                  axi_fifo_wen,
-                output reg      [63:0]      axi_data_o,
                 output reg      [63:0]      axi_req_addr,
                 output reg      [8:0]       axi_fifo_idx,
                 output reg                  axi_fifo_done,
                 output reg                  axi_req,
                 output reg                  axi_rw,
                 // cache output
-                output reg                  valid_o,
+                output                      w_valid_o,
+                output                      r_valid_o,
                 output reg      [63:0]      data_o
                 );
 
@@ -55,10 +57,9 @@ module dcache #(WAY_NUMBER = 8)
     wire [63:0] way_ram_out [WAY_NUMBER-1:0];
     reg         way_wen [WAY_NUMBER-1:0];
     
-    reg  [3:0]  ram_write_mask;
-    reg  [5:0]  w_offset;
-    reg  [5:0]  r_offset;
-
+    reg  [3:0]   ram_write_mask;
+    reg  [63:0]  ram_w_addr;
+    reg  [63:0]  ram_r_offset;
 
     // generate number of ram block for each way
     generate
@@ -67,11 +68,10 @@ module dcache #(WAY_NUMBER = 8)
         (
         .clk(clk),
         .wen(way_wen[j]),
-        .index(index),
         // read offset
-        .r_offset(offset + r_offset),
+        .r_addr(core_addr_i + ram_r_offset),
         // write offset , starts from 1 , decrement 1 to start writing at addr 0
-        .w_offset(w_offset[5:0]),
+        .w_addr(ram_w_addr),
         .write_mask(ram_write_mask),
         .data_in(way_ram_in[j]),
         .data_out(way_ram_out[j])
@@ -105,7 +105,7 @@ module dcache #(WAY_NUMBER = 8)
     
     // kv based multiplexor for way data selection
     // a lut is required to form the mutiplexing mapping
-    reg [$clog2(WAY_NUMBER)-1:0] hit_way;
+    wire [$clog2(WAY_NUMBER)-1:0] hit_way;
     localparam lut_entry_len = $clog2(WAY_NUMBER)+WAY_NUMBER;
     
     // lut is reuiqred to generate kv mutiplexor mapping
@@ -195,7 +195,8 @@ module dcache #(WAY_NUMBER = 8)
     localparam state_write_dirty    = 4'd1;
     localparam state_refill         = 4'd2;
 
-    assign valid_o = cache_hit;
+    assign w_valid_o = cache_hit & dcache_req & cache_rw == `CACHE_WRITE;
+    assign r_valid_o = cache_hit & dcache_req & cache_rw == `CACHE_READ;
     assign data_o = cache_hit ? way_ram_out[hit_way] : 64'd0;
 
     always @(posedge clk) begin
@@ -211,10 +212,8 @@ module dcache #(WAY_NUMBER = 8)
             for(integer x =0;x<WAY_NUMBER; x=x+1) begin
                 way_wen[x] <= 0;
             end
-            // important , so that cache port data always point to the data of input addr at any time
-            r_offset <= 0;
             // set default state and output valid bit
-            state   <= state_check;
+            state           <= state_check;
         end
         
         // state machine of icache
@@ -224,61 +223,61 @@ module dcache #(WAY_NUMBER = 8)
                 // in case of previous write , clear write bit
                 // if there was a write , way_replace will not change since 
                 // now is a retry of the cache visit
-                way_wen[way_replace] <= 0;
-                if (cache_hit) begin
-                    if(cache_rw == `CACHE_WRITE) begin
-                        r_offset                        <= 0;
-                        w_offset                        <= offset;
-                        way_ram_in[hit_way]             <= core_data_i;
-                        way_wen[hit_way]                <= 1;
-                        ram_write_mask                  <= write_mask;
-                        // if write to cache , set dirty bits
-                        line_dirty[hit_way][index]      <= 1;
+                if(dcache_req) begin
+                    axi_fifo_done                           <= 0;
+                    ram_r_offset                            <= 0;
+                    if (cache_hit) begin
+                        if(cache_rw == `CACHE_WRITE) begin
+                            ram_w_addr                      <= core_addr_i;
+                            way_ram_in[hit_way]             <= core_data_i;
+                            way_wen[hit_way]                <= 1;
+                            ram_write_mask                  <= write_mask;
+                            // if write to cache , set dirty bits
+                            line_dirty[hit_way][index]      <= 1;
+                        end
+                    end else begin
+                        // cache miss
+                        if(core_addr_i >= 64'h0000_0000_8000_0000) begin
+                            way_wen[hit_way]    <= 0;
+                            // set external fifo index to 0
+                            axi_fifo_idx        <= 0;
+                            // init ram counters
+                            cnt                 <= 0;
+                            // request axi , addr is the block addr (no offset)
+                            axi_req             <= line_dirty[way_replace][index] ? 0 : 1;                   // if the line is dirty , request axi write later
+                            axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;  // if the line is dirty , request write first
+                            axi_req_addr        <= core_addr_i - {{58{1'b0}},offset};
+                            // track which way to replace
+                            cur_replace_way     <= way_replace;
+                            // change state to refill
+                            state               <= line_dirty[way_replace][index] ? state_write_dirty : state_refill;
+                        end
                     end
-                    // valid_o         <= cache_hit;
-                    // data_o          <= way_ram_out[hit_way];
                 end else begin
-                    if(core_addr_i >= 64'h0000_0000_8000_8000) begin 
-                        way_wen[hit_way]    <= 0;
-                        // set external fifo index to 0
-                        axi_fifo_idx        <= 0;
-                        // init ram counters
-                        w_offset            <= 0;
-                        cnt                 <= 0;
-                        // request axi , addr is the block addr (no offset)
-                        axi_req             <= line_dirty[way_replace][index] ? 0 : 1;                   // if the line is dirty , request axi write later
-                        axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;  // if the line is dirty , request write first
-                        axi_req_addr        <= core_addr_i - {{58{1'b0}},offset};
-                        // track which way to replace
-                        cur_replace_way     <= way_replace;
-                        // change state to refill
-                        state               <= line_dirty[way_replace] ? state_write_dirty : state_refill;
+                    for(integer x =0;x<WAY_NUMBER; x=x+1) begin
+                        way_wen[x] <= 0;
                     end
                 end
             end
             // if the way being replaced is dirty , write back to ram first
             state_write_dirty: begin
-                // send data to axi_ctl fifo
-                axi_data_o <= way_ram_out[way_replace];
-                axi_fifo_wen <= 1;
-                // write 8 bytes each cycle 
-                r_offset <= axi_fifo_wen ? ((6'd0 - offset) + 8) : r_offset; 
-                // count how many bytes has been written
-                cnt <= cnt + 8;
+                axi_fifo_wen    <= 1;                               // send data to axi_ctl fifo
+                ram_r_offset    <= {{32{1'b0}},cnt} - {{58{1'b0}},offset};
+                axi_fifo_data_o <= way_ram_out[cur_replace_way];
+                cnt             <= cnt + 8;                         // count how many bytes has been written
                 // if all 64 bytes has been written to axi_ctl fifo , fire an axi write request 
                 // to write the dirty line back to ram
-                if(cnt == 32'd64) begin
-                    axi_req         <= 1;
-                    axi_fifo_wen    <= 0;
-                    // reset offset to zero to maintain that the cache_ram port always has the data of input addr
-                    r_offset        <= 0;
+                if(cnt >= 32'd64) begin
                     if(axi_done) begin
                         // goto refill
                         axi_fifo_done <= 1;
-                        // fire a new axi read request , and bring in a new line
-                        axi_req       <= 1;
+                        state         <= state_refill;
                         axi_rw        <= `AXI_READ;
                         cnt           <= 0;
+                    end else begin
+                        axi_req         <= 1;
+                        axi_fifo_wen    <= 0;
+                        //ram_r_addr        <= 0;   // reset offset to zero to maintain that the cache_ram port always has the data of input addr
                     end
                 end   
             end
@@ -293,6 +292,7 @@ module dcache #(WAY_NUMBER = 8)
                     state                                   <= state_check;
                     axi_fifo_done                           <= 1;
                     axi_req                                 <= 0;
+                    line_dirty[cur_replace_way][index]      <= 0;
                     line_valid[cur_replace_way][index]      <= 1;
                     line_tag[cur_replace_way][index]        <= tag;
                 end
@@ -300,10 +300,10 @@ module dcache #(WAY_NUMBER = 8)
                 if(axi_done) begin
                     // write 8 bytes a time to cache_ram
                     ram_write_mask              <= 4'd8;
-                    way_wen[cur_replace_way]    <= 1;
+                    way_wen[cur_replace_way]    <= cnt == 32'd64 ? 0:1;
                     way_ram_in[cur_replace_way] <= axi_data_i;
                     cnt                         <= cnt + 8;
-                    w_offset                    <= cnt[5:0];
+                    ram_w_addr                  <= axi_req_addr + {{32{1'b0}},cnt};
                     axi_fifo_idx                <= axi_fifo_idx + 64;
                 end // end axi_done
             end

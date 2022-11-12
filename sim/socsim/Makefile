@@ -2,6 +2,7 @@ TARGET = core
 V_DIR = ../verilator
 BUILD = ./build
 CXX = g++
+LD = g++
 SRC = ./src
 VERILATOR_HOME = /usr/share/verilator/include
 
@@ -21,18 +22,25 @@ SOC_OBJS += $(BUILD)/socsim.o
 SOC_OBJS += $(BUILD)/axi_slave_mem.o
 SOC_OBJS += $(BUILD)/difftest.o
 SOC_OBJS += $(BUILD)/monitor.o
+SOC_OBJS += $(BUILD)/expr.o
+SOC_OBJS += $(BUILD)/disasm.o
 
 CFLAGS += -DIMAGE=\"$(IMAGE)\"
 CFLAGS += -DDIFF_TEST_SO=\"$(DIFF_TEST_SO)\"
-CFLAGS += -fPIC
-
-VC_LDS = socsim.o monitor.o difftest.o axi_slave_mem.o
-
+CFLAGS += -fPIC 
+CFLAGS += $(shell llvm-config-12 --cxxflags) -fPIE
+LIBS += -ldl
+SC_LIBS += $(shell llvm-config-12 --libs)
 # to build binary ,both difftest and verilator model object is required
 # last command link difftest and verilated model together
 binary: verilate spike-diff $(SOC_OBJS)
 	@cp $(BUILD)/*.o ../verilator/obj_dir
-	@make -C $(V_DIR) recipes EXT_LD+=./socsim.o EXT_LD+=./monitor.o EXT_LD+=./difftest.o EXT_LD+=./axi_slave_mem.o
+	@make -C $(V_DIR) recipes SC_LIBS+=$(SC_LIBS) \
+	LIBS+=$(LIBS) EXT_LD+=./socsim.o EXT_LD+=./monitor.o \
+												 EXT_LD+=./difftest.o \
+												 EXT_LD+=./axi_slave_mem.o \
+												 EXT_LD+=./expr.o \
+												 EXT_LD+=./disasm.o \
 
 run: binary
 	@$(V_DIR)/obj_dir/Vcore

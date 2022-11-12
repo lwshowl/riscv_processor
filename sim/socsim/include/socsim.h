@@ -24,3 +24,5 @@ static void welcome()
   // let go
   // assert(0);
 }
+
+#define COMMAND_STARTS_WITH(x) command.substr(0,command.find(" ")) == x

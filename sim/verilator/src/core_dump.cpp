@@ -1,5 +1,6 @@
 #include "include/core_dump.h"
 #include "include/instructions.h"
+#include "include/utils.h"
 #include <iostream>
 #include <iomanip>
 #include <bitset>
@@ -11,7 +12,7 @@ void dump_axi_ctl()
          << ",axi rw: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_rw_req
          << ",axi req1: " << (uint64_t)dut->core__DOT__dmem_axi_req
          << ",axi req2: " << (uint64_t)dut->core__DOT__if_axi_req
-         << ",axi ctl addr: " << (uint64_t)dut->core__DOT__ac0__DOT__axi_req_addr
+         << ",axi ctl addr: " << std::hex << (uint64_t)dut->core__DOT__ac0__DOT__axi_req_addr
          << ",axi port sel: " << (uint64_t)dut->core__DOT__ac0__DOT__port_sel
          << ",axi fifo cnt: " << (uint64_t)dut->core__DOT__ac0__DOT__cnt
          << ",axi fifo data: " << std::hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__ac0__DOT__axi_rdata
@@ -21,15 +22,15 @@ void dump_axi_ctl()
     // check if an axi req has finished
     const int ac0_state_fifo = 2;
 
-    // if (dut->core__DOT__ac0__DOT__state == ac0_state_fifo)
-    // {
-    cout << " ac0: an axi request has finished , fifo dump: " << endl;
-    for (uint64_t i : dut->core__DOT__ac0__DOT__fifo)
+    if (dut->core__DOT__ac0__DOT__state == ac0_state_fifo)
     {
-        cout << std::hex << std::setfill('0') << std::setw(8) << (uint64_t)i << " ";
+        cout << " ac0: an axi request has finished , fifo dump: " << endl;
+        for (uint64_t i : dut->core__DOT__ac0__DOT__fifo)
+        {
+            cout << std::hex << std::setfill('0') << std::setw(8) << (uint64_t)i << " ";
+        }
+        cout << endl;
     }
-    cout << endl;
-    // }
 }
 
 void dump_axi()
@@ -41,45 +42,83 @@ void dump_axi()
          << " axi ar ready: " << (uint64_t)dut->axi_ar_ready
          << " axi r valid: " << (uint64_t)dut->axi_r_valid
          << " axi r last: " << (uint64_t)dut->axi_r_last
-         << " axi ar addr: " << (uint64_t)dut->axi_ar_addr
+         << " axi ar addr: " << hex << (uint64_t)dut->axi_ar_addr
          << " axi r data: " << (uint64_t)dut->axi_r_data
          << endl;
 }
 
 void dump_icache()
 {
-    cout << " cache addr: " << std::hex << (uint64_t)dut->core__DOT__pc_out
-         << " cache state: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__state
+    cout << " icache core addr: " << std::hex << (uint64_t)dut->core__DOT__pc_out
+         << " icache axi addr: " << std::hex << (uint64_t)dut->core__DOT__if_axi_addr
+         << " icache state: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__state
          << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__ic0__DOT__presence_w)
          << " cache data: " << hex << setfill('0') << setw(8) << (uint64_t)dut->core__DOT__ic0__DOT__way_ram_out[dut->core__DOT__ic0__DOT__hit_way]
-         << " cache replace: " << (uint64_t)dut->core__DOT__ic0__DOT__way_replace
-         << " cache w_offset: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__w_offset
-         << " cache axi data: " << std::hex << (uint64_t)dut->core__DOT__if_axi_data
+         << " cache w_offset: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__ram_w_addr
+         //  << " cache axi data: " << std::hex << (uint64_t)dut->core__DOT__if_axi_data
          << " cache fifo cnt: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__cnt
          << " cache axi done: " << std::hex << (uint64_t)dut->core__DOT__if_axi_done
+         << " replacing way: " << (uint64_t)dut->core__DOT__ic0__DOT__cur_replace_way
          << " cache way wen: " << std::hex << (uint64_t)dut->core__DOT__ic0__DOT__way_wen[dut->core__DOT__ic0__DOT__cur_replace_way]
          << " cache way ramin: " << hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__ic0__DOT__way_ram_in[dut->core__DOT__dc0__DOT__cur_replace_way]
          << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__ic0__DOT__m0__DOT__i0__DOT__lut_out)
          << endl;
+
     int cache_refill = 1;
 
-    for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__5__KET____DOT__ram__DOT__mem[0])
-        cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
-    cout << endl;
+    int index = dut->core__DOT__pc_out >> 6 & 0b111111;
 
-    // // check if a line is replaced
-    // if (dut->core__DOT__ic0__DOT__state == cache_refill && dut->core__DOT__ic0__DOT__w_offset == 65)
-    // {
-    //     cout << " a line has been replaced "
-    //          << " replace way number " << (uint64_t)dut->core__DOT__ic0__DOT__way_replace
-    //          << " mem dump" << endl;
-    //     for (auto line : dut->core__DOT__ic0__DOT__genblk1__BRA__5__KET____DOT__ram__DOT__mem)
-    //     {
-    //         for (int offset = 0; offset < 64; offset++)
-    //             cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)line[offset] << " ";
-    //         cout << endl;
-    //     }
-    // }
+    if (dut->core__DOT__ic0__DOT__cur_replace_way == 0)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__0__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 1)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__1__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 2)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__2__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 3)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__3__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 4)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__4__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 5)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__5__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 6)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__6__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+    else if (dut->core__DOT__ic0__DOT__cur_replace_way == 7)
+        for (auto var : dut->core__DOT__ic0__DOT__genblk1__BRA__7__KET____DOT__ram__DOT__mem[index])
+            cout << std::hex << std::setfill('0') << std::setw(2) << (uint64_t)var << " ";
+
+    cout << endl;
+}
+
+void dump_dcache()
+{
+    int index = (dut->core__DOT__dmem_pc_out >> 6) & 0b111111;
+
+    cout << " dcache pc: " << std::hex << (uint64_t)dut->core__DOT__dmem_pc_out
+         << " dcache req: " << (uint64_t)dut->core__DOT__dmem_cache_req
+         << " dcache core addr: " << std::hex << (uint64_t)dut->core__DOT__dmem_result_out
+         << " dcache core data: " << std::hex << (uint64_t)dut->core__DOT__dmem_rs2val_out
+         << " dcache state: " << (uint64_t)dut->core__DOT__dc0__DOT__state
+         << " dcache rw: " << std::hex << (uint64_t)dut->core__DOT__dmem_memw_out
+         << " dcache cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
+         << " dcache dirty: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__line_dirty[dut->core__DOT__dc0__DOT__hit_way][index]
+         << " dcache req addr: " << std::hex << (uint64_t)dut->core__DOT__dmem_axi_addr
+         << " cache way wen: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_wen[dut->core__DOT__dc0__DOT__cur_replace_way]
+         << " cache ram wmask: " << (uint64_t)(dut->core__DOT__dc0__DOT__ram_write_mask)
+         << " cache way ramin: " << hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[dut->core__DOT__dc0__DOT__cur_replace_way]
+         << " cache w_offset: " << ((uint64_t)dut->core__DOT__dc0__DOT__ram_w_addr)
+         << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__dc0__DOT__presence_w)
+         << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__dc0__DOT__hit_way)
+         << " current replacing: " << (uint64_t)(dut->core__DOT__dc0__DOT__cur_replace_way)
+         << endl;
 }
 
 void update_dnpc()
@@ -129,25 +168,6 @@ void core_reset()
     dut->rst = 0;
 }
 
-// void core_mem_read(long long raddr, long long *rdata)
-// {
-//     // std::cout << "pmem_read: " << hex << raddr;
-//     // cout << hex << " val: " << *rdata << endl;
-//     // cout << "fetch pc :" << dut->core__DOT__pc_out << " visit addr :" << raddr << endl;
-//     // cout << "dmem pc :" << dut->core__DOT__dmem_pc_out << " visit addr :" << raddr << endl;
-
-//     *rdata = vaddr_read(raddr, 8);
-// }
-
-// // DPI import at core.v:231
-// void core_mem_write(long long addr, long long wdata, char wmask)
-// {
-//     // std::cout << "instr: " << dec << (uint64_t)(dut->core__DOT__dmem_instrId);
-//     // std::cout << " pmem_write: " << hex << addr;
-//     // cout << hex << " val: " << wdata << endl;
-//     vaddr_write(addr, wmask, wdata);
-// }
-
 int sanity_check()
 {
     if (dut->core__DOT__wb_instrId_out == 63)
@@ -171,9 +191,10 @@ void dump_csr()
 
 void dump_pc()
 {
-    cout << "pc out: " << hex << (uint64_t)dut->core__DOT__pc_out
-         << "pc abs_b: " << hex << (uint64_t)dut->core__DOT__pc_abs_branch
-         << "pc rel_b: " << hex << (uint64_t)dut->core__DOT__pc_rel_branch
+    cout << " pc out: " << hex << (uint64_t)dut->core__DOT__pc_out
+         << " pc abs_b: " << hex << (uint64_t)dut->core__DOT__pc_abs_branch
+         << " pc rel_b: " << hex << (uint64_t)dut->core__DOT__pc_rel_branch
+         << " pc buuble :" << (((uint64_t)dut->core__DOT__ic0__DOT__presence_w == 0) || dut->core__DOT__memory_bubble)
          << endl;
 }
 
@@ -244,7 +265,8 @@ void dump_decode()
 
     cout << "dec instru: " << hex << (uint64_t)dut->core__DOT__decode_instr_out
          << " dec pc: " << hex << (uint64_t)dut->core__DOT__decode_pc_out
-         << " dec id: " << dec << (uint64_t)dut->core__DOT__instr_id
+         << " dec id: " << enum_to_ins((uint64_t)dut->core__DOT__instr_id)
+         << " dec bubble: " << dec << (uint64_t)dut->core__DOT__memory_bubble
          << endl;
 }
 

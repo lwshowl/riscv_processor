@@ -40,7 +40,7 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
             return (void*)this->mem;
         }
 
-        size_t get_prog_size(){
+        size_t get_progsize(){
             return this->prog_size;
         }
 
