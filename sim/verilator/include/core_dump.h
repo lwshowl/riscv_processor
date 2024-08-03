@@ -25,7 +25,6 @@ extern vluint64_t sim_time;
 extern vluint64_t posedge_count;
 extern Vcore *dut;
 extern std::queue<uint64_t> dnpc_queue;
-extern uint64_t dnpc_at_commit;
 
 static const char *reg_name[] = {
     "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",

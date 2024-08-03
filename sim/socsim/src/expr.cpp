@@ -49,7 +49,6 @@ static struct rule
     {"==", TK_EQ},                 // equal
 };
 
-
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define NR_REGEX ARRLEN(rules)
 
@@ -112,8 +111,8 @@ static bool make_token(char *e)
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        printf("match rules[%d] = \"%s\" at position %d with len %d: %.*s\n",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // printf("match rules[%d] = \"%s\" at position %d with len %d: %.*s\n",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
         /* TODO: Now a new token is recognized with rules[i]. Add codes
@@ -269,13 +268,13 @@ word_t eval(int start, int end)
       char *regname = tokens[start].str + 1;
       int success;
       word_t val;
-      val = isa_reg_str2val(regname,&success);
+      val = isa_reg_str2val(regname, &success);
       if (success)
         return val;
       else
       {
         printf("no such register %s\n", regname);
-        return 0;
+        return 0xdeadbeef;
       }
     }
   }
@@ -287,19 +286,19 @@ word_t eval(int start, int end)
     word_t val;
     std::string ori;
     if (tokens[end].type != TK_STR)
-      return mem_read(atol(tokens[end].str), 1,ori);
+      return mem_read(atol(tokens[end].str), 1, ori);
     else
     {
       printf("dereferancing str: %s\n", tokens[end].str);
       int success;
-      val = isa_reg_str2val(tokens[end].str + 1,&success);
+      val = isa_reg_str2val(tokens[end].str + 1, &success);
       printf("reg val: %x\n", (uint32_t)val);
       if (success)
-        return mem_read(val, 4,ori);
+        return mem_read(val, 4, ori);
       else
       {
         printf("error parsing str %s", tokens[end].str);
-        return 0;
+        return 0xdeadbeef;
       }
     }
   }
@@ -337,7 +336,7 @@ word_t eval(int start, int end)
     }
 
     //递归下降分析
-    //printf("primary operator %s\n", tokens[operator_main_index].str);
+    // printf("primary operator %s\n", tokens[operator_main_index].str);
     word_t left_value = eval(start, operator_main_index - 1);
     word_t right_value = eval(operator_main_index + 1, end);
 
@@ -354,15 +353,15 @@ word_t eval(int start, int end)
         return left_value / right_value;
       else
         printf("division by zero\n");
-      return 0;
+      return 0xdeadbeef;
     case TK_EQ:
       return left_value == right_value;
     default:
       printf("error parsing primary expression\n");
-      return 0;
+      return 0xdeadbeef;
     }
     printf("primary expression successfully parsed\n");
-    return 0;
+    return 0xdeadbeef;
   }
   // NO REACH ???
   return 0;

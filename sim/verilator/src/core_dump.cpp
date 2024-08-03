@@ -118,6 +118,10 @@ void dump_dcache()
          << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__dc0__DOT__presence_w)
          << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__dc0__DOT__hit_way)
          << " current replacing: " << (uint64_t)(dut->core__DOT__dc0__DOT__cur_replace_way)
+         << " cache ram data: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[index]
+         << " cache fifo cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
+         << " cache fifo idx: " << std::hex << (uint64_t)dut->core__DOT__axi_fifo_idx
+
          << endl;
 }
 
@@ -200,7 +204,7 @@ void dump_pc()
 
 void dump_regfile()
 {
-    cout << "reg instru: " << dec << (uint64_t)dut->core__DOT__regfile_instrId_out
+    cout << "reg instru: " << dec << enum_to_ins((uint64_t)dut->core__DOT__regfile_instrId_out)
          << " reg pc: " << hex << (uint64_t)dut->core__DOT__regfile_pc_out
          << " reg rs1: " << hex << (uint64_t)dut->core__DOT__regfile_rs1_out
          << " reg rs2: " << hex << (uint64_t)dut->core__DOT__regfile_rs2_out
@@ -244,12 +248,13 @@ void dump_dmem()
          << " dmem rs2val: " << hex << (uint64_t)dut->core__DOT__dmem_rs2val_out
          << " dmem result: " << hex << (uint64_t)dut->core__DOT__dmem_result_out
          << " dmem branch: " << dec << (uint64_t)dut->core__DOT__dmem_branch_out
+         << " dcache hold: " << dec << (uint64_t)dut->core__DOT__dcache_hold
          << endl;
 }
 
 void dump_alu()
 {
-    cout << "alu instru: " << dec << (uint64_t)dut->core__DOT__alu_instrId_out
+    cout << "alu instru: " << dec << enum_to_ins((uint64_t)dut->core__DOT__alu_instrId_out)
          << " alu pc: " << hex << (uint64_t)dut->core__DOT__alu_pc_out
          << " alu rs1: " << hex << (uint64_t)dut->core__DOT__alu_rs1val_out
          << " alu rs2: " << hex << (uint64_t)dut->core__DOT__alu_rs2val_out
@@ -257,6 +262,8 @@ void dump_alu()
          << " alu result: " << hex << (uint64_t)dut->core__DOT__alu_result
          << " dmem imm64: " << hex << (uint64_t)dut->core__DOT__alu_imm64_out
          << " dmem benable: " << dec << (uint64_t)dut->core__DOT__pc_rel_branch
+         << " dcache hold: " << dec << (uint64_t)dut->core__DOT__dcache_hold
+         << " memory bubble: " << dec << (uint64_t)dut->core__DOT__memory_bubble
          << endl;
 }
 

@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 
-
 template <unsigned int A_WIDTH = 64, unsigned int D_WIDTH = 64, unsigned int ID_WIDTH = 4>
 class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
     public:

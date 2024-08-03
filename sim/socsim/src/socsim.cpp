@@ -8,18 +8,23 @@
 #include "include/monitor.h"
 #include "include/expr.h"
 #include "include/utils.h"
+#include "readline/readline.h"
+#include "readline/history.h"
+#include "bus/uartlite.hpp"
 #include <map>
 
 static int diff_test_port = 1234;
 
-uint64_t core_run_once();
-void core_pass_registers(uint64_t *reg);
 void core_reset();
 extern "C" void init_disasm(const char *triple);
-extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 void execute_and_monitor();
+uartlite uart;
 
-extern std::map<uint64_t, uint64_t> imap;
+axi4_mem<64, 64, 4> mem(4096l * 1024 * 1024);
+axi4_ptr<64, 64, 4> mem_ptr;
+axi4_ref<64, 64, 4> *mem_ref;
+axi4<64,64,4> mem_sigs;
+axi4_ref<64,64,4> mem_sigs_ref(mem_sigs);
 
 using namespace std;
 
@@ -52,49 +57,56 @@ int main()
 void execute_and_monitor()
 {
     string command;
-    uint64_t cur_pc;
     do
     {
-        cout << "(soc): ";
-        getline(std::cin, command);
-        if (command == "s")
+        command = readline("(soc): ");
+        string delimiter = " ";
+        vector<string> params = split(command, delimiter);
+        if (command.size() > 0)
+            add_history(command.c_str());
+
+        if (COMMAND_STARTS_WITH("s"))
         {
-            cur_pc = cpu.pc;
-            cpu.pc = core_run_once(); // next pc
-            core_pass_registers(cpu.gpr);
-
-            uint8_t buffer[128];
-            uint32_t instr = imap.at(cur_pc);
-            uint8_t *inst = (uint8_t *)(&instr);
-            uint8_t *p = buffer;
-            for (int i = 0; i < 4; i++)
-                p += snprintf((char *)p, 4, " %02x", inst[i]);
-
-            memset(p++, ' ', 1);
-            disassemble((char *)p, buffer + sizeof(buffer) - p, cur_pc, (uint8_t *)&instr, 4);
-            printf("0x%x: %s\n", cur_pc, buffer);
-            difftest_step(cur_pc, cpu.pc);
+            int times = params.size() == 2 ? atoi(params[1].c_str()) : 1;
+            execute(times);
         }
-        else if (command == "info")
+        else if (COMMAND_STARTS_WITH("c"))
+        {
+            execute(-1);
+        }
+        else if (COMMAND_STARTS_WITH("info"))
         {
             isa_reg_display();
         }
+        else if (COMMAND_STARTS_WITH("w"))
+        {
+            if (params.size() > 1)
+                set_watch(params[1]);
+        }
         else if (COMMAND_STARTS_WITH("x"))
         {
-            string delimiter = " ";
-            vector<string> params = split(command, delimiter);
             int irange = params.size() > 2 ? atoi(params[2].c_str()) : 4;
             word_t start = expr((char *)params[1].c_str());
 
-            printf("0x%016lx: ", start);
+            if (start == 0xdeadbeef)
+                continue;
+
             string ori;
-            for (int i = 0; i < irange * 4; i += 4)
+            for (int i = 0; i < irange * 4; i += 16)
             {
+                printf("0x%016lx: ", start + i);
                 uint32_t word = (uint32_t)mem_read(start + i, 4, ori);
                 std::cout << hex << setw(8) << setfill('0') << word << " ";
+                word = (uint32_t)mem_read(start + i + 4, 4, ori);
+                std::cout << hex << setw(8) << setfill('0') << word << " ";
+                word = (uint32_t)mem_read(start + i + 8, 4, ori);
+                std::cout << hex << setw(8) << setfill('0') << word << " ";
+                word = (uint32_t)mem_read(start + i + 12, 4, ori);
+                std::cout << hex << setw(8) << setfill('0') << word << " ";
+                std::cout << " from " << ori;
+                std::cout << endl;
             }
-            std::cout << " from " << ori;
-            printf("\n");
+            std::cout << endl;
         }
     } while (true);
 }

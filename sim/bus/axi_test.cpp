@@ -7,7 +7,8 @@
 using std::cout;
 using std::endl;
 
-void dump_axi_read(axi4_ref<64,64,4> &axi) {
+void dump_axi_read(axi4_ref<64, 64, 4> &axi)
+{
     cout << "arid\t" << (unsigned long)axi.arid << endl;
     cout << "araddr\t" << (unsigned long)axi.araddr << endl;
     cout << "arlen\t" << (unsigned long)axi.arlen << endl;
@@ -23,10 +24,11 @@ void dump_axi_read(axi4_ref<64,64,4> &axi) {
     cout << "rready\t" << (unsigned long)axi.rready << endl;
 }
 
-int main() {
-    axi4_mem<64,64,4> mem(8192);
-    axi4<64,64,4> axi;
-    axi4_ref<64,64,4> axi_ref(axi);
+int main()
+{
+    axi4_mem<64, 64, 4> mem(8192);
+    axi4<64, 64, 4> axi;
+    axi4_ref<64, 64, 4> axi_ref(axi);
     axi_ref.arid = 0xa;
     axi_ref.araddr = 0;
     axi_ref.arlen = 3;
@@ -35,7 +37,8 @@ int main() {
     axi_ref.arvalid = 1;
     axi_ref.rready = 1;
     mem.beat(axi_ref); // reset
-    for (int i=0;i<10;i++) {
+    for (int i = 0; i < 10; i++)
+    {
         mem.beat(axi_ref);
         dump_axi_read(axi_ref);
         printf("----------\n");
