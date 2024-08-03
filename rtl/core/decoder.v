@@ -7,7 +7,7 @@ module decoder(/* verilator lint_off UNUSED */
                output reg [4:0] rs1,
                output reg [4:0] rs2,
                output reg [4:0] rd,
-               output reg [31:0] imm,
+               output reg [63:0] imm,
                output reg [5:0] shamt,
                output reg [6:0] opcode,
                output reg branch,
@@ -59,7 +59,7 @@ module decoder(/* verilator lint_off UNUSED */
         case(opcode)
             // 7'b0000011, //lb lh lw lbu lhu
             i_opcode1: begin
-            imm    = {{20{instr[31]}},instr[31:20]};   // sign extend
+            imm    = {{52{instr[31]}}, instr[31:20]};   // sign extend
             mem_r  = 1;
             mem_w  = 0;
             reg_w  = 1;
@@ -79,7 +79,7 @@ module decoder(/* verilator lint_off UNUSED */
         
         //7'b0010011, //addi slti sltiu xori ori andi slli srli srai
         i_opcode2: begin
-            imm    = {{20{instr[31]}},instr[31:20]};
+            imm    = {{52{instr[31]}},instr[31:20]};
             mem_r  = 0;
             mem_w  = 0;
             reg_w  = 1;
@@ -115,7 +115,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w    = 0;
             reg_w    = 1;
             branch   = 1;
-            imm      = {{20{instr[31]}},instr[31:20]};
+            imm      = {{52{instr[31]}},instr[31:20]};
             instr_id = `i_jalr;
         end
         
@@ -125,7 +125,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w  = 0; 
             reg_w  = func3[0] | func3[1] | func3[2];
             branch = 0;
-            imm    = {{20{1'd0}},instr[31:20]};
+            imm    = {{52{1'd0}},instr[31:20]};
             //compare fun3 to figure out what instruction
             case(func3)
                 3'b001:  instr_id = `i_csrrw;
@@ -152,14 +152,14 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w    = 0;
             reg_w    = 1;
             branch   = 0;
-            imm      = {instr[31:12],{12{1'b0}}};
+            imm      = {{32{instr[31]}},instr[31:12],{12{1'b0}}};
             instr_id = `i_lui;
         end
 
         
         //7'b0010111 // auipc
         u_opcode2: begin
-            imm      = {instr[31:12],{12{1'b0}}};
+            imm      = {{32{instr[31]}},instr[31:12],{12{1'b0}}};
             mem_r    = 0;
             mem_w    = 0;
             reg_w    = 1;
@@ -173,7 +173,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w    = 0;
             reg_w    = 1;
             branch   = 1;
-            imm      = {{11{instr[31]}},instr[31],instr[19:12],instr[20],instr[30:21],1'b0};
+            imm      = {{43{instr[31]}},instr[31],instr[19:12],instr[20],instr[30:21],1'b0};
             instr_id = `i_jal;
         end
         
@@ -183,7 +183,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w  = 0;
             reg_w  = 1;
             branch = 1;
-            imm    = {{19{instr[31]}},instr[31],instr[7],instr[30:25],instr[11:8],1'b0};
+            imm    = {{51{instr[31]}},instr[31],instr[7],instr[30:25],instr[11:8],1'b0};
             //compare fun3 to figure out what instruction
             case(func3)
                 3'b000:  instr_id = `i_beq;
@@ -201,7 +201,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w  = 1;
             reg_w  = 0;
             branch = 0;
-            imm    = {{20{instr[31]}},instr[31:25],instr[11:7]};
+            imm    = {{52{instr[31]}},instr[31:25],instr[11:7]};
             case(func3)
                 3'b000: instr_id  = `i_sb;
                 3'b001: instr_id  = `i_sh;
@@ -347,7 +347,7 @@ module decoder(/* verilator lint_off UNUSED */
             mem_w  = 0;
             reg_w  = 1;
             branch = 0;
-            imm    = {{20{instr[31]}},instr[31:20]};
+            imm    = {{52{instr[31]}},instr[31:20]};
             case (func3)
                 3'b000: instr_id = `i_addiw;
                 3'b001: instr_id = `i_slliw;

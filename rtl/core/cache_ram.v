@@ -25,8 +25,6 @@ module cache_ram #(O_WIDTH = 64)
             assign data_out[idx*8+:8] = mem[r_index][r_offset+idx[5:0]];
     endgenerate
 
-
-
     always @(posedge clk) begin
         if (wen) begin
             // at least write one byte

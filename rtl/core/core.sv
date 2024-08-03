@@ -65,210 +65,194 @@ module core # (
 	input                               axi_r_last,
 	input  [AXI_ID_WIDTH-1:0]           axi_r_id,
 	input  [AXI_USER_WIDTH-1:0]         axi_r_user
-    );
+);
 
 
     wire axi_fifo_wen;
     wire [8:0] axi_fifo_idx;
     wire axi_fifo_done;
     wire [63:0] axi_fifo_data_i;
-    /******************* axi 接口 *********************/
     /* verilator lint_off UNUSED */
     wire [63:0] data_out1;
     wire trans_done1_o;
     /* verilator lint_off UNUSED*/
 
-    //axi interface
     /* verilator lint_off UNUSED */
     axi_ctl ac0(
-		.clk(clk),
-		.rst(rst),
-        // port 1 more privileged
-        .axi_req1(dmem_axi_req),
-        .rw_req1(dmem_axi_rw),
-        .addr1(dmem_axi_addr),
-        .data1(dmem_axi_data_o),
-        .rw_len1(dmem_axi_len),
-        .data_o1(dmem_axi_data_i),
-        .axi_done1(dmem_axi_done),
-        // port 2
-        // connected to if stage
-        .axi_req2(if_axi_req),
-        .rw_req2(if_axi_rw),
-        .addr2(if_axi_addr),
-        .data2(64'd0),
-        .rw_len2(if_axi_len),
-        .data_o2(if_axi_data),
-        .axi_done2(if_axi_done),
-        // internal fifo interfaces , 512 bits bus
-        .cache_fifo_idx(axi_fifo_idx),
-        .cache_fifo_data_i(axi_fifo_data_i),
-        .cache_fifo_done(axi_fifo_done),
-        .cache_fifo_wen(axi_fifo_wen),
+      .clk(clk),
+      .rst(rst),
 
-        // Advanced eXtensible Interfaces
-        .axi_aw_ready (axi_aw_ready ),
-        .axi_aw_valid (axi_aw_valid ),
-        .axi_aw_addr  (axi_aw_addr  ),
-        .axi_aw_prot  (axi_aw_prot  ),
-        .axi_aw_id    (axi_aw_id    ),
-        .axi_aw_user  (axi_aw_user  ),
-        .axi_aw_len   (axi_aw_len   ),
-        .axi_aw_size  (axi_aw_size  ),
-        .axi_aw_burst (axi_aw_burst ),
-        .axi_aw_lock  (axi_aw_lock  ),
-        .axi_aw_cache (axi_aw_cache ),
-        .axi_aw_qos   (axi_aw_qos   ),
-        .axi_aw_region(axi_aw_region),
+      .axi_req1(dmem_axi_req),
+      .rw_req1(dmem_axi_rw),
+      .addr1(dmem_axi_addr),
+      .data1(dmem_axi_data_o),
+      .rw_len1(dmem_axi_len),
+      .data_o1(dmem_axi_data_i),
+      .axi_done1(dmem_axi_done),
+      
+      .axi_req2(if_axi_req),
+      .rw_req2(if_axi_rw),
+      .addr2(if_axi_addr),
+      .data2(64'd0),
+      .rw_len2(if_axi_len),
+      .data_o2(if_axi_data),
+      .axi_done2(if_axi_done),
 
-        .axi_w_ready  (axi_w_ready  ),
-        .axi_w_valid  (axi_w_valid  ),
-        .axi_w_data   (axi_w_data   ),
-        .axi_w_strb   (axi_w_strb   ),
-        .axi_w_last   (axi_w_last   ),
-        .axi_w_user   (axi_w_user   ),
+      .cache_fifo_idx(axi_fifo_idx),
+      .cache_fifo_data_i(axi_fifo_data_i),
+      .cache_fifo_done(axi_fifo_done),
+      .cache_fifo_wen(axi_fifo_wen),
 
-        .axi_b_ready  (axi_b_ready  ),
-        .axi_b_valid  (axi_b_valid  ),
-        .axi_b_resp   (axi_b_resp   ),
-        .axi_b_id     (axi_b_id     ),
-        .axi_b_user   (axi_b_user   ),
+      .axi_aw_ready (axi_aw_ready ),
+      .axi_aw_valid (axi_aw_valid ),
+      .axi_aw_addr  (axi_aw_addr  ),
+      .axi_aw_prot  (axi_aw_prot  ),
+      .axi_aw_id    (axi_aw_id    ),
+      .axi_aw_user  (axi_aw_user  ),
+      .axi_aw_len   (axi_aw_len   ),
+      .axi_aw_size  (axi_aw_size  ),
+      .axi_aw_burst (axi_aw_burst ),
+      .axi_aw_lock  (axi_aw_lock  ),
+      .axi_aw_cache (axi_aw_cache ),
+      .axi_aw_qos   (axi_aw_qos   ),
+      .axi_aw_region(axi_aw_region),
 
-        .axi_ar_ready (axi_ar_ready ),
-        .axi_ar_valid (axi_ar_valid ),
-        .axi_ar_addr  (axi_ar_addr  ),
-        .axi_ar_prot  (axi_ar_prot  ),
-        .axi_ar_id    (axi_ar_id    ),
-        .axi_ar_user  (axi_ar_user  ),
-        .axi_ar_len   (axi_ar_len   ),
-        .axi_ar_size  (axi_ar_size  ),
-        .axi_ar_burst (axi_ar_burst ),
-        .axi_ar_lock  (axi_ar_lock  ),
-        .axi_ar_cache (axi_ar_cache ),
-        .axi_ar_qos   (axi_ar_qos   ),
-        .axi_ar_region(axi_ar_region),
+      .axi_w_ready  (axi_w_ready  ),
+      .axi_w_valid  (axi_w_valid  ),
+      .axi_w_data   (axi_w_data   ),
+      .axi_w_strb   (axi_w_strb   ),
+      .axi_w_last   (axi_w_last   ),
+      .axi_w_user   (axi_w_user   ),
 
-        .axi_r_ready  (axi_r_ready  ),
-        .axi_r_valid  (axi_r_valid  ),
-        .axi_r_resp   (axi_r_resp   ),
-        .axi_r_data   (axi_r_data   ),
-        .axi_r_last   (axi_r_last   ),
-        .axi_r_id     (axi_r_id     ),
-        .axi_r_user   (axi_r_user   )
+      .axi_b_ready  (axi_b_ready  ),
+      .axi_b_valid  (axi_b_valid  ),
+      .axi_b_resp   (axi_b_resp   ),
+      .axi_b_id     (axi_b_id     ),
+      .axi_b_user   (axi_b_user   ),
+
+      .axi_ar_ready (axi_ar_ready ),
+      .axi_ar_valid (axi_ar_valid ),
+      .axi_ar_addr  (axi_ar_addr  ),
+      .axi_ar_prot  (axi_ar_prot  ),
+      .axi_ar_id    (axi_ar_id    ),
+      .axi_ar_user  (axi_ar_user  ),
+      .axi_ar_len   (axi_ar_len   ),
+      .axi_ar_size  (axi_ar_size  ),
+      .axi_ar_burst (axi_ar_burst ),
+      .axi_ar_lock  (axi_ar_lock  ),
+      .axi_ar_cache (axi_ar_cache ),
+      .axi_ar_qos   (axi_ar_qos   ),
+      .axi_ar_region(axi_ar_region),
+
+      .axi_r_ready  (axi_r_ready  ),
+      .axi_r_valid  (axi_r_valid  ),
+      .axi_r_resp   (axi_r_resp   ),
+      .axi_r_data   (axi_r_data   ),
+      .axi_r_last   (axi_r_last   ),
+      .axi_r_id     (axi_r_id     ),
+      .axi_r_user   (axi_r_user   )
     );
 
-    /************************ pc *******************************/
-
-    //pc 的输入
-    //两种分支模式，直接分支，和伪直接分支
     wire pc_rel_branch;
     wire pc_abs_branch;
     wire pc_exception;
-    //分支立即数为32位宽
-    wire [63:0] pc_ref_pc;
+    wire [63:0] pc_out;
+    wire [63:0] branch_base_pc;
     wire [63:0] pc_imm_in;
     wire [63:0] mepc_val;
     wire pc_bubble;
-    //pc 的输出是 指令指针
-    wire [63:0] pc_out;
-
     assign pc_bubble = memory_bubble | ~ic_valid | dcache_hold;
 
-    pc pc64 (
-		.clk (clk),
-		.rst (rst),
-		.bubble(pc_bubble),
-		.exception(pc_exception),
-		.rel_branch (pc_rel_branch),
-		.abs_branch (pc_abs_branch),
-		.immediate (pc_imm_in),
-		.mtvec(mtvec_val),
-		.ref_pc (pc_ref_pc),
-		.pc_out_reg (pc_out)
-    );
-
-
-    /********************取指***************************/
-    // 指令内存输出的值，既为指令
-    wire [63:0] instr64;
-    reg [31:0] instr32;
-    // request line of axi
     wire if_axi_req;
-    // read write line , 0 for read 1 for write
-    wire if_axi_rw;
-    // burst len of icache
-    wire [7:0] if_axi_len;
-    // axi transcation finish indicate bit
     wire if_axi_done;
-    // axi data
-    wire [63:0] if_axi_data;
-    // axi read addr , set by icache
-    wire [63:0] if_axi_addr;
-    // cache valid
     wire ic_valid;
-    // ic data
+    wire if_axi_rw = 0;
+    wire [7:0] if_axi_len = 8'd8;
     wire [31:0] ic_data;
-
-
-    assign if_axi_rw = 0;
-    // 8 transfers each burst , in total of 64 bytes
-    assign if_axi_len = 8'd8; // decrements 1 internally
-    icache #(.WAY_NUMBER(8)) ic0
-		(.clk(clk),
-		.rst(rst),
-		// core interfaces
-		.core_addr_i(pc_out),
-		.valid_o(ic_valid),
-		.data_o(ic_data),
-		// axi interfaces
-		.axi_done(if_axi_done),
-		.axi_req(if_axi_req),
-		.axi_data_i(if_axi_data),
-		.axi_req_addr(if_axi_addr),
-		.axi_fifo_idx(axi_fifo_idx),
-		.axi_fifo_done(axi_fifo_done)
-    );
-
-    // sending instructions if cache visit is finished , otherwise send bubble forward
-    assign instr64 = ic_valid ? {32'd0,ic_data} : 64'd0;
-    assign instr32 = instr64[31:0];
+    wire [63:0] if_axi_data;
+    wire [63:0] instr_fetched;
+    wire [63:0] if_axi_addr;
 
     wire [15:0] fetch_exception = 0;
-    /**************译码，生成立即数*************************/
-    //译码阶段过程寄存器
-    wire [31:0] decode_instr_out;
-    wire [63:0] decode_pc_out;
-    wire decode_rst;
-    wire decode_wen;
-    assign decode_rst = pc_rel_branch | pc_abs_branch | fetch_exception > 0 | wb_exception > 0;
-    assign decode_wen = ~memory_bubble & ~dcache_hold;
-
-    Reg #(32,0) decode_instr (clk,decode_rst,instr32,decode_instr_out,decode_wen);
-    Reg #(64,0) decode_pc (clk,decode_rst,pc_out,decode_pc_out,decode_wen);
-    // 异常寄存器hi
-    wire [15:0] decode_exception;
-    wire [15:0] fetch_excep_out;
+    wire [31:0] decode_instr;
+    wire [63:0] decode_pc;
+    wire [15:0] exception_to_decode;
+    wire decode_rst = pc_rel_branch | pc_abs_branch | fetch_exception > 0 | wb_exception > 0;
+    wire decode_wen = ~memory_bubble & ~dcache_hold;
+    wire [15:0] decode_exception = exception_to_decode;
     wire decode_excep_rst = pc_abs_branch | pc_rel_branch | wb_exception >0;
-    Reg #(16,0) decode_excep(clk,decode_excep_rst,fetch_exception,fetch_excep_out,decode_wen);
-    assign decode_exception = 0 | fetch_excep_out;
 
-    //译码器的输出
     wire [4:0] rs1;
     wire [4:0] rs2;
     wire [4:0] rd;
-    wire [31:0] imm32;
+    wire [63:0] imm64;
     wire [5:0] shamt;
     wire [6:0] instr_id;
     wire branch;
-
     wire reg_w;
     wire mem_r;
     wire mem_w;
     wire [6:0] opcode;
 
+    wire rf_rst;
+    wire rf_enable;
+    wire [4:0] rf_rs1;
+    wire [4:0] rf_rs2;
+    wire [4:0] rf_rd;
+    wire [63:0] rf_pc;
+    wire [63:0] rf_imm64;
+    wire [5:0] rf_shamt;
+    wire [6:0] rf_opcode;
+    wire [6:0] rf_instrId;
+    wire rf_branch;
+    wire rf_regw;
+    wire rf_memr;
+    wire rf_memw;
+
+    pc pc64 (
+      .clk (clk),
+      .rst (rst),
+      .bubble(pc_bubble),
+      .exception(pc_exception),
+      .rel_branch (pc_rel_branch),
+      .abs_branch (pc_abs_branch),
+      .immediate (pc_imm_in),
+      .mtvec(mtvec_val),
+      .branch_base(branch_base_pc),
+      .pc_out_reg(pc_out)
+    );
+
+    icache #(.WAY_NUMBER(8)) ic0(
+      .clk(clk),
+      .rst(rst),
+
+      .core_addr_i(pc_out),
+      .valid_o(ic_valid),
+      .data_o(ic_data),
+
+      .axi_done(if_axi_done),
+      .axi_req(if_axi_req),
+      .axi_data_i(if_axi_data),
+      .axi_req_addr(if_axi_addr),
+      .axi_fifo_idx(axi_fifo_idx),
+      .axi_fifo_done(axi_fifo_done)
+    );
+
+    reg_fetch_decode reg_fd(
+      .clk(clk),
+      .rst(decode_rst),
+      .enable(decode_wen),
+      .pc_from_fetch(pc_out),
+      .instr_from_fetch(ic_data),
+      .exception_from_fetch(fetch_exception),
+      .pc_to_decode(decode_pc),
+      .instr_to_decode(decode_instr),
+      .exception_to_decode(exception_to_decode)
+    );
+
     decoder dec(
 		.clk (clk),
-		.instr (decode_instr_out),
+		.instr (decode_instr),
 		.rs1 (rs1),
 		.rs2 (rs2),
 		.rd (rd),
@@ -276,63 +260,28 @@ module core # (
 		.reg_w(reg_w),
 		.mem_r(mem_r),
 		.mem_w(mem_w),
-		.imm (imm32),
+		.imm(imm64),
 		.shamt (shamt),
 		.opcode (opcode),
 		.instr_id (instr_id)
     );
-    /*****************访问寄存器***********************/
-    //寄存器阶段 过程寄存器
-    wire regfile_rst;
-    wire regfile_wen;
-    wire [4:0] regfile_rs1_out;
-    wire [4:0] regfile_rs2_out;
-    wire [4:0] regfile_rd_out;
-    wire [63:0] regfile_pc_out;
-    wire [63:0] regfile_imm64_out;
-    wire [5:0] regfile_shamt_out;
-    wire [6:0] regfile_opcode_out;
-    wire [6:0] regfile_instrId_out;
-    wire regfile_branch_out;
-    wire regfile_regw_out;
-    wire regfile_memr_out;
-    wire regfile_memw_out;
 
-    assign regfile_rst = pc_rel_branch | pc_abs_branch | decode_exception > 0 | wb_exception > 0;
-    assign regfile_wen = ~memory_bubble & ~dcache_hold;
+    wire regfile_rst = pc_rel_branch | pc_abs_branch | decode_exception > 0 | wb_exception > 0;
+    wire regfile_wen = ~memory_bubble & ~dcache_hold;
 
-    Reg #(5,0) regfile_rs1 (clk,regfile_rst,rs1,regfile_rs1_out,regfile_wen);
-    Reg #(5,0) regfile_rs2 (clk,regfile_rst,rs2,regfile_rs2_out,regfile_wen);
-    Reg #(5,0) regfile_rd (clk,regfile_rst,rd,regfile_rd_out,regfile_wen);
-    Reg #(64,0) regfile_pc (clk,regfile_rst,decode_pc_out,regfile_pc_out,regfile_wen);
-    Reg #(64,0) regfile_imm64 (clk,regfile_rst,{{32{imm32[31]}},imm32},regfile_imm64_out,regfile_wen);
-    Reg #(6,0) regfile_shamt (clk,regfile_rst,shamt,regfile_shamt_out,regfile_wen);
-    Reg #(7,0) regfile_opcode (clk,regfile_rst,opcode,regfile_opcode_out,regfile_wen);
-    Reg #(7,0) regfile_instrId (clk,regfile_rst,instr_id,regfile_instrId_out,regfile_wen);
-    Reg #(1,0) regfile_branch (clk,regfile_rst,branch,regfile_branch_out,regfile_wen);
-    Reg #(1,0) regfile_regw (clk,regfile_rst,reg_w,regfile_regw_out,regfile_wen);
-    Reg #(1,0) regfile_memr (clk,regfile_rst,mem_r,regfile_memr_out,regfile_wen);
-    Reg #(1,0) regfile_memw (clk,regfile_rst,mem_w,regfile_memw_out,regfile_wen);
-    // 访存异常寄存器
     wire [15:0] decode_excep_out;
     wire [15:0] regfile_exception;
     wire regfile_excep_rst = pc_rel_branch | pc_abs_branch | wb_exception >0;
     Reg #(16,0) regfile_excep(clk,regfile_excep_rst,decode_excep_out,decode_excep_out,regfile_wen);
     assign regfile_exception = 0 | decode_excep_out;
-    //检查是否有相邻的 ld / st
-    reg  ldst_bubbule;
-    reg  regld_bubble;
+
+    wire ldst_bubbule;
     wire memory_bubble;
 
-    assign ldst_bubbule = ((regfile_opcode_out == 7'b0000011) &  //load
+    assign ldst_bubbule = ((opcode == 7'b0000011) &                 //load
                            (alu_opcode_out == 7'b0100011)) ? 1 : 0; // store
 
-    assign regld_bubble = ((regfile_regw_out == 1 | regfile_memw_out ==1) & // reg
-                           (alu_opcode_out == 7'b0000011) &     //load
-                           ((regfile_rs2_out == alu_rd_out) | (regfile_rs1_out == alu_rd_out)) &
-                           (alu_rd_out != 0));
-
-    assign memory_bubble = ldst_bubbule | regld_bubble;
+    assign memory_bubble = ldst_bubbule;
 
     //输出值
     wire [63:0]  regfile_rs1valout;
@@ -341,14 +290,14 @@ module core # (
     wire [63:0] rf_write_val;
 
     regfile registerFile(
-		.clk(clk),
-		.wdata(rf_write_val),
-		.waddr(wb_rd_out),
-		.wen(wb_rf_wen),
-		.r_addr1(regfile_rs1_out),
-		.r_addr2(regfile_rs2_out),
-		.r_out1(regfile_rs1valout),
-		.r_out2(regfile_rs2valout)
+      .clk(clk),
+      .wdata(rf_write_val),
+      .waddr(wb_rd_out),
+      .wen(wb_rf_wen),
+      .r_addr1(rs1),
+      .r_addr2(rs2),
+      .r_out1(regfile_rs1valout),
+      .r_out2(regfile_rs2valout)
     );
 
     /*********************RAW旁路***********************/
@@ -356,22 +305,22 @@ module core # (
     reg regfile_alubypass_rs1 = 0;
     reg regfile_alubypass_rs2 = 0;
 
-    assign regfile_alubypass_rs1 = (regfile_rs1_out == alu_rd_out &&
-                                    regfile_rs1_out!=0) ? 1 :0;
+    assign regfile_alubypass_rs1 = (rs1 == alu_rd_out &&
+                                    rs1 != 0) ? 1 :0;
 
-    assign regfile_alubypass_rs2 = (regfile_rs2_out == alu_rd_out &&
-                                    regfile_rs2_out!=0) ? 1 :0;
+    assign regfile_alubypass_rs2 = (rs2 == alu_rd_out &&
+                                    rs2 != 0) ? 1 :0;
 
 
     // 旁路dmem级的值
     reg regfile_dmembypass_rs1 = 0;
     reg regfile_dmembypass_rs2 = 0;
 
-    assign regfile_dmembypass_rs1 = (regfile_rs1_out == dmem_rd_out &&
-                                     regfile_rs1_out!=0) ? 1 :0;
+    assign regfile_dmembypass_rs1 = (rs1 == dmem_rd_out &&
+                                     rs1 != 0) ? 1 :0;
 
-    assign regfile_dmembypass_rs2 = (regfile_rs2_out == dmem_rd_out &&
-                                     regfile_rs2_out!=0) ? 1 :0;
+    assign regfile_dmembypass_rs2 = (rs2 == dmem_rd_out &&
+                                     rs2 != 0) ? 1 :0;
 
     //合并两路旁路
     wire [63:0] alubypass_rs1val;
@@ -418,19 +367,19 @@ module core # (
 
     assign alu_rst = pc_rel_branch | pc_abs_branch | (memory_bubble & ~dcache_hold) | regfile_exception >0 | wb_exception > 0;
     assign alu_wen = ~memory_bubble & ~dcache_hold;
-    Reg #(5,0)  alu_zimm (clk,alu_rst,regfile_rs2_out,alu_zimm_out,alu_wen);
-    Reg #(64,0) alu_rs1val (clk,alu_rst,regfile_rs1val,alu_rs1val_out,alu_wen);
-    Reg #(64,0) alu_rs2val (clk,alu_rst,regfile_rs2val,alu_rs2val_out,alu_wen);
-    Reg #(5,0) alu_rd      (clk,alu_rst,regfile_rd_out,alu_rd_out,alu_wen);
-    Reg #(64,0) alu_pc      (clk,alu_rst,regfile_pc_out,alu_pc_out,alu_wen);
-    Reg #(64,0) alu_imm64 (clk,alu_rst,regfile_imm64_out,alu_imm64_out,alu_wen);
-    Reg #(6,0) alu_shamt (clk,alu_rst,regfile_shamt_out,alu_shamt_out,alu_wen);
-    Reg #(7,0) alu_opcode (clk,alu_rst,regfile_opcode_out,alu_opcode_out,alu_wen);
-    Reg #(7,0) alu_instrId (clk,alu_rst,regfile_instrId_out,alu_instrId_out,alu_wen);
-    Reg #(1,0) alu_branch (clk,alu_rst,regfile_branch_out,alu_branch_out,alu_wen);
-    Reg #(1,0) alu_regw (clk,alu_rst,regfile_regw_out,alu_regw_out,alu_wen);
-    Reg #(1,0) alu_memr (clk,alu_rst,regfile_memr_out,alu_memr_out,alu_wen);
-    Reg #(1,0) alu_memw (clk,alu_rst,regfile_memw_out,alu_memw_out,alu_wen);
+    Reg #(5,0)  alu_zimm (clk, alu_rst, rs2, alu_zimm_out, alu_wen);
+    Reg #(64,0) alu_rs1val (clk, alu_rst, regfile_rs1val, alu_rs1val_out, alu_wen);
+    Reg #(64,0) alu_rs2val (clk, alu_rst, regfile_rs2val, alu_rs2val_out, alu_wen);
+    Reg #(5,0) alu_rd      (clk, alu_rst, rd, alu_rd_out, alu_wen);
+    Reg #(64,0) alu_pc      (clk, alu_rst, decode_pc, alu_pc_out, alu_wen);
+    Reg #(64,0) alu_imm64 (clk, alu_rst, imm64, alu_imm64_out, alu_wen);
+    Reg #(6,0) alu_shamt (clk, alu_rst, shamt, alu_shamt_out, alu_wen);
+    Reg #(7,0) alu_opcode (clk, alu_rst, opcode, alu_opcode_out, alu_wen);
+    Reg #(7,0) alu_instrId (clk, alu_rst, instr_id, alu_instrId_out, alu_wen);
+    Reg #(1,0) alu_branch (clk, alu_rst, branch, alu_branch_out, alu_wen);
+    Reg #(1,0) alu_regw (clk, alu_rst, reg_w, alu_regw_out, alu_wen);
+    Reg #(1,0) alu_memr (clk, alu_rst, mem_r, alu_memr_out, alu_wen);
+    Reg #(1,0) alu_memw (clk, alu_rst, mem_w, alu_memw_out, alu_wen);
     // 异常
     wire [15:0] regfile_excep_out;
     wire [15:0] alu_exception;
@@ -458,7 +407,7 @@ module core # (
            (alu_instrId_out == `i_mret) ? mepc_val + 64'd4 :
            alu_imm64_out;
 
-    assign pc_ref_pc = alu_pc_out;
+    assign branch_base_pc = alu_pc_out;
 
     /**********************访问数据内存******************************/
     wire dmem_rst;

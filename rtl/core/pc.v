@@ -4,7 +4,7 @@ module pc (input clk,
            input abs_branch,
            input exception,
            input bubble,
-           input [63:0] ref_pc,
+           input [63:0] branch_base,
            input [63:0] immediate,
            input [63:0] mtvec,
            output reg [63:0] pc_out_reg);
@@ -14,7 +14,7 @@ module pc (input clk,
             pc_out_reg <= 64'h0000_0000_8000_0000;
             end else begin
             if (rel_branch == 1 && exception == 0) begin
-                pc_out_reg <= ref_pc + immediate;
+                pc_out_reg <= branch_base + immediate;
             end
             else if (abs_branch == 1 && exception == 0)begin
                 pc_out_reg <= {immediate[63:0]};
