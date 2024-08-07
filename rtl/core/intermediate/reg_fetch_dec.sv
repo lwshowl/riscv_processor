@@ -1,4 +1,4 @@
-module reg_fetch_decode (
+module reg_fetch_dec (
     input clk,
     input rst,
     input enable,

@@ -155,13 +155,14 @@ module core # (
 
     wire pc_rel_branch;
     wire pc_abs_branch;
-    wire pc_exception;
+    wire pc_exception = 1'b0;
     wire [63:0] pc_out;
     wire [63:0] branch_base_pc;
     wire [63:0] pc_imm_in;
     wire [63:0] mepc_val;
     wire pc_bubble;
     assign pc_bubble = memory_bubble | ~ic_valid | dcache_hold;
+    
 
     wire if_axi_req;
     wire if_axi_done;
@@ -177,10 +178,19 @@ module core # (
     wire [31:0] decode_instr;
     wire [63:0] decode_pc;
     wire [15:0] exception_to_decode;
-    wire decode_rst = pc_rel_branch | pc_abs_branch | fetch_exception > 0 | wb_exception > 0;
+    wire decode_rst = pc_rel_branch | pc_abs_branch;
     wire decode_wen = ~memory_bubble & ~dcache_hold;
     wire [15:0] decode_exception = exception_to_decode;
-    wire decode_excep_rst = pc_abs_branch | pc_rel_branch | wb_exception >0;
+
+    wire regfile_rst = pc_rel_branch | pc_abs_branch;
+    wire regfile_wen = ~memory_bubble & ~dcache_hold;
+
+    
+    wire ldst_bubbule = ((opcode == 7'b0000011) &                 //load
+                        (alu_opcode == 7'b0100011)) ? 1 : 0; // store
+
+    wire memory_bubble = ldst_bubbule;
+
 
     wire [4:0] rs1;
     wire [4:0] rs2;
@@ -193,6 +203,11 @@ module core # (
     wire mem_r;
     wire mem_w;
     wire [6:0] opcode;
+
+    wire [63:0]  regfile_rs1val;
+    wire [63:0]  regfile_rs2val;
+    wire wb_rf_wen;
+    wire [63:0] rf_write_val;
 
     wire rf_rst;
     wire rf_enable;
@@ -208,6 +223,26 @@ module core # (
     wire rf_regw;
     wire rf_memr;
     wire rf_memw;
+
+    wire alu_rst;
+    wire alu_wen;
+    wire [63:0] alu_rs1val;
+    wire [63:0] alu_rs2val;
+    wire [4:0] alu_rd;
+    wire [63:0] alu_pc;
+    wire [63:0] alu_imm64;
+    wire [5:0] alu_shamt;
+    wire [6:0] alu_opcode;
+    wire [6:0] alu_instrId;
+    wire  alu_branch;
+    wire  alu_regw;
+    wire  alu_memr;
+    wire  alu_memw;
+    wire [63:0] alu_result;
+    wire [4:0] alu_zimm;
+
+    assign alu_rst = pc_rel_branch | pc_abs_branch | (memory_bubble & ~dcache_hold);
+    assign alu_wen = ~memory_bubble & ~dcache_hold;
 
     pc pc64 (
       .clk (clk),
@@ -238,7 +273,7 @@ module core # (
       .axi_fifo_done(axi_fifo_done)
     );
 
-    reg_fetch_decode reg_fd(
+    reg_fetch_dec reg_fd(
       .clk(clk),
       .rst(decode_rst),
       .enable(decode_wen),
@@ -266,29 +301,6 @@ module core # (
 		.instr_id (instr_id)
     );
 
-    wire regfile_rst = pc_rel_branch | pc_abs_branch | decode_exception > 0 | wb_exception > 0;
-    wire regfile_wen = ~memory_bubble & ~dcache_hold;
-
-    wire [15:0] decode_excep_out;
-    wire [15:0] regfile_exception;
-    wire regfile_excep_rst = pc_rel_branch | pc_abs_branch | wb_exception >0;
-    Reg #(16,0) regfile_excep(clk,regfile_excep_rst,decode_excep_out,decode_excep_out,regfile_wen);
-    assign regfile_exception = 0 | decode_excep_out;
-
-    wire ldst_bubbule;
-    wire memory_bubble;
-
-    assign ldst_bubbule = ((opcode == 7'b0000011) &                 //load
-                           (alu_opcode_out == 7'b0100011)) ? 1 : 0; // store
-
-    assign memory_bubble = ldst_bubbule;
-
-    //输出值
-    wire [63:0]  regfile_rs1valout;
-    wire [63:0]  regfile_rs2valout;
-    wire wb_rf_wen;
-    wire [63:0] rf_write_val;
-
     regfile registerFile(
       .clk(clk),
       .wdata(rf_write_val),
@@ -296,8 +308,8 @@ module core # (
       .wen(wb_rf_wen),
       .r_addr1(rs1),
       .r_addr2(rs2),
-      .r_out1(regfile_rs1valout),
-      .r_out2(regfile_rs2valout)
+      .r_out1(regfile_rs1val),
+      .r_out2(regfile_rs2val)
     );
 
     /*********************RAW旁路***********************/
@@ -305,10 +317,10 @@ module core # (
     reg regfile_alubypass_rs1 = 0;
     reg regfile_alubypass_rs2 = 0;
 
-    assign regfile_alubypass_rs1 = (rs1 == alu_rd_out &&
+    assign regfile_alubypass_rs1 = (rs1 == alu_rd &&
                                     rs1 != 0) ? 1 :0;
 
-    assign regfile_alubypass_rs2 = (rs2 == alu_rd_out &&
+    assign regfile_alubypass_rs2 = (rs2 == alu_rd &&
                                     rs2 != 0) ? 1 :0;
 
 
@@ -329,85 +341,76 @@ module core # (
     wire [63:0] dmembypass_rs1val;
     wire [63:0] dmembypass_rs2val;
 
-    wire [63:0] regfile_rs1val;
-    wire [63:0] regfile_rs2val;
+    wire [63:0] rs1val;
+    wire [63:0] rs2val;
 
-    assign alubypass_rs1val = regfile_alubypass_rs1 ? alu_result : regfile_rs1valout;
-    assign alubypass_rs2val = regfile_alubypass_rs2 ? alu_result : regfile_rs2valout;
+    assign alubypass_rs1val = regfile_alubypass_rs1 ? alu_result : regfile_rs1val;
+    assign alubypass_rs2val = regfile_alubypass_rs2 ? alu_result : regfile_rs2val;
 
-    assign dmembypass_rs1val = regfile_dmembypass_rs1 ? dmem_data_result : regfile_rs1valout;
-    assign dmembypass_rs2val = regfile_dmembypass_rs2 ? dmem_data_result : regfile_rs2valout;
+    assign dmembypass_rs1val = regfile_dmembypass_rs1 ? dmem_data_result : regfile_rs1val;
+    assign dmembypass_rs2val = regfile_dmembypass_rs2 ? dmem_data_result : regfile_rs2val;
 
-    assign regfile_rs1val = (regfile_alubypass_rs1) ?  alubypass_rs1val :
+    assign rs1val = (regfile_alubypass_rs1) ?  alubypass_rs1val :
            (regfile_dmembypass_rs1) ? dmembypass_rs1val :
-           regfile_rs1valout;
+           regfile_rs1val;
 
-    assign regfile_rs2val = (regfile_alubypass_rs2) ?  alubypass_rs2val :
+    assign rs2val = (regfile_alubypass_rs2) ?  alubypass_rs2val :
            (regfile_dmembypass_rs2) ? dmembypass_rs2val :
-           regfile_rs2valout;
-
-    /***************ALU(算数,分支和地址 计算)**************************/
-    // ALU阶段过程寄存器
-    wire alu_rst;
-    wire alu_wen;
-    wire [63:0] alu_rs1val_out;
-    wire [63:0] alu_rs2val_out;
-    wire [4:0] alu_rd_out;
-    wire [63:0] alu_pc_out;
-    wire [63:0] alu_imm64_out;
-    wire [5:0] alu_shamt_out;
-    wire [6:0] alu_opcode_out;
-    wire [6:0] alu_instrId_out;
-    wire  alu_branch_out;
-    wire  alu_regw_out;
-    wire  alu_memr_out;
-    wire  alu_memw_out;
-    wire [63:0] alu_result;
-    wire [4:0] alu_zimm_out;
-
-    assign alu_rst = pc_rel_branch | pc_abs_branch | (memory_bubble & ~dcache_hold) | regfile_exception >0 | wb_exception > 0;
-    assign alu_wen = ~memory_bubble & ~dcache_hold;
-    Reg #(5,0)  alu_zimm (clk, alu_rst, rs2, alu_zimm_out, alu_wen);
-    Reg #(64,0) alu_rs1val (clk, alu_rst, regfile_rs1val, alu_rs1val_out, alu_wen);
-    Reg #(64,0) alu_rs2val (clk, alu_rst, regfile_rs2val, alu_rs2val_out, alu_wen);
-    Reg #(5,0) alu_rd      (clk, alu_rst, rd, alu_rd_out, alu_wen);
-    Reg #(64,0) alu_pc      (clk, alu_rst, decode_pc, alu_pc_out, alu_wen);
-    Reg #(64,0) alu_imm64 (clk, alu_rst, imm64, alu_imm64_out, alu_wen);
-    Reg #(6,0) alu_shamt (clk, alu_rst, shamt, alu_shamt_out, alu_wen);
-    Reg #(7,0) alu_opcode (clk, alu_rst, opcode, alu_opcode_out, alu_wen);
-    Reg #(7,0) alu_instrId (clk, alu_rst, instr_id, alu_instrId_out, alu_wen);
-    Reg #(1,0) alu_branch (clk, alu_rst, branch, alu_branch_out, alu_wen);
-    Reg #(1,0) alu_regw (clk, alu_rst, reg_w, alu_regw_out, alu_wen);
-    Reg #(1,0) alu_memr (clk, alu_rst, mem_r, alu_memr_out, alu_wen);
-    Reg #(1,0) alu_memw (clk, alu_rst, mem_w, alu_memw_out, alu_wen);
-    // 异常
-    wire [15:0] regfile_excep_out;
-    wire [15:0] alu_exception;
-    wire alu_exception_rst = pc_abs_branch | pc_rel_branch | wb_exception > 0;
-    Reg #(16,0) alu_excep(clk,alu_exception_rst,regfile_exception,regfile_excep_out,alu_wen);
-    assign alu_exception = 16'd0 | regfile_excep_out;
+           regfile_rs2val;
+    
+    reg_dec_exe reg_de(
+    .clk(clk),
+    .reset(alu_rst),
+    .enable(alu_wen),
+    .rs2(rs2),
+    .rd(rd),    
+    .rs1val(rs1val),
+    .rs2val(rs2val),
+    .pc_from_decode(decode_pc),
+    .imm64_from_decode(imm64),
+    .shamt_from_decode(shamt),
+    .opcode_from_decode(opcode),
+    .instrId_from_decode(instr_id),
+    .branch_from_decode(branch),
+    .regw_from_decode(reg_w),
+    .memr_from_decode(mem_r),
+    .memw_from_decode(mem_w),
+    .alu_zimm(alu_zimm),
+    .alu_rd(alu_rd),
+    .alu_rs1val(alu_rs1val),
+    .alu_rs2val(alu_rs2val),
+    .alu_pc(alu_pc),
+    .alu_imm64(alu_imm64),
+    .alu_shamt(alu_shamt),
+    .alu_opcode(alu_opcode),
+    .alu_instrId(alu_instrId),
+    .alu_branch(alu_branch),
+    .alu_regw(alu_regw),
+    .alu_memr(alu_memr),
+    .alu_memw(alu_memw)
+    );
 
     alu alu64(
 		.clk (clk),
-		.instr_in (alu_instrId_out),
-		.rs1 (alu_rs1val_out),
-		.rs2 (alu_rs2val_out),
-		.imm (alu_imm64_out),
-		.shamt (alu_shamt_out),
-		.pc (alu_pc_out),
+		.instr_in (alu_instrId),
+		.rs1 (alu_rs1val),
+		.rs2 (alu_rs2val),
+		.imm (alu_imm64),
+		.shamt (alu_shamt),
+		.pc (alu_pc),
 		.result (alu_result)
     );
 
     //分支预测 branch 不会发生
     //此时是否分支应该也已经计算完毕
-    assign pc_rel_branch = alu_branch_out & alu_result[0] & ~pc_abs_branch;
-    assign pc_abs_branch = (alu_instrId_out == `i_jalr) | (alu_instrId_out == `i_mret);
+    assign pc_rel_branch = alu_branch & alu_result[0] & ~pc_abs_branch;
+    assign pc_abs_branch = (alu_instrId == `i_jalr) | (alu_instrId == `i_mret);
     //绝大多数转移地址由立即数直接给出,jalr 为立即数与寄存器的和
-    assign pc_imm_in = (alu_instrId_out == `i_jalr) ? {alu_result[63:1],1'b0} :
-           (alu_instrId_out == `i_mret) ? mepc_val + 64'd4 :
-           alu_imm64_out;
+    assign pc_imm_in = (alu_instrId == `i_jalr) ? {alu_result[63:1],1'b0} :
+           (alu_instrId == `i_mret) ? mepc_val + 64'd4 :
+           alu_imm64;
 
-    assign branch_base_pc = alu_pc_out;
+    assign branch_base_pc = alu_pc;
 
     /**********************访问数据内存******************************/
     wire dmem_rst;
@@ -426,29 +429,21 @@ module core # (
     wire dmem_branch_out;
     wire [4:0] dmem_zimm_out;
 
-    assign dmem_rst = alu_exception > 0 | wb_exception >0;
+    assign dmem_rst = 1'b0;
     assign dmem_wen = ~dcache_hold;
-    Reg #(5,0) dmem_zimm(clk,dmem_rst,alu_zimm_out,dmem_zimm_out,dmem_wen);
-    Reg #(5,0) dmem_rd (clk,dmem_rst,alu_rd_out,dmem_rd_out,dmem_wen);
-    Reg #(64,0) dmem_pc (clk,dmem_rst,alu_pc_out,dmem_pc_out,dmem_wen);
-    Reg #(64,0) dmem_result (clk,dmem_rst,alu_result,dmem_result_out,dmem_wen);
-    Reg #(64,0) dmem_rs1val (clk,dmem_rst,alu_rs1val_out,dmem_rs1val_out,dmem_wen);
-    Reg #(64,0) dmem_rs2val (clk,dmem_rst,alu_rs2val_out,dmem_rs2val_out,dmem_wen);
-    Reg #(64,0) dmem_imm64 (clk,dmem_rst,alu_imm64_out,dmem_imm64_out,dmem_wen);
-    Reg #(7,0) dmem_instrId (clk,dmem_rst,alu_instrId_out,dmem_instrId_out,dmem_wen);
-    Reg #(7,0) dmem_opcode (clk,dmem_rst,alu_opcode_out,dmem_opcode_out,dmem_wen);
-    Reg #(1,0) dmem_regw (clk,dmem_rst,alu_regw_out,dmem_regw_out,dmem_wen);
-    Reg #(1,0) dmem_memw (clk,dmem_rst,alu_memw_out,dmem_memw_out,dmem_wen);
-    Reg #(1,0) dmem_memr (clk,dmem_rst,alu_memr_out,dmem_memr_out,dmem_wen);
-    Reg #(1,0) dmem_branch (clk,dmem_rst,alu_branch_out,dmem_branch_out,dmem_wen);
-
-    //异常
-    wire [15:0] alu_excep_out;
-    wire [15:0] dmem_exception;
-    wire dmem_excep_rst = wb_exception > 0;
-    Reg #(16,0) dmem_excep(clk,dmem_excep_rst,alu_exception,alu_excep_out,dmem_wen);
-    assign dmem_exception = 0 | alu_excep_out;
-
+    Reg #(5,0) reg_dmem_zimm(clk, dmem_rst, alu_zimm, dmem_zimm_out, dmem_wen);
+    Reg #(5,0) reg_dmem_rd (clk,  dmem_rst, alu_rd, dmem_rd_out, dmem_wen);
+    Reg #(64,0) reg_dmem_pc (clk, dmem_rst, alu_pc, dmem_pc_out, dmem_wen);
+    Reg #(64,0) reg_dmem_result (clk, dmem_rst, alu_result, dmem_result_out, dmem_wen);
+    Reg #(64,0) reg_dmem_rs1val (clk, dmem_rst, alu_rs1val, dmem_rs1val_out, dmem_wen);
+    Reg #(64,0) reg_dmem_rs2val (clk, dmem_rst, alu_rs2val, dmem_rs2val_out, dmem_wen);
+    Reg #(64,0) reg_dmem_imm64 (clk,  dmem_rst, alu_imm64,  dmem_imm64_out, dmem_wen);
+    Reg #(7,0) reg_dmem_instrId (clk, dmem_rst, alu_instrId,  dmem_instrId_out, dmem_wen);
+    Reg #(7,0) reg_dmem_opcode (clk,  dmem_rst, alu_opcode, dmem_opcode_out, dmem_wen);
+    Reg #(1,0) reg_dmem_regw (clk,  dmem_rst, alu_regw, dmem_regw_out, dmem_wen);
+    Reg #(1,0) reg_dmem_memw (clk,  dmem_rst, alu_memw, dmem_memw_out, dmem_wen);
+    Reg #(1,0) reg_dmem_memr (clk,  dmem_rst, alu_memr, dmem_memr_out, dmem_wen);
+    Reg #(1,0) reg_dmem_branch (clk,  dmem_rst, alu_branch, dmem_branch_out, dmem_wen);
 
     /* verilator lint_off UNDRIVEN */
     reg [63:0] dmem_data_out;
@@ -499,8 +494,8 @@ module core # (
     assign mmio_addr = dmem_rw_addr;
     assign mmio_burst_len = 0;
 
-    dcache #(.WAY_NUMBER(8)) dc0
-		(.clk(clk),
+    dcache #(.WAY_NUMBER(8)) dc0(
+    .clk(clk),
 		.rst(rst),
 		// core interfaces
 		.dcache_req(dmem_cache_req),
@@ -549,22 +544,21 @@ module core # (
          dmem_instrId_out == `i_csrrsi || dmem_instrId_out == `i_csrrci;
 
     CSR csr(
-		.clk(clk),
-		.rst(rst),
-		.wen(csr_wen),
-		.excep_wen(excep_wen),
-		.rs1(dmem_rs1val_out),
-		.addr(dmem_imm64_out[11:0]),
-		.instr(dmem_instrId_out),
-		.imm(dmem_zimm_out),
-		.mepc_val(mepc_val),
-		.mtvec_val(mtvec_val),
-		.mcause_overri(mcause_overri),
-		.mepc_overri(mepc_overri),
-		.csrVal(csrval)
+      .clk(clk),
+      .rst(rst),
+      .wen(csr_wen),
+      .excep_wen(excep_wen),
+      .rs1(dmem_rs1val_out),
+      .addr(dmem_imm64_out[11:0]),
+      .instr(dmem_instrId_out),
+      .imm(dmem_zimm_out),
+      .mepc_val(mepc_val),
+      .mtvec_val(mtvec_val),
+      .mcause_overri(mcause_overri),
+      .mepc_overri(mepc_overri),
+      .csrVal(csrval)
     );
 
-    /********************回写****************************/
     wire wb_rst;
     wire wb_wen;
     wire [4:0] wb_rd_out;
@@ -579,7 +573,7 @@ module core # (
     wire wb_regw_out;
     wire wb_memw_out;
     wire wb_branch_out;
-    assign wb_rst = dcache_hold | dmem_exception > 0 | wb_exception > 0;
+    assign wb_rst = dcache_hold;
     assign wb_wen = ~dcache_hold;
 
     Reg #(64,0) wb_csrval (clk,wb_rst,csrval,wb_csrval_out,wb_wen);
@@ -594,13 +588,7 @@ module core # (
     Reg #(1,0) wb_memw (clk,wb_rst,dmem_memw_out,wb_memw_out,wb_wen);
     Reg #(1,0) wb_branch (clk,wb_rst,dmem_branch_out,wb_branch_out,wb_wen);
     Reg #(7,0) wb_opcode (clk,wb_rst,dmem_opcode_out,wb_opcode_out,wb_wen);
-    //异常
-    wire [15:0] dmem_excep_out;
-    wire [15:0] wb_exception;
-    Reg #(16,0) wb_excep(clk,0,dmem_exception,dmem_excep_out,wb_wen);
-    assign wb_exception = wb_instrId_out == `i_ecall ? `e_ecall | dmem_excep_out : 0 | dmem_exception;
-    assign pc_exception = wb_exception > 0;
-    assign excep_wen = wb_exception > 0;
+
     assign mepc_overri = wb_pc_out;
     assign mcause_overri = wb_instrId_out == `i_ecall ? 64'd11 : 64'd0;
 
