@@ -1,4 +1,5 @@
 TARGET = core
+EXTENSION = sv
 OBJ_DIR = ./obj_dir
 V_DIR = ../../rtl/core
 TEST_BENCH_NAME = core_module.cpp
@@ -22,8 +23,10 @@ CFLAGS += -I$(VERILATOR_INC) -I$(VERILATOR_INC)/vltstd
 
 V_FLAGS =   -Wall -cc --trace --exe \
 			-I../../rtl/core \
+			-I../../rtl/core/intermediate \
+			-I../../rtl/core/pipeline_control \
 		 	-I../../rtl/bus \
-		 	-I../../rtl/templates \
+		 	-I../../rtl/templates
 
 VC_FLAGS =  -CFLAGS -I./include \
 			-CFLAGS -I./src \
@@ -72,7 +75,7 @@ combine: verilate $(OBJS)
 # veriate verilog file
 verilate:
 	@echo verilating
-	@verilator $(V_FLAGS) $(VC_FLAGS) $(VC_LDFLAGS) $(EXT_LD) $(V_DIR)/$(TARGET).v $(TESTBENCH_DIR)/$(TEST_BENCH_NAME)
+	@verilator $(V_FLAGS) $(VC_FLAGS) $(VC_LDFLAGS) $(EXT_LD) $(V_DIR)/$(TARGET).$(EXTENSION) $(TESTBENCH_DIR)/$(TEST_BENCH_NAME)
 
 # copy objs and archives to nemu
 copy_obj: combine

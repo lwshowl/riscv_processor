@@ -25,7 +25,7 @@ module cache_ram #(O_WIDTH = 64)
             assign data_out[idx*8+:8] = mem[r_index][r_offset+idx[5:0]];
     endgenerate
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (wen) begin
             // at least write one byte
             mem[w_index][w_offset] <= data_in[7:0];
@@ -37,8 +37,8 @@ module cache_ram #(O_WIDTH = 64)
 
             // if write mask >= 4 , write at least two more bytes 
             if(write_mask >= 4) begin
-                mem[w_index][w_offset + 2] <= data_in[23:16];     
-                mem[w_index][w_offset + 3] <= data_in[31:24];     
+                mem[w_index][w_offset + 2] <= data_in[23:16];
+                mem[w_index][w_offset + 3] <= data_in[31:24];
             end
 
             // if write mask == 8 , write remaining 4 bytes

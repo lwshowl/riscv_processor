@@ -56,6 +56,9 @@ module dcache #(WAY_NUMBER = 8)
     reg  [63:0] way_ram_in [WAY_NUMBER-1:0];
     wire [63:0] way_ram_out [WAY_NUMBER-1:0];
     reg         way_wen [WAY_NUMBER-1:0];
+    reg  [63:0] store_addr_buffer;
+    reg  [63:0] store_buffer;
+    wire [63:0] cache_r_data;
 
     reg  [3:0]   ram_write_mask;
     reg  [63:0]  ram_w_addr;
@@ -198,9 +201,10 @@ module dcache #(WAY_NUMBER = 8)
 
     assign w_valid_o = cache_hit & dcache_req & cache_rw == `CACHE_WRITE;
     assign r_valid_o = cache_hit & dcache_req & cache_rw == `CACHE_READ;
-    assign data_o = cache_hit ? way_ram_out[hit_way] : 64'd0;
+    assign cache_r_data = (core_addr_i == store_addr_buffer) ? store_buffer : way_ram_out[hit_way];
+    assign data_o = cache_hit ? cache_r_data : 64'd0;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
             // on reset , clear all valid bits on all ways and all lines
             for(integer x = 0; x< WAY_NUMBER; x = x+1) begin
@@ -231,6 +235,8 @@ module dcache #(WAY_NUMBER = 8)
                         if(cache_rw == `CACHE_WRITE) begin
                             ram_w_addr                      <= core_addr_i;
                             way_ram_in[hit_way]             <= core_data_i;
+                            store_addr_buffer               <= core_addr_i;
+                            store_buffer                    <= core_data_i;
                             way_wen[hit_way]                <= 1;
                             ram_write_mask                  <= write_mask;
                             // if write to cache , set dirty bits

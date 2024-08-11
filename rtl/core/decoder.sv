@@ -1,4 +1,4 @@
-`include "instructions.v"
+`include "instructions.sv"
 
 module decoder(/* verilator lint_off UNUSED */
                 input clk,
@@ -55,7 +55,7 @@ module decoder(/* verilator lint_off UNUSED */
     assign shamt  = instr[25:20];
     
     //i type decode
-    always @(*) begin
+    always_comb begin
         case(opcode)
             // 7'b0000011, //lb lh lw lbu lhu
             i_opcode1: begin

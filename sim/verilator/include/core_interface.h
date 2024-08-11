@@ -23,6 +23,6 @@ extern Vcore *dut;
 
 bool static inline is_branch()
 {
-    return ((dut->core__DOT__wb_branch_out && dut->core__DOT__wb_result_out) // if there is branch
-              | dut->core__DOT__wb_instrId_out == i_jalr | dut->core__DOT__wb_instrId_out == i_mret | dut->core__DOT__dmem_excep_out > 0 | dut->core__DOT__wb_instrId_out == i_ecall);
+    return ((dut->core__DOT__wb_branch && dut->core__DOT__wb_result) // if there is branch
+              | dut->core__DOT__wb_instrId == i_jalr | dut->core__DOT__wb_instrId == i_mret | dut->core__DOT__wb_instrId == i_ecall);
 }

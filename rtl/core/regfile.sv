@@ -12,7 +12,7 @@ module regfile (input clk,
     assign r_out1 = r_addr1 == 0 ? 0 : r_addr1 == waddr ? wdata : registers[r_addr1];
     assign r_out2 = r_addr2 == 0 ? 0 : r_addr2 == waddr ? wdata : registers[r_addr2];
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (wen)
             registers[waddr] <= wdata;
     end

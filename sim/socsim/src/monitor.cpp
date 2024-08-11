@@ -132,6 +132,7 @@ word_t mem_read(word_t addr, size_t len, std::string &ori)
     {
     case 0:
       memory = (void *)dut->core__DOT__ic0__DOT__genblk1__BRA__0__KET____DOT__ram__DOT__mem[index];
+      break;
     case 1:
       memory = (void *)dut->core__DOT__ic0__DOT__genblk1__BRA__1__KET____DOT__ram__DOT__mem[index];
       break;
@@ -165,6 +166,7 @@ word_t mem_read(word_t addr, size_t len, std::string &ori)
     {
     case 0:
       memory = (void *)dut->core__DOT__dc0__DOT__genblk1__BRA__0__KET____DOT__ram__DOT__mem[index];
+      break;
     case 1:
       memory = (void *)dut->core__DOT__dc0__DOT__genblk1__BRA__1__KET____DOT__ram__DOT__mem[index];
       break;

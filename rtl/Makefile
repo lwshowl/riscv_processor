@@ -3,7 +3,8 @@ V_FLAGS =   -Wall --lint-only \
 			-I./core \
 		 	-I./bus \
 		 	-I./templates \
-			-I./core/intermediate
+			-I./core/intermediate \
+			-I./core/pipeline_control
 
 lint:
 	@echo lint

@@ -18,12 +18,12 @@ void core_pass_registers(uint64_t *regs)
 
 void core_pass_instr()
 {
-    auto it = imap.find((uint64_t)dut->core__DOT__decode_instr_out);
+    auto it = imap.find((uint64_t)dut->core__DOT__decode_pc);
     if (it != imap.end())
-        it->second = dut->core__DOT__decode_instr_out;
+        it->second = dut->core__DOT__decode_instr;
     else
-        imap.insert(make_pair((uint64_t)(dut->core__DOT__decode_pc_out),
-                              (uint64_t)(dut->core__DOT__decode_instr_out)));
+        imap.insert(make_pair((uint64_t)(dut->core__DOT__decode_pc),
+                              (uint64_t)(dut->core__DOT__decode_instr)));
 }
 
 uint64_t core_run_once()
@@ -34,7 +34,7 @@ uint64_t core_run_once()
         pc = is_committing();
         core_pass_instr();
 
-        if (sim_time < MAX_SIM_TIME && !pc)
+        if (sim_time < MAX_SIM_TIME && pc == 0)
         {
             // 上升沿以前,before write
             handleRisingEdge();
@@ -42,8 +42,9 @@ uint64_t core_run_once()
             handleFallingEdge();
             sim_time++;
             continue;
+        } else {
+            break;
         }
-        break;
     }
     // check if there is branch , and get the branch target
     return commit_instr();

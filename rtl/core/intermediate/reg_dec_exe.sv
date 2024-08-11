@@ -2,6 +2,7 @@ module reg_dec_exe (
     input clk,
     input reset,
     input enable,
+    input [4:0] rs1,
     input [4:0] rs2,
     input [4:0] rd,    
     input [63:0] rs1val,
@@ -16,6 +17,8 @@ module reg_dec_exe (
     input memr_from_decode,
     input memw_from_decode,
     output [4:0] alu_zimm,
+    output [4:0] alu_rs1,
+    output [4:0] alu_rs2,
     output [4:0] alu_rd,
     output [63:0] alu_rs1val,
     output [63:0] alu_rs2val,
@@ -43,6 +46,8 @@ Reg #(1,0) reg_alu_branch (clk, reset, branch_from_decode, alu_branch, enable);
 Reg #(1,0) reg_alu_regw (clk, reset, regw_from_decode, alu_regw, enable);
 Reg #(1,0) reg_alu_memr (clk, reset, memr_from_decode, alu_memr, enable);
 Reg #(1,0) reg_alu_memw (clk, reset, memw_from_decode, alu_memw, enable);
+Reg #(5,0) reg_alu_rs1 (clk, reset, rs1, alu_rs1, enable);
+Reg #(5,0) reg_alu_rs2 (clk, reset, rs2, alu_rs2, enable);
 
 
 endmodule

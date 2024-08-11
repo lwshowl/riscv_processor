@@ -9,7 +9,7 @@ void handleRisingEdge()
     {
         mem_sigs.update_input(*mem_ref);
         step_verilator_sim();
-        dump_internals(); 
+        dump_internals();
         update_dnpc();
     }
 }
@@ -43,9 +43,9 @@ void dump_internals()
 // dump_regfile();
 // dump_alu();
 #ifdef DUMP_CACHE
-    dump_dcache();
 #endif
     // dump_dmem();
+    // dump_dcache();
     // dump_axi_ctl();
     // dump_wb();
     // cout << endl;
@@ -78,7 +78,8 @@ uint64_t commit_instr()
     return pc;
 }
 
-uint64_t next_pc() {
+uint64_t next_pc()
+{
     uint64_t next_pc;
     if (is_branch())
     {
@@ -88,8 +89,9 @@ uint64_t next_pc() {
             dnpc_queue.pop();
         }
     }
-    else {
-        next_pc = ((uint64_t)dut->core__DOT__wb_pc_out) + 4u;
+    else
+    {
+        next_pc = ((uint64_t)dut->core__DOT__wb_pc) + 4u;
     }
     return next_pc;
 }

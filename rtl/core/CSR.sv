@@ -1,4 +1,4 @@
-`include "instructions.v"
+`include "instructions.sv"
 module CSR(input clk,
            input rst,
            input wen,
@@ -23,7 +23,7 @@ module CSR(input clk,
     assign mtvec_val = mtvec;
     assign mepc_val = mepc;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if(rst) begin
           mtvec     <= 0;
           mstatus   <= 64'h0000_000a_0000_1800;

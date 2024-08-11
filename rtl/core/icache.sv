@@ -184,7 +184,7 @@ module icache #(WAY_NUMBER = 8)
     assign data_o = way_ram_out[hit_way];
     assign ram_r_addr = core_addr_i;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
             // on reset , clear all valid bits on all ways and all lines
             for(integer x = 0; x< WAY_NUMBER; x = x+1) begin
