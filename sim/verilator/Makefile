@@ -41,6 +41,7 @@ VC_FLAGS =  -CFLAGS -I./include \
 VC_LDFLAGS += -LDFLAGS ../build_tb/core_dump.o
 VC_LDFLAGS += -LDFLAGS ../build_tb/core_interface.o
 VC_LDFLAGS += -LDFLAGS ../build_tb/utils.o
+VC_LDFLAGS += -LDFLAGS ./Vcore__ALL.a
 VC_LDFLAGS += -LDFLAGS -Wl,--copy-dt-needed-entries
 
 OBJS += ./build_tb/core_dump.o 

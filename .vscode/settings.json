@@ -63,6 +63,10 @@
         "bitset": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp"
     }
 }

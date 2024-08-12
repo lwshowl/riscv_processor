@@ -1,7 +1,6 @@
 `include "instructions.sv"
 
 module alu (/* verilator lint_off UNUSED */
-            input clk,
             /* verilator lint_off UNUSED */
              input [6:0] instr_in,
              input [63:0] rs1,
@@ -19,7 +18,7 @@ module alu (/* verilator lint_off UNUSED */
 
     assign sign32 = result_64[31];
 
-    always_comb begin
+    always begin
         case (instr_in)
             `i_lui:      result = imm;
             `i_auipc:    result = pc + imm;

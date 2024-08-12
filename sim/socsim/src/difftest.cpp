@@ -15,12 +15,12 @@ bool difftest_checkregs(riscv64_CPU_state *ref_r, vaddr_t pc)
   bool state = true;
 
   for (int i = 0; i <= 31 && state > 0; i++)
-    state = difftest_check_reg(reg_name(i, 8), pc, ref_r->gpr[i], cpu.gpr[i]);
+    state &= difftest_check_reg(reg_name(i, 8), pc, ref_r->gpr[i], cpu.gpr[i]);
 
   return state;
 }
 
-void difftest_step(vaddr_t pc, vaddr_t npc)
+int difftest_step(vaddr_t pc, vaddr_t npc)
 {
   riscv64_CPU_state ref_r;
 
@@ -33,10 +33,10 @@ void difftest_step(vaddr_t pc, vaddr_t npc)
         ", right = " FMT_WORD ", wrong = " FMT_WORD ", diff = " FMT_WORD,
         pc, ref_r.pc, npc, ref_r.pc ^ npc);
 
-    return;
+    return 0;
   }
 
-  difftest_checkregs(&ref_r, pc);
+  return difftest_checkregs(&ref_r, pc);
 }
 
 void difftest_init(char *ref_so_file, long img_size, int port)
@@ -46,9 +46,7 @@ void difftest_init(char *ref_so_file, long img_size, int port)
   std::ifstream so(ref_so_file);
   void *handle;
 
-  if (so.good())
-    assert(handle);
-  else
+  if (!so.good())
     std::cout << "SO File not exist\n";
 
   handle = dlopen(ref_so_file, RTLD_LAZY);

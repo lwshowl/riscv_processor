@@ -36,7 +36,7 @@ binary: verilate spike-diff $(SOC_OBJS)
 	@echo compling host program
 	@make -C ../cpu_test all TARGET=$(BIN)
 	@cp $(BUILD)/*.o ../verilator/obj_dir
-	@make -C $(V_DIR) combine SC_LIBS+=$(SC_LIBS) \
+	@make -C $(V_DIR) combine SC_LIBS+=$(SC_LIBS)  \
 	LIBS+=$(LIBS) \
 	EXT_LD+=./socsim.o \
 	EXT_LD+=./monitor.o \

@@ -36,9 +36,9 @@ uint64_t core_run_once()
 
         if (sim_time < MAX_SIM_TIME && pc == 0)
         {
-            // 上升沿以前,before write
+            // 上升沿以前, before write
             handleRisingEdge();
-            // 上升沿已经发生, after write, update value
+            // after write, update value
             handleFallingEdge();
             sim_time++;
             continue;

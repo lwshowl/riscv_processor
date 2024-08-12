@@ -51,7 +51,7 @@ module dcache #(WAY_NUMBER = 8)
     reg line_valid [WAY_NUMBER-1:0][63:0];
     reg line_dirty [WAY_NUMBER-1:0][63:0];
     // for each way , there is a precense bit to control way behaviors
-    reg presence [WAY_NUMBER-1:0];
+    wire presence [WAY_NUMBER-1:0];
     // wires connecting to internal ram
     reg  [63:0] way_ram_in [WAY_NUMBER-1:0];
     wire [63:0] way_ram_out [WAY_NUMBER-1:0];
@@ -62,6 +62,7 @@ module dcache #(WAY_NUMBER = 8)
 
     reg  [3:0]   ram_write_mask;
     reg  [63:0]  ram_w_addr;
+    reg  [63:0]  ram_addr;
     reg  [63:0]  ram_r_offset;
 
     // generate number of ram block for each way
@@ -126,8 +127,6 @@ module dcache #(WAY_NUMBER = 8)
         end
     endgenerate
 
-    // kv based way_data mutiplexor
-    // provided by ysyx.org
     MuxKey #(.NR_KEY(WAY_NUMBER), .KEY_LEN(WAY_NUMBER), .DATA_LEN($clog2(WAY_NUMBER))) 
             m0 (hit_way, presence_w, 0, mux_lut);
 
@@ -135,14 +134,15 @@ module dcache #(WAY_NUMBER = 8)
     // PLRU replacement policy
     // for N way cache , N-1 bits is needed to store PLRU state info
     /*
-     4way example
+     8way example
      
-         [1]        // root nodes
-        /   \
-     [2]     [3]
-     /   \   /  \
-    w0   w1  w2  w3
-    */
+            [1]        // root nodes
+           /   \
+      [2]         [3]
+     /   \        /  \
+   [4]    [5]   [6]   [7]
+   /  \  / \    / \   /  \ 
+  w0  w1 w2 w3 w4 w5 w6  w7 */
 
     /* verilator lint_off UNOPTFLAT */
     // plru tree direction struct
@@ -154,29 +154,8 @@ module dcache #(WAY_NUMBER = 8)
     // apparently first level will always be the root node , which is node 1
     assign node_id[0] = 1;
     generate
-        for(genvar i = 1;i<$clog2(WAY_NUMBER);i = i + 1) begin
-            assign node_id[i] = plru_dir[node_id[i-1]] ? node_id[i-1] << 1 : (node_id[i-1] << 1) +1;
-        end
-    endgenerate
-
-    // update PLRU bits
-    // treat PLRU nodes as a binary tree , all nodes are non leaf nodes
-    // so there are clog2(WAY_NUMBER)-1 non leaf levels
-    generate
-        assign plru_dir[1] = (|presence_w[0+:(WAY_NUMBER/2)] && !(|presence_w[(WAY_NUMBER/2)+:WAY_NUMBER/2])) ? 0 : 1;
-        // start from level 2
-        for (genvar i = 1; i < $clog2(WAY_NUMBER); i = i+1) begin
-            for (genvar j = 0; j < 2**i; j = j+1) begin // for each level there is 2^i nodes
-                // for each node , checking if the way number falls in the coresponding range
-                // if true , check if the way number falls in which child node range, set to 0 if is in left child , otherwise 1
-                // if false remain unchanged
-                // is father node pointing to us ?
-                assign plru_dir[2**i+j] = (cache_hit & (((2**i+j) >> 1) + plru_dir[(2**i+j) >> 1] == 2**i+j )) ?
-                       // if pointing to us , check if the presence bits falls to children's coresponding range , and set bit
-                       ((|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j)+:(WAY_NUMBER/(i<<2))] && !(|presence_w[(WAY_NUMBER/(i<<2))*((j<<1)+j+1)+:WAY_NUMBER/(i<<2)])) ? 0:1) :
-                       // otherwise remain unchanged
-                       plru_dir[2**i+j];
-            end
+        for(genvar i = 1; i < $clog2(WAY_NUMBER); i = i + 1) begin
+            assign node_id[i] = plru_dir[node_id[i-1]] ? node_id[i-1] << 1 : (node_id[i-1] << 1) + 1;
         end
     endgenerate
 
@@ -185,7 +164,7 @@ module dcache #(WAY_NUMBER = 8)
     wire [$clog2(WAY_NUMBER)-1:0] last_node_id = node_id[$clog2(WAY_NUMBER)-1];
 
     // last node specifies the target way number , node id is 1 larger than the target way number
-    assign way_replace = plru_dir[last_node_id] ? (last_node_id-1) : last_node_id;
+    assign way_replace = plru_dir[last_node_id] ? ((last_node_id) << 1) - 3'd7 - 3'd1 : (last_node_id << 1) - 3'd7;
 
     /*state machine of the dcache procedure
      whenever input addr is set , the presence bits are imediately confirmed
@@ -194,6 +173,7 @@ module dcache #(WAY_NUMBER = 8)
 
     reg [3:0] state;
     reg [31:0] cnt;
+    reg [3:0] plru_step_count;
     reg [$clog2(WAY_NUMBER)-1:0] cur_replace_way;
     localparam state_check          = 4'd0;
     localparam state_write_dirty    = 4'd1;
@@ -214,8 +194,9 @@ module dcache #(WAY_NUMBER = 8)
                 end
             end
             // reset wen for all ways
-            for(integer x =0;x<WAY_NUMBER; x=x+1) begin
+            for(integer x=0; x<WAY_NUMBER; x=x+1) begin
                 way_wen[x] <= 0;
+                plru_dir[x] <= 0;
             end
             // set default state and output valid bit
             state           <= state_check;
@@ -225,14 +206,12 @@ module dcache #(WAY_NUMBER = 8)
         case(state)
             // check state
             state_check: begin
-                // in case of previous write , clear write bit
-                // if there was a write , way_replace will not change since
-                // now is a retry of the cache visit
                 if(dcache_req) begin
                     axi_fifo_done                           <= 0;
                     ram_r_offset                            <= 0;
                     if (cache_hit) begin
                         if(cache_rw == `CACHE_WRITE) begin
+                            // $display("write way: %d, block:%d, offset:%d, data:%x, mask:%d",hit_way,index,offset,core_data_i, write_mask);
                             ram_w_addr                      <= core_addr_i;
                             way_ram_in[hit_way]             <= core_data_i;
                             store_addr_buffer               <= core_addr_i;
@@ -241,20 +220,46 @@ module dcache #(WAY_NUMBER = 8)
                             ram_write_mask                  <= write_mask;
                             // if write to cache , set dirty bits
                             line_dirty[hit_way][index]      <= 1;
-                        end
+                        end 
+                        // else if(core_addr_i >= 64'h0000_0000_8100_0000) begin
+                        //     $display("read addr:%x way: %d, block:%d, offset:%d,data:%x, store_addr:%x, store_buffer:%x",core_addr_i,hit_way,index,offset,data_o,store_addr_buffer,store_buffer);
+                        // end
                     end
+                    // cache miss
                     else begin
-                        // cache miss
-                        if(core_addr_i >= 64'h0000_0000_8000_0000) begin
+                        // resolve plru
+                        ram_addr        <= core_addr_i;
+                        if (plru_step_count == 2) begin
+                            plru_dir[1] <= ~plru_dir[1];
+                            plru_step_count <= plru_step_count + 1;
+                        end
+                        else if (plru_step_count == 1) begin
+                            plru_dir[2] <= plru_dir[1] == 0 ? ~plru_dir[2] : plru_dir[2];
+                            plru_dir[3] <= plru_dir[1] == 1 ? ~plru_dir[3] : plru_dir[3];
+                            plru_step_count <= plru_step_count + 1;
+                        end
+                        else if (plru_step_count == 0) begin
+                            plru_dir[4] <= plru_dir[1] == 0 && plru_dir[2] == 0 ? ~plru_dir[4] : plru_dir[4];
+                            plru_dir[5] <= plru_dir[1] == 0 && plru_dir[2] == 1 ? ~plru_dir[5] : plru_dir[5];
+                            plru_dir[6] <= plru_dir[1] == 1 && plru_dir[3] == 0 ? ~plru_dir[6] : plru_dir[6];
+                            plru_dir[7] <= plru_dir[1] == 1 && plru_dir[3] == 1 ? ~plru_dir[7] : plru_dir[7];
+                            plru_step_count <= plru_step_count + 1;
+                        end
+                        else if(plru_step_count == 3 & core_addr_i >= 64'h0000_0000_8000_0000) begin
+                            // if (ram_w_addr >= 64'h0000_0000_8100_0000) begin
+                            //     $display("addr:%x replace way: %d, block:%d dirty:%d",
+                            //         ram_addr,way_replace,index,line_dirty[way_replace][index]);
+                            // end
                             way_wen[hit_way]    <= 0;
                             // set external fifo index to 0
                             axi_fifo_idx        <= 0;
                             // init ram counters
                             cnt                 <= 0;
+                            plru_step_count     <= 0;
                             // request axi , addr is the block addr (no offset)
                             axi_req             <= line_dirty[way_replace][index] ? 0 : 1;                   // if the line is dirty , request axi write later
-                            axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;  // if the line is dirty , request write first
-                            axi_req_addr        <= core_addr_i - {{58{1'b0}},offset};
+                            axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;
+                            axi_req_addr        <= ram_addr - {{58{1'b0}},offset};
                             // track which way to replace
                             cur_replace_way     <= way_replace;
                             // change state to refill
@@ -265,11 +270,13 @@ module dcache #(WAY_NUMBER = 8)
                 else begin
                     for(integer x =0;x<WAY_NUMBER; x=x+1) begin
                         way_wen[x] <= 0;
+                        plru_step_count <= 0;
                     end
                 end
             end
             // if the way being replaced is dirty , write back to ram first
             state_write_dirty: begin
+                // $display("write dirty");
                 axi_fifo_wen    <= 1;                               // send data to axi_ctl fifo
                 ram_r_offset    <= {{32{1'b0}},cnt} - {{58{1'b0}},offset};
                 axi_fifo_data_o <= way_ram_out[cur_replace_way];
@@ -295,10 +302,8 @@ module dcache #(WAY_NUMBER = 8)
             state_refill: begin
                 // request the entire line (which is the address of (address - offset) )
                 // refill the entire line
+                ram_w_addr    <= axi_req_addr;
                 if (cnt == 32'd64) begin
-                    // after 64 bytes are all filled (replaced an entire line)
-                    // set the target line tag and valid bits
-                    // change state to cache check again , theoratically will fix the cache miss
                     state                                   <= state_check;
                     axi_fifo_done                           <= 1;
                     axi_req                                 <= 0;
@@ -312,6 +317,7 @@ module dcache #(WAY_NUMBER = 8)
                     ram_write_mask              <= 4'd8;
                     way_wen[cur_replace_way]    <= cnt == 32'd64 ? 0:1;
                     way_ram_in[cur_replace_way] <= axi_data_i;
+                    // $display("AXI data: %x", axi_data_i);
                     cnt                         <= way_wen[cur_replace_way] ? cnt + 8 : cnt;
                     ram_w_addr                  <= way_wen[cur_replace_way] ? axi_req_addr + {{32{1'b0}},cnt} : ram_w_addr;
                     axi_fifo_idx                <= way_wen[cur_replace_way] ? axi_fifo_idx + 64 : 0;

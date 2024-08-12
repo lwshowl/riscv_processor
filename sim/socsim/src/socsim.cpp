@@ -70,6 +70,10 @@ void execute_and_monitor()
             int times = params.size() == 2 ? atoi(params[1].c_str()) : 1;
             execute(times);
         }
+        else if(COMMAND_STARTS_WITH("q")) 
+        {
+            return;
+        }
         else if (COMMAND_STARTS_WITH("c"))
         {
             execute(-1);

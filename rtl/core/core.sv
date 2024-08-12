@@ -85,7 +85,7 @@ module core # (
   wire ic_valid;
   wire if_axi_rw = 0;
   wire [7:0] if_axi_len = 8'd8;
-  wire [31:0] ic_data;
+  wire [63:0] ic_data;
   wire [63:0] if_axi_data;
   wire [63:0] instr_fetched;
   wire [63:0] if_axi_addr;
@@ -98,7 +98,6 @@ module core # (
   wire [15:0] decode_exception;
   wire decode_wen;
   wire regfile_rst;
-  wire regfile_wen;
   wire memory_bubble;
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -218,15 +217,14 @@ module core # (
 
   assign dmem_axi_len = 8'd8;
   assign pc_hold =  regld_bubble | ~ic_valid | dcache_hold;
-  assign alu_rst = pc_rel_branch | pc_abs_branch;
+  assign alu_rst = (pc_rel_branch | pc_abs_branch) | (regld_bubble & ~dcache_hold);
   assign alu_wen = ~dcache_hold;
   assign dmem_cache_req = dmem_memr | dmem_memw;
   assign dmem_cache_rw = dmem_memw;
   assign dmem_rw_addr = dmem_result;
   assign dmem_rw_data = dmem_rs2val;
-  assign decode_rst = pc_rel_branch | pc_abs_branch | regld_bubble;
-  assign decode_wen = ~dcache_hold;
-  assign regfile_wen = ~dcache_hold;
+  assign decode_rst = pc_rel_branch | pc_abs_branch;
+  assign decode_wen = ~dcache_hold & ~regld_bubble;
   assign decode_exception = exception_to_decode;
   assign regfile_rst = pc_rel_branch | pc_abs_branch;
 
@@ -275,6 +273,7 @@ module core # (
   axi_ctl ac0(
     .clk(clk),
     .rst(rst),
+
     .axi_req1(dmem_axi_req),
     .rw_req1(dmem_axi_rw),
     .addr1(dmem_axi_addr),
@@ -282,6 +281,7 @@ module core # (
     .rw_len1(dmem_axi_len),
     .data_o1(dmem_axi_data_i),
     .axi_done1(dmem_axi_done),
+
     .axi_req2(if_axi_req),
     .rw_req2(if_axi_rw),
     .addr2(if_axi_addr),
@@ -289,6 +289,7 @@ module core # (
     .rw_len2(if_axi_len),
     .data_o2(if_axi_data),
     .axi_done2(if_axi_done),
+
     .cache_fifo_idx(axi_fifo_idx),
     .cache_fifo_data_i(axi_fifo_data_i),
     .cache_fifo_done(axi_fifo_done),
@@ -352,19 +353,29 @@ module core # (
     .pc_out_reg(pc)
   );
 
-  icache #(.WAY_NUMBER(8)) ic0(
+  dcache #(.WAY_NUMBER(8)) ic0(
     .clk(clk),
     .rst(rst),
-
+    // core interfaces
+    .dcache_req(1),
+    .cache_rw(0),
     .core_addr_i(pc),
-    .valid_o(ic_valid),
+    .core_data_i(0), 
+    .write_mask(0),
+    /* verilator lint_off PINCONNECTEMPTY */
+    .w_valid_o(),
+    /* verilator lint_off PINCONNECTEMPTY */
+    .r_valid_o(ic_valid),
     .data_o(ic_data),
-
+    // axi interfaces
+    .axi_data_i(if_axi_data),
     .axi_done(if_axi_done),
     .axi_req(if_axi_req),
-    .axi_data_i(if_axi_data),
+    .axi_rw(if_axi_rw),
     .axi_req_addr(if_axi_addr),
+    .axi_fifo_data_o(),
     .axi_fifo_idx(axi_fifo_idx),
+    .axi_fifo_wen(axi_fifo_wen),
     .axi_fifo_done(axi_fifo_done)
   );
 
@@ -373,7 +384,7 @@ module core # (
     .rst(decode_rst),
     .enable(decode_wen),
     .pc_from_fetch(pc),
-    .instr_from_fetch(ic_data),
+    .instr_from_fetch(ic_data[31:0]),
     .exception_from_fetch(fetch_exception),
     .pc_to_decode(decode_pc),
     .instr_to_decode(decode_instr),
@@ -474,7 +485,6 @@ module core # (
   );
 
   alu alu64(
-    .clk (clk),
     .instr_in (alu_instrId),
     .rs1 (rs1val),
     .rs2 (rs2val),

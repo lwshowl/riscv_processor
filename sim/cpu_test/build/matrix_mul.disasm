@@ -5,7 +5,7 @@
 Disassembly of section .text:
 
 0000000080000000 <_start>:
-    80000000:	00009117          	auipc	sp,0x9
+    80000000:	02009117          	auipc	sp,0x2009
     80000004:	00010113          	mv	sp,sp
     80000008:	058000ef          	jal	ra,80000060 <main>
 
@@ -13,7 +13,7 @@ Disassembly of section .text:
     8000000c:	0000006f          	j	8000000c <halt>
 
 0000000080000010 <_Z5errorv>:
-    80000010:	ff010113          	addi	sp,sp,-16 # 80008ff0 <_stack_top+0x7ff0>
+    80000010:	ff010113          	addi	sp,sp,-16 # 82008ff0 <_stack_top+0x7ff0>
     80000014:	00813423          	sd	s0,8(sp)
     80000018:	01010413          	addi	s0,sp,16
     8000001c:	0000006f          	j	8000001c <_Z5errorv+0xc>
@@ -27,7 +27,7 @@ Disassembly of section .text:
     80000034:	fef407a3          	sb	a5,-17(s0)
     80000038:	fef44783          	lbu	a5,-17(s0)
     8000003c:	0017c793          	xori	a5,a5,1
-    80000040:	0ff7f793          	andi	a5,a5,255
+    80000040:	0ff7f793          	zext.b	a5,a5
     80000044:	00078463          	beqz	a5,8000004c <_Z5checkb+0x2c>
     80000048:	fc9ff0ef          	jal	ra,80000010 <_Z5errorv>
     8000004c:	00000013          	nop
@@ -42,148 +42,148 @@ Disassembly of section .text:
     80000068:	00813823          	sd	s0,16(sp)
     8000006c:	02010413          	addi	s0,sp,32
     80000070:	fe042623          	sw	zero,-20(s0)
-    80000074:	fec42783          	lw	a5,-20(s0)
-    80000078:	0007871b          	sext.w	a4,a5
-    8000007c:	00900793          	li	a5,9
-    80000080:	20e7ca63          	blt	a5,a4,80000294 <main+0x234>
-    80000084:	fe042423          	sw	zero,-24(s0)
-    80000088:	fe842783          	lw	a5,-24(s0)
-    8000008c:	0007871b          	sext.w	a4,a5
-    80000090:	00900793          	li	a5,9
-    80000094:	1ce7c863          	blt	a5,a4,80000264 <main+0x204>
-    80000098:	00000697          	auipc	a3,0x0
-    8000009c:	6e868693          	addi	a3,a3,1768 # 80000780 <c>
-    800000a0:	fe842603          	lw	a2,-24(s0)
-    800000a4:	fec42703          	lw	a4,-20(s0)
-    800000a8:	00070793          	mv	a5,a4
-    800000ac:	00279793          	slli	a5,a5,0x2
-    800000b0:	00e787b3          	add	a5,a5,a4
-    800000b4:	00179793          	slli	a5,a5,0x1
-    800000b8:	00c787b3          	add	a5,a5,a2
-    800000bc:	00279793          	slli	a5,a5,0x2
-    800000c0:	00f687b3          	add	a5,a3,a5
-    800000c4:	0007a023          	sw	zero,0(a5)
-    800000c8:	fe042223          	sw	zero,-28(s0)
-    800000cc:	fe442783          	lw	a5,-28(s0)
-    800000d0:	0007871b          	sext.w	a4,a5
-    800000d4:	00900793          	li	a5,9
-    800000d8:	0ee7c263          	blt	a5,a4,800001bc <main+0x15c>
-    800000dc:	00000697          	auipc	a3,0x0
-    800000e0:	6a468693          	addi	a3,a3,1700 # 80000780 <c>
-    800000e4:	fe842603          	lw	a2,-24(s0)
-    800000e8:	fec42703          	lw	a4,-20(s0)
-    800000ec:	00070793          	mv	a5,a4
-    800000f0:	00279793          	slli	a5,a5,0x2
-    800000f4:	00e787b3          	add	a5,a5,a4
-    800000f8:	00179793          	slli	a5,a5,0x1
-    800000fc:	00c787b3          	add	a5,a5,a2
-    80000100:	00279793          	slli	a5,a5,0x2
-    80000104:	00f687b3          	add	a5,a3,a5
-    80000108:	0007a683          	lw	a3,0(a5)
-    8000010c:	00000617          	auipc	a2,0x0
-    80000110:	1c460613          	addi	a2,a2,452 # 800002d0 <a>
-    80000114:	fe442583          	lw	a1,-28(s0)
-    80000118:	fec42703          	lw	a4,-20(s0)
-    8000011c:	00070793          	mv	a5,a4
-    80000120:	00279793          	slli	a5,a5,0x2
-    80000124:	00e787b3          	add	a5,a5,a4
-    80000128:	00179793          	slli	a5,a5,0x1
-    8000012c:	00b787b3          	add	a5,a5,a1
-    80000130:	00279793          	slli	a5,a5,0x2
-    80000134:	00f607b3          	add	a5,a2,a5
-    80000138:	0007a603          	lw	a2,0(a5)
-    8000013c:	00000597          	auipc	a1,0x0
-    80000140:	32458593          	addi	a1,a1,804 # 80000460 <b>
-    80000144:	fe842503          	lw	a0,-24(s0)
-    80000148:	fe442703          	lw	a4,-28(s0)
-    8000014c:	00070793          	mv	a5,a4
-    80000150:	00279793          	slli	a5,a5,0x2
-    80000154:	00e787b3          	add	a5,a5,a4
-    80000158:	00179793          	slli	a5,a5,0x1
-    8000015c:	00a787b3          	add	a5,a5,a0
-    80000160:	00279793          	slli	a5,a5,0x2
-    80000164:	00f587b3          	add	a5,a1,a5
-    80000168:	0007a783          	lw	a5,0(a5)
-    8000016c:	02f607bb          	mulw	a5,a2,a5
-    80000170:	0007879b          	sext.w	a5,a5
-    80000174:	00f687bb          	addw	a5,a3,a5
-    80000178:	0007869b          	sext.w	a3,a5
-    8000017c:	00000617          	auipc	a2,0x0
-    80000180:	60460613          	addi	a2,a2,1540 # 80000780 <c>
-    80000184:	fe842583          	lw	a1,-24(s0)
-    80000188:	fec42703          	lw	a4,-20(s0)
-    8000018c:	00070793          	mv	a5,a4
-    80000190:	00279793          	slli	a5,a5,0x2
-    80000194:	00e787b3          	add	a5,a5,a4
-    80000198:	00179793          	slli	a5,a5,0x1
-    8000019c:	00b787b3          	add	a5,a5,a1
-    800001a0:	00279793          	slli	a5,a5,0x2
-    800001a4:	00f607b3          	add	a5,a2,a5
-    800001a8:	00d7a023          	sw	a3,0(a5)
-    800001ac:	fe442783          	lw	a5,-28(s0)
-    800001b0:	0017879b          	addiw	a5,a5,1
-    800001b4:	fef42223          	sw	a5,-28(s0)
-    800001b8:	f15ff06f          	j	800000cc <main+0x6c>
-    800001bc:	00000697          	auipc	a3,0x0
-    800001c0:	5c468693          	addi	a3,a3,1476 # 80000780 <c>
-    800001c4:	fe842603          	lw	a2,-24(s0)
-    800001c8:	fec42703          	lw	a4,-20(s0)
-    800001cc:	00070793          	mv	a5,a4
-    800001d0:	00279793          	slli	a5,a5,0x2
-    800001d4:	00e787b3          	add	a5,a5,a4
-    800001d8:	00179793          	slli	a5,a5,0x1
-    800001dc:	00c787b3          	add	a5,a5,a2
-    800001e0:	00279793          	slli	a5,a5,0x2
-    800001e4:	00f687b3          	add	a5,a3,a5
-    800001e8:	0007a583          	lw	a1,0(a5)
-    800001ec:	00000697          	auipc	a3,0x0
-    800001f0:	40468693          	addi	a3,a3,1028 # 800005f0 <ans>
-    800001f4:	fe842603          	lw	a2,-24(s0)
-    800001f8:	fec42703          	lw	a4,-20(s0)
-    800001fc:	00070793          	mv	a5,a4
-    80000200:	00279793          	slli	a5,a5,0x2
-    80000204:	00e787b3          	add	a5,a5,a4
-    80000208:	00179793          	slli	a5,a5,0x1
-    8000020c:	00c787b3          	add	a5,a5,a2
-    80000210:	00279793          	slli	a5,a5,0x2
-    80000214:	00f687b3          	add	a5,a3,a5
-    80000218:	0007a783          	lw	a5,0(a5)
-    8000021c:	00058713          	mv	a4,a1
-    80000220:	40f707b3          	sub	a5,a4,a5
-    80000224:	0017b793          	seqz	a5,a5
-    80000228:	0ff7f793          	andi	a5,a5,255
-    8000022c:	00078513          	mv	a0,a5
-    80000230:	df1ff0ef          	jal	ra,80000020 <_Z5checkb>
-    80000234:	fe442783          	lw	a5,-28(s0)
-    80000238:	0007871b          	sext.w	a4,a5
-    8000023c:	00a00793          	li	a5,10
-    80000240:	40f707b3          	sub	a5,a4,a5
-    80000244:	0017b793          	seqz	a5,a5
-    80000248:	0ff7f793          	andi	a5,a5,255
-    8000024c:	00078513          	mv	a0,a5
-    80000250:	dd1ff0ef          	jal	ra,80000020 <_Z5checkb>
-    80000254:	fe842783          	lw	a5,-24(s0)
-    80000258:	0017879b          	addiw	a5,a5,1
-    8000025c:	fef42423          	sw	a5,-24(s0)
-    80000260:	e29ff06f          	j	80000088 <main+0x28>
-    80000264:	fe842783          	lw	a5,-24(s0)
-    80000268:	0007871b          	sext.w	a4,a5
-    8000026c:	00a00793          	li	a5,10
-    80000270:	40f707b3          	sub	a5,a4,a5
-    80000274:	0017b793          	seqz	a5,a5
-    80000278:	0ff7f793          	andi	a5,a5,255
-    8000027c:	00078513          	mv	a0,a5
-    80000280:	da1ff0ef          	jal	ra,80000020 <_Z5checkb>
+    80000074:	2100006f          	j	80000284 <main+0x224>
+    80000078:	fe042423          	sw	zero,-24(s0)
+    8000007c:	1cc0006f          	j	80000248 <main+0x1e8>
+    80000080:	02000697          	auipc	a3,0x2000
+    80000084:	43068693          	addi	a3,a3,1072 # 820004b0 <c>
+    80000088:	fe842603          	lw	a2,-24(s0)
+    8000008c:	fec42703          	lw	a4,-20(s0)
+    80000090:	00070793          	mv	a5,a4
+    80000094:	00279793          	slli	a5,a5,0x2
+    80000098:	00e787b3          	add	a5,a5,a4
+    8000009c:	00179793          	slli	a5,a5,0x1
+    800000a0:	00c787b3          	add	a5,a5,a2
+    800000a4:	00279793          	slli	a5,a5,0x2
+    800000a8:	00f687b3          	add	a5,a3,a5
+    800000ac:	0007a023          	sw	zero,0(a5)
+    800000b0:	fe042223          	sw	zero,-28(s0)
+    800000b4:	0e00006f          	j	80000194 <main+0x134>
+    800000b8:	02000697          	auipc	a3,0x2000
+    800000bc:	3f868693          	addi	a3,a3,1016 # 820004b0 <c>
+    800000c0:	fe842603          	lw	a2,-24(s0)
+    800000c4:	fec42703          	lw	a4,-20(s0)
+    800000c8:	00070793          	mv	a5,a4
+    800000cc:	00279793          	slli	a5,a5,0x2
+    800000d0:	00e787b3          	add	a5,a5,a4
+    800000d4:	00179793          	slli	a5,a5,0x1
+    800000d8:	00c787b3          	add	a5,a5,a2
+    800000dc:	00279793          	slli	a5,a5,0x2
+    800000e0:	00f687b3          	add	a5,a3,a5
+    800000e4:	0007a683          	lw	a3,0(a5)
+    800000e8:	02000617          	auipc	a2,0x2000
+    800000ec:	f1860613          	addi	a2,a2,-232 # 82000000 <a>
+    800000f0:	fe442583          	lw	a1,-28(s0)
+    800000f4:	fec42703          	lw	a4,-20(s0)
+    800000f8:	00070793          	mv	a5,a4
+    800000fc:	00279793          	slli	a5,a5,0x2
+    80000100:	00e787b3          	add	a5,a5,a4
+    80000104:	00179793          	slli	a5,a5,0x1
+    80000108:	00b787b3          	add	a5,a5,a1
+    8000010c:	00279793          	slli	a5,a5,0x2
+    80000110:	00f607b3          	add	a5,a2,a5
+    80000114:	0007a603          	lw	a2,0(a5)
+    80000118:	02000597          	auipc	a1,0x2000
+    8000011c:	07858593          	addi	a1,a1,120 # 82000190 <b>
+    80000120:	fe842503          	lw	a0,-24(s0)
+    80000124:	fe442703          	lw	a4,-28(s0)
+    80000128:	00070793          	mv	a5,a4
+    8000012c:	00279793          	slli	a5,a5,0x2
+    80000130:	00e787b3          	add	a5,a5,a4
+    80000134:	00179793          	slli	a5,a5,0x1
+    80000138:	00a787b3          	add	a5,a5,a0
+    8000013c:	00279793          	slli	a5,a5,0x2
+    80000140:	00f587b3          	add	a5,a1,a5
+    80000144:	0007a783          	lw	a5,0(a5)
+    80000148:	02f607bb          	mulw	a5,a2,a5
+    8000014c:	0007879b          	sext.w	a5,a5
+    80000150:	00f687bb          	addw	a5,a3,a5
+    80000154:	0007869b          	sext.w	a3,a5
+    80000158:	02000617          	auipc	a2,0x2000
+    8000015c:	35860613          	addi	a2,a2,856 # 820004b0 <c>
+    80000160:	fe842583          	lw	a1,-24(s0)
+    80000164:	fec42703          	lw	a4,-20(s0)
+    80000168:	00070793          	mv	a5,a4
+    8000016c:	00279793          	slli	a5,a5,0x2
+    80000170:	00e787b3          	add	a5,a5,a4
+    80000174:	00179793          	slli	a5,a5,0x1
+    80000178:	00b787b3          	add	a5,a5,a1
+    8000017c:	00279793          	slli	a5,a5,0x2
+    80000180:	00f607b3          	add	a5,a2,a5
+    80000184:	00d7a023          	sw	a3,0(a5)
+    80000188:	fe442783          	lw	a5,-28(s0)
+    8000018c:	0017879b          	addiw	a5,a5,1
+    80000190:	fef42223          	sw	a5,-28(s0)
+    80000194:	fe442783          	lw	a5,-28(s0)
+    80000198:	0007871b          	sext.w	a4,a5
+    8000019c:	00900793          	li	a5,9
+    800001a0:	f0e7dce3          	bge	a5,a4,800000b8 <main+0x58>
+    800001a4:	02000697          	auipc	a3,0x2000
+    800001a8:	30c68693          	addi	a3,a3,780 # 820004b0 <c>
+    800001ac:	fe842603          	lw	a2,-24(s0)
+    800001b0:	fec42703          	lw	a4,-20(s0)
+    800001b4:	00070793          	mv	a5,a4
+    800001b8:	00279793          	slli	a5,a5,0x2
+    800001bc:	00e787b3          	add	a5,a5,a4
+    800001c0:	00179793          	slli	a5,a5,0x1
+    800001c4:	00c787b3          	add	a5,a5,a2
+    800001c8:	00279793          	slli	a5,a5,0x2
+    800001cc:	00f687b3          	add	a5,a3,a5
+    800001d0:	0007a583          	lw	a1,0(a5)
+    800001d4:	02000697          	auipc	a3,0x2000
+    800001d8:	14c68693          	addi	a3,a3,332 # 82000320 <ans>
+    800001dc:	fe842603          	lw	a2,-24(s0)
+    800001e0:	fec42703          	lw	a4,-20(s0)
+    800001e4:	00070793          	mv	a5,a4
+    800001e8:	00279793          	slli	a5,a5,0x2
+    800001ec:	00e787b3          	add	a5,a5,a4
+    800001f0:	00179793          	slli	a5,a5,0x1
+    800001f4:	00c787b3          	add	a5,a5,a2
+    800001f8:	00279793          	slli	a5,a5,0x2
+    800001fc:	00f687b3          	add	a5,a3,a5
+    80000200:	0007a783          	lw	a5,0(a5)
+    80000204:	00058713          	mv	a4,a1
+    80000208:	40f707b3          	sub	a5,a4,a5
+    8000020c:	0017b793          	seqz	a5,a5
+    80000210:	0ff7f793          	zext.b	a5,a5
+    80000214:	00078513          	mv	a0,a5
+    80000218:	e09ff0ef          	jal	ra,80000020 <_Z5checkb>
+    8000021c:	fe442783          	lw	a5,-28(s0)
+    80000220:	0007871b          	sext.w	a4,a5
+    80000224:	00a00793          	li	a5,10
+    80000228:	40f707b3          	sub	a5,a4,a5
+    8000022c:	0017b793          	seqz	a5,a5
+    80000230:	0ff7f793          	zext.b	a5,a5
+    80000234:	00078513          	mv	a0,a5
+    80000238:	de9ff0ef          	jal	ra,80000020 <_Z5checkb>
+    8000023c:	fe842783          	lw	a5,-24(s0)
+    80000240:	0017879b          	addiw	a5,a5,1
+    80000244:	fef42423          	sw	a5,-24(s0)
+    80000248:	fe842783          	lw	a5,-24(s0)
+    8000024c:	0007871b          	sext.w	a4,a5
+    80000250:	00900793          	li	a5,9
+    80000254:	e2e7d6e3          	bge	a5,a4,80000080 <main+0x20>
+    80000258:	fe842783          	lw	a5,-24(s0)
+    8000025c:	0007871b          	sext.w	a4,a5
+    80000260:	00a00793          	li	a5,10
+    80000264:	40f707b3          	sub	a5,a4,a5
+    80000268:	0017b793          	seqz	a5,a5
+    8000026c:	0ff7f793          	zext.b	a5,a5
+    80000270:	00078513          	mv	a0,a5
+    80000274:	dadff0ef          	jal	ra,80000020 <_Z5checkb>
+    80000278:	fec42783          	lw	a5,-20(s0)
+    8000027c:	0017879b          	addiw	a5,a5,1
+    80000280:	fef42623          	sw	a5,-20(s0)
     80000284:	fec42783          	lw	a5,-20(s0)
-    80000288:	0017879b          	addiw	a5,a5,1
-    8000028c:	fef42623          	sw	a5,-20(s0)
-    80000290:	de5ff06f          	j	80000074 <main+0x14>
+    80000288:	0007871b          	sext.w	a4,a5
+    8000028c:	00900793          	li	a5,9
+    80000290:	dee7d4e3          	bge	a5,a4,80000078 <main+0x18>
     80000294:	fec42783          	lw	a5,-20(s0)
     80000298:	0007871b          	sext.w	a4,a5
     8000029c:	00a00793          	li	a5,10
     800002a0:	40f707b3          	sub	a5,a4,a5
     800002a4:	0017b793          	seqz	a5,a5
-    800002a8:	0ff7f793          	andi	a5,a5,255
+    800002a8:	0ff7f793          	zext.b	a5,a5
     800002ac:	00078513          	mv	a0,a5
     800002b0:	d71ff0ef          	jal	ra,80000020 <_Z5checkb>
     800002b4:	00000793          	li	a5,0
@@ -195,553 +195,575 @@ Disassembly of section .text:
 
 Disassembly of section .data:
 
-00000000800002d0 <a>:
-    800002d0:	001f 0000 ffb7      	0xffb70000001f
-    800002d6:	ffff                	0xffff
-    800002d8:	ffbd                	bnez	a5,80000256 <main+0x1f6>
-    800002da:	ffff                	0xffff
-    800002dc:	ffe4                	sd	s1,248(a5)
-    800002de:	ffff                	0xffff
-    800002e0:	00000057          	0x57
-    800002e4:	ffffffef          	jal	t6,800002e2 <a+0x12>
-    800002e8:	fff1                	bnez	a5,800002c4 <main+0x264>
-    800002ea:	ffff                	0xffff
-    800002ec:	ffdd                	bnez	a5,800002aa <main+0x24a>
-    800002ee:	ffff                	0xffff
-    800002f0:	ffffffcb          	fnmsub.q	ft11,ft11,ft11,ft11
-    800002f4:	ffca                	sd	s2,504(sp)
-    800002f6:	ffff                	0xffff
-    800002f8:	0034                	addi	a3,sp,8
-    800002fa:	0000                	unimp
-    800002fc:	0024                	addi	s1,sp,8
-    800002fe:	0000                	unimp
-    80000300:	0009                	c.nop	2
-    80000302:	0000                	unimp
-    80000304:	ffa5                	bnez	a5,8000027c <main+0x21c>
-    80000306:	ffff                	0xffff
-    80000308:	ffe5                	bnez	a5,80000300 <a+0x30>
-    8000030a:	ffff                	0xffff
-    8000030c:	ffb2                	sd	a2,504(sp)
-    8000030e:	ffff                	0xffff
-    80000310:	002a                	c.slli	zero,0xa
-    80000312:	0000                	unimp
-    80000314:	0052                	c.slli	zero,0x14
-    80000316:	0000                	unimp
-    80000318:	00000013          	nop
-    8000031c:	fffa                	sd	t5,504(sp)
-    8000031e:	ffff                	0xffff
-    80000320:	0029                	c.nop	10
-    80000322:	0000                	unimp
-    80000324:	ffc8                	sd	a0,184(a5)
-    80000326:	ffff                	0xffff
-    80000328:	001f 0000 0020      	0x200000001f
-    8000032e:	0000                	unimp
-    80000330:	ffcc                	sd	a1,184(a5)
-    80000332:	ffff                	0xffff
-    80000334:	004a                	c.slli	zero,0x12
-    80000336:	0000                	unimp
-    80000338:	001c                	0x1c
-    8000033a:	0000                	unimp
-    8000033c:	0014                	0x14
-    8000033e:	0000                	unimp
-    80000340:	00000037          	lui	zero,0x0
-    80000344:	ffb8                	sd	a4,120(a5)
-    80000346:	ffff                	0xffff
-    80000348:	ffc5                	bnez	a5,80000300 <a+0x30>
-    8000034a:	ffff                	0xffff
-    8000034c:	0002                	c.slli64	zero
-    8000034e:	0000                	unimp
-    80000350:	ffb1                	bnez	a5,800002ac <main+0x24c>
-    80000352:	ffff                	0xffff
-    80000354:	fff8                	sd	a4,248(a5)
-    80000356:	ffff                	0xffff
-    80000358:	002c                	addi	a1,sp,8
-    8000035a:	0000                	unimp
-    8000035c:	00000037          	lui	zero,0x0
-    80000360:	ffad                	bnez	a5,800002da <a+0xa>
-    80000362:	ffff                	0xffff
-    80000364:	ffa1                	bnez	a5,800002bc <main+0x25c>
-    80000366:	ffff                	0xffff
-    80000368:	ffffffd3          	0xffffffd3
-    8000036c:	0032                	c.slli	zero,0xc
-    8000036e:	0000                	unimp
-    80000370:	ffa1                	bnez	a5,800002c8 <main+0x268>
-    80000372:	ffff                	0xffff
-    80000374:	003d                	c.nop	15
-    80000376:	0000                	unimp
-    80000378:	ffc1                	bnez	a5,80000310 <a+0x40>
-    8000037a:	ffff                	0xffff
-    8000037c:	003e                	c.slli	zero,0xf
-    8000037e:	0000                	unimp
-    80000380:	fff0                	sd	a2,248(a5)
-    80000382:	ffff                	0xffff
-    80000384:	0034                	addi	a3,sp,8
-    80000386:	0000                	unimp
-    80000388:	0028                	addi	a0,sp,8
-    8000038a:	0000                	unimp
-    8000038c:	005c                	addi	a5,sp,4
-    8000038e:	0000                	unimp
-    80000390:	ffe0                	sd	s0,248(a5)
-    80000392:	ffff                	0xffff
-    80000394:	ffe6                	sd	s9,504(sp)
-    80000396:	ffff                	0xffff
-    80000398:	ff9d                	bnez	a5,800002d6 <a+0x6>
-    8000039a:	ffff                	0xffff
-    8000039c:	0034                	addi	a3,sp,8
-    8000039e:	0000                	unimp
-    800003a0:	0060                	addi	s0,sp,12
-    800003a2:	0000                	unimp
-    800003a4:	0000003f ffffffb5 	0xffffffb50000003f
-    800003ac:	ffb6                	sd	a3,504(sp)
-    800003ae:	ffff                	0xffff
-    800003b0:	ffae                	sd	a1,504(sp)
-    800003b2:	ffff                	0xffff
-    800003b4:	0052                	c.slli	zero,0x14
-    800003b6:	0000                	unimp
-    800003b8:	ffa1                	bnez	a5,80000310 <a+0x40>
-    800003ba:	ffff                	0xffff
-    800003bc:	002a                	c.slli	zero,0xa
-    800003be:	0000                	unimp
-    800003c0:	0000000b          	0xb
-    800003c4:	ffea                	sd	s10,504(sp)
-    800003c6:	ffff                	0xffff
-    800003c8:	0000001b          	sext.w	zero,zero
-    800003cc:	ffe5                	bnez	a5,800003c4 <a+0xf4>
-    800003ce:	ffff                	0xffff
-    800003d0:	ffe5                	bnez	a5,800003c8 <a+0xf8>
-    800003d2:	ffff                	0xffff
-    800003d4:	ffb4                	sd	a3,120(a5)
-    800003d6:	ffff                	0xffff
-    800003d8:	ffb9                	bnez	a5,80000336 <a+0x66>
-    800003da:	ffff                	0xffff
-    800003dc:	003a                	c.slli	zero,0xe
-    800003de:	0000                	unimp
-    800003e0:	ffd8                	sd	a4,184(a5)
-    800003e2:	ffff                	0xffff
-    800003e4:	ffffffbf 0000005b 	0x5bffffffbf
-    800003ec:	ffffffcb          	fnmsub.q	ft11,ft11,ft11,ft11
-    800003f0:	ffbd                	bnez	a5,8000036e <a+0x9e>
-    800003f2:	ffff                	0xffff
-    800003f4:	0048                	addi	a0,sp,4
-    800003f6:	0000                	unimp
-    800003f8:	0024                	addi	s1,sp,8
-    800003fa:	0000                	unimp
-    800003fc:	ffffffb3          	0xffffffb3
-    80000400:	fffd                	bnez	a5,800003fe <a+0x12e>
-    80000402:	ffff                	0xffff
-    80000404:	005d                	c.nop	23
-    80000406:	0000                	unimp
-    80000408:	ffe8                	sd	a0,248(a5)
-    8000040a:	ffff                	0xffff
-    8000040c:	0061                	c.nop	24
-    8000040e:	0000                	unimp
-    80000410:	ffcc                	sd	a1,184(a5)
-    80000412:	ffff                	0xffff
-    80000414:	fff5                	bnez	a5,80000410 <a+0x140>
-    80000416:	ffff                	0xffff
-    80000418:	ffffffb3          	0xffffffb3
-    8000041c:	ffffffa3          	0xffffffa3
-    80000420:	ffa4                	sd	s1,120(a5)
-    80000422:	ffff                	0xffff
-    80000424:	ffe8                	sd	a0,248(a5)
-    80000426:	ffff                	0xffff
-    80000428:	0046                	c.slli	zero,0x11
-    8000042a:	0000                	unimp
-    8000042c:	0012                	c.slli	zero,0x4
-    8000042e:	0000                	unimp
-    80000430:	0038                	addi	a4,sp,8
-    80000432:	0000                	unimp
-    80000434:	0058                	addi	a4,sp,4
-    80000436:	0000                	unimp
-    80000438:	ffd5                	bnez	a5,800003f4 <a+0x124>
-    8000043a:	ffff                	0xffff
-    8000043c:	ffffffd7          	0xffffffd7
-    80000440:	ffe6                	sd	s9,504(sp)
-    80000442:	ffff                	0xffff
-    80000444:	0000000b          	0xb
-    80000448:	ffac                	sd	a1,120(a5)
-    8000044a:	ffff                	0xffff
-    8000044c:	fff2                	sd	t3,504(sp)
-    8000044e:	ffff                	0xffff
-    80000450:	ffffffd7          	0xffffffd7
-    80000454:	00000053          	fadd.s	ft0,ft0,ft0,rne
-    80000458:	0000001b          	sext.w	zero,zero
-    8000045c:	fff5                	bnez	a5,80000458 <a+0x188>
-    8000045e:	ffff                	0xffff
+0000000082000000 <a>:
+    82000000:	001f 0000 ffb7      	.byte	0x1f, 0x00, 0x00, 0x00, 0xb7, 0xff
+    82000006:	ffff                	.2byte	0xffff
+    82000008:	ffbd                	.2byte	0xffbd
+    8200000a:	ffff                	.2byte	0xffff
+    8200000c:	ffe4                	.2byte	0xffe4
+    8200000e:	ffff                	.2byte	0xffff
+    82000010:	00000057          	.4byte	0x57
+    82000014:	ffffffef          	jal	t6,82000012 <a+0x12>
+    82000018:	fff1                	.2byte	0xfff1
+    8200001a:	ffff                	.2byte	0xffff
+    8200001c:	ffdd                	.2byte	0xffdd
+    8200001e:	ffff                	.2byte	0xffff
+    82000020:	ffffffcb          	.4byte	0xffffffcb
+    82000024:	ffca                	.2byte	0xffca
+    82000026:	ffff                	.2byte	0xffff
+    82000028:	0034                	.2byte	0x34
+    8200002a:	0000                	.2byte	0x0
+    8200002c:	0024                	.2byte	0x24
+    8200002e:	0000                	.2byte	0x0
+    82000030:	0009                	.2byte	0x9
+    82000032:	0000                	.2byte	0x0
+    82000034:	ffa5                	.2byte	0xffa5
+    82000036:	ffff                	.2byte	0xffff
+    82000038:	ffe5                	.2byte	0xffe5
+    8200003a:	ffff                	.2byte	0xffff
+    8200003c:	ffb2                	.2byte	0xffb2
+    8200003e:	ffff                	.2byte	0xffff
+    82000040:	002a                	.2byte	0x2a
+    82000042:	0000                	.2byte	0x0
+    82000044:	0052                	.2byte	0x52
+    82000046:	0000                	.2byte	0x0
+    82000048:	00000013          	nop
+    8200004c:	fffa                	.2byte	0xfffa
+    8200004e:	ffff                	.2byte	0xffff
+    82000050:	0029                	.2byte	0x29
+    82000052:	0000                	.2byte	0x0
+    82000054:	ffc8                	.2byte	0xffc8
+    82000056:	ffff                	.2byte	0xffff
+    82000058:	001f 0000 0020      	.byte	0x1f, 0x00, 0x00, 0x00, 0x20, 0x00
+    8200005e:	0000                	.2byte	0x0
+    82000060:	ffcc                	.2byte	0xffcc
+    82000062:	ffff                	.2byte	0xffff
+    82000064:	004a                	.2byte	0x4a
+    82000066:	0000                	.2byte	0x0
+    82000068:	001c                	.2byte	0x1c
+    8200006a:	0000                	.2byte	0x0
+    8200006c:	0014                	.2byte	0x14
+    8200006e:	0000                	.2byte	0x0
+    82000070:	00000037          	lui	zero,0x0
+    82000074:	ffb8                	.2byte	0xffb8
+    82000076:	ffff                	.2byte	0xffff
+    82000078:	ffc5                	.2byte	0xffc5
+    8200007a:	ffff                	.2byte	0xffff
+    8200007c:	0002                	.2byte	0x2
+    8200007e:	0000                	.2byte	0x0
+    82000080:	ffb1                	.2byte	0xffb1
+    82000082:	ffff                	.2byte	0xffff
+    82000084:	fff8                	.2byte	0xfff8
+    82000086:	ffff                	.2byte	0xffff
+    82000088:	002c                	.2byte	0x2c
+    8200008a:	0000                	.2byte	0x0
+    8200008c:	00000037          	lui	zero,0x0
+    82000090:	ffad                	.2byte	0xffad
+    82000092:	ffff                	.2byte	0xffff
+    82000094:	ffa1                	.2byte	0xffa1
+    82000096:	ffff                	.2byte	0xffff
+    82000098:	ffffffd3          	.4byte	0xffffffd3
+    8200009c:	0032                	.2byte	0x32
+    8200009e:	0000                	.2byte	0x0
+    820000a0:	ffa1                	.2byte	0xffa1
+    820000a2:	ffff                	.2byte	0xffff
+    820000a4:	003d                	.2byte	0x3d
+    820000a6:	0000                	.2byte	0x0
+    820000a8:	ffc1                	.2byte	0xffc1
+    820000aa:	ffff                	.2byte	0xffff
+    820000ac:	003e                	.2byte	0x3e
+    820000ae:	0000                	.2byte	0x0
+    820000b0:	fff0                	.2byte	0xfff0
+    820000b2:	ffff                	.2byte	0xffff
+    820000b4:	0034                	.2byte	0x34
+    820000b6:	0000                	.2byte	0x0
+    820000b8:	0028                	.2byte	0x28
+    820000ba:	0000                	.2byte	0x0
+    820000bc:	005c                	.2byte	0x5c
+    820000be:	0000                	.2byte	0x0
+    820000c0:	ffe0                	.2byte	0xffe0
+    820000c2:	ffff                	.2byte	0xffff
+    820000c4:	ffe6                	.2byte	0xffe6
+    820000c6:	ffff                	.2byte	0xffff
+    820000c8:	ff9d                	.2byte	0xff9d
+    820000ca:	ffff                	.2byte	0xffff
+    820000cc:	0034                	.2byte	0x34
+    820000ce:	0000                	.2byte	0x0
+    820000d0:	0060                	.2byte	0x60
+    820000d2:	0000                	.2byte	0x0
+    820000d4:	0000003f ffffffb5 	.8byte	0xffffffb50000003f
+    820000dc:	ffb6                	.2byte	0xffb6
+    820000de:	ffff                	.2byte	0xffff
+    820000e0:	ffae                	.2byte	0xffae
+    820000e2:	ffff                	.2byte	0xffff
+    820000e4:	0052                	.2byte	0x52
+    820000e6:	0000                	.2byte	0x0
+    820000e8:	ffa1                	.2byte	0xffa1
+    820000ea:	ffff                	.2byte	0xffff
+    820000ec:	002a                	.2byte	0x2a
+    820000ee:	0000                	.2byte	0x0
+    820000f0:	0000000b          	.4byte	0xb
+    820000f4:	ffea                	.2byte	0xffea
+    820000f6:	ffff                	.2byte	0xffff
+    820000f8:	0000001b          	sext.w	zero,zero
+    820000fc:	ffe5                	.2byte	0xffe5
+    820000fe:	ffff                	.2byte	0xffff
+    82000100:	ffe5                	.2byte	0xffe5
+    82000102:	ffff                	.2byte	0xffff
+    82000104:	ffb4                	.2byte	0xffb4
+    82000106:	ffff                	.2byte	0xffff
+    82000108:	ffb9                	.2byte	0xffb9
+    8200010a:	ffff                	.2byte	0xffff
+    8200010c:	003a                	.2byte	0x3a
+    8200010e:	0000                	.2byte	0x0
+    82000110:	ffd8                	.2byte	0xffd8
+    82000112:	ffff                	.2byte	0xffff
+    82000114:	ffffffbf 0000005b 	.8byte	0x5bffffffbf
+    8200011c:	ffffffcb          	.4byte	0xffffffcb
+    82000120:	ffbd                	.2byte	0xffbd
+    82000122:	ffff                	.2byte	0xffff
+    82000124:	0048                	.2byte	0x48
+    82000126:	0000                	.2byte	0x0
+    82000128:	0024                	.2byte	0x24
+    8200012a:	0000                	.2byte	0x0
+    8200012c:	ffffffb3          	.4byte	0xffffffb3
+    82000130:	fffd                	.2byte	0xfffd
+    82000132:	ffff                	.2byte	0xffff
+    82000134:	005d                	.2byte	0x5d
+    82000136:	0000                	.2byte	0x0
+    82000138:	ffe8                	.2byte	0xffe8
+    8200013a:	ffff                	.2byte	0xffff
+    8200013c:	0061                	.2byte	0x61
+    8200013e:	0000                	.2byte	0x0
+    82000140:	ffcc                	.2byte	0xffcc
+    82000142:	ffff                	.2byte	0xffff
+    82000144:	fff5                	.2byte	0xfff5
+    82000146:	ffff                	.2byte	0xffff
+    82000148:	ffffffb3          	.4byte	0xffffffb3
+    8200014c:	ffffffa3          	.4byte	0xffffffa3
+    82000150:	ffa4                	.2byte	0xffa4
+    82000152:	ffff                	.2byte	0xffff
+    82000154:	ffe8                	.2byte	0xffe8
+    82000156:	ffff                	.2byte	0xffff
+    82000158:	0046                	.2byte	0x46
+    8200015a:	0000                	.2byte	0x0
+    8200015c:	0012                	.2byte	0x12
+    8200015e:	0000                	.2byte	0x0
+    82000160:	0038                	.2byte	0x38
+    82000162:	0000                	.2byte	0x0
+    82000164:	0058                	.2byte	0x58
+    82000166:	0000                	.2byte	0x0
+    82000168:	ffd5                	.2byte	0xffd5
+    8200016a:	ffff                	.2byte	0xffff
+    8200016c:	ffffffd7          	.4byte	0xffffffd7
+    82000170:	ffe6                	.2byte	0xffe6
+    82000172:	ffff                	.2byte	0xffff
+    82000174:	0000000b          	.4byte	0xb
+    82000178:	ffac                	.2byte	0xffac
+    8200017a:	ffff                	.2byte	0xffff
+    8200017c:	fff2                	.2byte	0xfff2
+    8200017e:	ffff                	.2byte	0xffff
+    82000180:	ffffffd7          	.4byte	0xffffffd7
+    82000184:	00000053          	fadd.s	ft0,ft0,ft0,rne
+    82000188:	0000001b          	sext.w	zero,zero
+    8200018c:	fff5                	.2byte	0xfff5
+    8200018e:	ffff                	.2byte	0xffff
 
-0000000080000460 <b>:
-    80000460:	ffd0                	sd	a2,184(a5)
-    80000462:	ffff                	0xffff
-    80000464:	ffba                	sd	a4,504(sp)
-    80000466:	ffff                	0xffff
-    80000468:	ffd8                	sd	a4,184(a5)
-    8000046a:	ffff                	0xffff
-    8000046c:	ffae                	sd	a1,504(sp)
-    8000046e:	ffff                	0xffff
-    80000470:	ffb6                	sd	a3,504(sp)
-    80000472:	ffff                	0xffff
-    80000474:	ffc1                	bnez	a5,8000040c <a+0x13c>
-    80000476:	ffff                	0xffff
-    80000478:	ffc5                	bnez	a5,80000430 <a+0x160>
-    8000047a:	ffff                	0xffff
-    8000047c:	ffb8                	sd	a4,120(a5)
-    8000047e:	ffff                	0xffff
-    80000480:	ff9c                	sd	a5,56(a5)
-    80000482:	ffff                	0xffff
-    80000484:	ffb8                	sd	a4,120(a5)
-    80000486:	ffff                	0xffff
-    80000488:	0005                	c.nop	1
-    8000048a:	0000                	unimp
-    8000048c:	ffac                	sd	a1,120(a5)
-    8000048e:	ffff                	0xffff
-    80000490:	001c                	0x1c
-    80000492:	0000                	unimp
-    80000494:	0038                	addi	a4,sp,8
-    80000496:	0000                	unimp
-    80000498:	003c                	addi	a5,sp,8
-    8000049a:	0000                	unimp
-    8000049c:	ffdf ffff ffd6      	0xffd6ffffffdf
-    800004a2:	ffff                	0xffff
-    800004a4:	ffce                	sd	s3,504(sp)
-    800004a6:	ffff                	0xffff
-    800004a8:	ffad                	bnez	a5,80000422 <a+0x152>
-    800004aa:	ffff                	0xffff
-    800004ac:	ffad                	bnez	a5,80000426 <a+0x156>
-    800004ae:	ffff                	0xffff
-    800004b0:	fffffffb          	0xfffffffb
-    800004b4:	0005                	c.nop	1
-    800004b6:	0000                	unimp
-    800004b8:	0030                	addi	a2,sp,8
-    800004ba:	0000                	unimp
-    800004bc:	0000004b          	fnmsub.s	ft0,ft0,ft0,ft0,rne
-    800004c0:	ffb2                	sd	a2,504(sp)
-    800004c2:	ffff                	0xffff
-    800004c4:	fffffff7          	0xfffffff7
-    800004c8:	0009                	c.nop	2
-    800004ca:	0000                	unimp
-    800004cc:	0002                	c.slli64	zero
-    800004ce:	0000                	unimp
-    800004d0:	0058                	addi	a4,sp,4
-    800004d2:	0000                	unimp
-    800004d4:	0046                	c.slli	zero,0x11
-    800004d6:	0000                	unimp
-    800004d8:	0045                	c.nop	17
-    800004da:	0000                	unimp
-    800004dc:	00000017          	auipc	zero,0x0
-    800004e0:	0042                	c.slli	zero,0x10
-    800004e2:	0000                	unimp
-    800004e4:	0042                	c.slli	zero,0x10
-    800004e6:	0000                	unimp
-    800004e8:	fff5                	bnez	a5,800004e4 <b+0x84>
-    800004ea:	ffff                	0xffff
-    800004ec:	0032                	c.slli	zero,0xc
-    800004ee:	0000                	unimp
-    800004f0:	00000043          	fmadd.s	ft0,ft0,ft0,ft0,rne
-    800004f4:	0012                	c.slli	zero,0x4
-    800004f6:	0000                	unimp
-    800004f8:	ffc6                	sd	a7,504(sp)
-    800004fa:	ffff                	0xffff
-    800004fc:	004c                	addi	a1,sp,4
-    800004fe:	0000                	unimp
-    80000500:	001e                	c.slli	zero,0x7
-    80000502:	0000                	unimp
-    80000504:	002d                	c.nop	11
-    80000506:	0000                	unimp
-    80000508:	0020                	addi	s0,sp,8
-    8000050a:	0000                	unimp
-    8000050c:	0019                	c.nop	6
-    8000050e:	0000                	unimp
-    80000510:	ffffffb7          	lui	t6,0xfffff
-    80000514:	0039                	c.nop	14
-    80000516:	0000                	unimp
-    80000518:	ffbd                	bnez	a5,80000496 <b+0x36>
-    8000051a:	ffff                	0xffff
-    8000051c:	fff2                	sd	t3,504(sp)
-    8000051e:	ffff                	0xffff
-    80000520:	0035                	c.nop	13
-    80000522:	0000                	unimp
-    80000524:	ffdf ffff 0062      	0x62ffffffdf
-    8000052a:	0000                	unimp
-    8000052c:	ffaa                	sd	a0,504(sp)
-    8000052e:	ffff                	0xffff
-    80000530:	ffc1                	bnez	a5,800004c8 <b+0x68>
-    80000532:	ffff                	0xffff
-    80000534:	0050                	addi	a2,sp,4
-    80000536:	0000                	unimp
-    80000538:	ffffffd3          	0xffffffd3
-    8000053c:	ffa8                	sd	a0,120(a5)
-    8000053e:	ffff                	0xffff
-    80000540:	0050                	addi	a2,sp,4
-    80000542:	0000                	unimp
-    80000544:	ffc0                	sd	s0,184(a5)
-    80000546:	ffff                	0xffff
-    80000548:	003a                	c.slli	zero,0xe
-    8000054a:	0000                	unimp
-    8000054c:	ffac                	sd	a1,120(a5)
-    8000054e:	ffff                	0xffff
-    80000550:	ffc9                	bnez	a5,800004ea <b+0x8a>
-    80000552:	ffff                	0xffff
-    80000554:	ffd9                	bnez	a5,800004f2 <b+0x92>
-    80000556:	ffff                	0xffff
-    80000558:	fffffff3          	csrrci	t6,0xfff,31
-    8000055c:	ffe5                	bnez	a5,80000554 <b+0xf4>
-    8000055e:	ffff                	0xffff
-    80000560:	ffffffdb          	0xffffffdb
-    80000564:	0008                	0x8
-    80000566:	0000                	unimp
-    80000568:	ffa0                	sd	s0,120(a5)
-    8000056a:	ffff                	0xffff
-    8000056c:	0054                	addi	a3,sp,4
-    8000056e:	0000                	unimp
-    80000570:	ffffffa7          	0xffffffa7
-    80000574:	001f 0000 ffae      	0xffae0000001f
-    8000057a:	ffff                	0xffff
-    8000057c:	003a                	c.slli	zero,0xe
-    8000057e:	0000                	unimp
-    80000580:	0051                	c.nop	20
-    80000582:	0000                	unimp
-    80000584:	ffffffd7          	0xffffffd7
-    80000588:	ffc6                	sd	a7,504(sp)
-    8000058a:	ffff                	0xffff
-    8000058c:	0024                	addi	s1,sp,8
-    8000058e:	0000                	unimp
-    80000590:	004c                	addi	a1,sp,4
-    80000592:	0000                	unimp
-    80000594:	ffb1                	bnez	a5,800004f0 <b+0x90>
-    80000596:	ffff                	0xffff
-    80000598:	ffffffe3          	bgeu	t6,t6,80000596 <b+0x136>
-    8000059c:	00000017          	auipc	zero,0x0
-    800005a0:	0056                	c.slli	zero,0x15
-    800005a2:	0000                	unimp
-    800005a4:	ffd2                	sd	s4,504(sp)
-    800005a6:	ffff                	0xffff
-    800005a8:	0010                	0x10
-    800005aa:	0000                	unimp
-    800005ac:	ffee                	sd	s11,504(sp)
-    800005ae:	ffff                	0xffff
-    800005b0:	0051                	c.nop	20
-    800005b2:	0000                	unimp
-    800005b4:	005a                	c.slli	zero,0x16
-    800005b6:	0000                	unimp
-    800005b8:	00000023          	sb	zero,0(zero) # 0 <_start-0x80000000>
-    800005bc:	ffa6                	sd	s1,504(sp)
-    800005be:	ffff                	0xffff
-    800005c0:	0000002b          	0x2b
-    800005c4:	00000037          	lui	zero,0x0
-    800005c8:	ffda                	sd	s6,504(sp)
-    800005ca:	ffff                	0xffff
-    800005cc:	ffed                	bnez	a5,800005c6 <b+0x166>
-    800005ce:	ffff                	0xffff
-    800005d0:	ffd8                	sd	a4,184(a5)
-    800005d2:	ffff                	0xffff
-    800005d4:	0052                	c.slli	zero,0x14
-    800005d6:	0000                	unimp
-    800005d8:	ffb4                	sd	a3,120(a5)
-    800005da:	ffff                	0xffff
-    800005dc:	0039                	c.nop	14
-    800005de:	0000                	unimp
-    800005e0:	ffffffe3          	bgeu	t6,t6,800005de <b+0x17e>
-    800005e4:	fffe                	sd	t6,504(sp)
-    800005e6:	ffff                	0xffff
-    800005e8:	0000004f          	fnmadd.s	ft0,ft0,ft0,ft0,rne
-    800005ec:	ffd0                	sd	a2,184(a5)
-    800005ee:	ffff                	0xffff
+0000000082000190 <b>:
+    82000190:	ffd0                	.2byte	0xffd0
+    82000192:	ffff                	.2byte	0xffff
+    82000194:	ffba                	.2byte	0xffba
+    82000196:	ffff                	.2byte	0xffff
+    82000198:	ffd8                	.2byte	0xffd8
+    8200019a:	ffff                	.2byte	0xffff
+    8200019c:	ffae                	.2byte	0xffae
+    8200019e:	ffff                	.2byte	0xffff
+    820001a0:	ffb6                	.2byte	0xffb6
+    820001a2:	ffff                	.2byte	0xffff
+    820001a4:	ffc1                	.2byte	0xffc1
+    820001a6:	ffff                	.2byte	0xffff
+    820001a8:	ffc5                	.2byte	0xffc5
+    820001aa:	ffff                	.2byte	0xffff
+    820001ac:	ffb8                	.2byte	0xffb8
+    820001ae:	ffff                	.2byte	0xffff
+    820001b0:	ff9c                	.2byte	0xff9c
+    820001b2:	ffff                	.2byte	0xffff
+    820001b4:	ffb8                	.2byte	0xffb8
+    820001b6:	ffff                	.2byte	0xffff
+    820001b8:	0005                	.2byte	0x5
+    820001ba:	0000                	.2byte	0x0
+    820001bc:	ffac                	.2byte	0xffac
+    820001be:	ffff                	.2byte	0xffff
+    820001c0:	001c                	.2byte	0x1c
+    820001c2:	0000                	.2byte	0x0
+    820001c4:	0038                	.2byte	0x38
+    820001c6:	0000                	.2byte	0x0
+    820001c8:	003c                	.2byte	0x3c
+    820001ca:	0000                	.2byte	0x0
+    820001cc:	ffdf ffff ffd6      	.byte	0xdf, 0xff, 0xff, 0xff, 0xd6, 0xff
+    820001d2:	ffff                	.2byte	0xffff
+    820001d4:	ffce                	.2byte	0xffce
+    820001d6:	ffff                	.2byte	0xffff
+    820001d8:	ffad                	.2byte	0xffad
+    820001da:	ffff                	.2byte	0xffff
+    820001dc:	ffad                	.2byte	0xffad
+    820001de:	ffff                	.2byte	0xffff
+    820001e0:	fffffffb          	.4byte	0xfffffffb
+    820001e4:	0005                	.2byte	0x5
+    820001e6:	0000                	.2byte	0x0
+    820001e8:	0030                	.2byte	0x30
+    820001ea:	0000                	.2byte	0x0
+    820001ec:	0000004b          	fnmsub.s	ft0,ft0,ft0,ft0,rne
+    820001f0:	ffb2                	.2byte	0xffb2
+    820001f2:	ffff                	.2byte	0xffff
+    820001f4:	fffffff7          	.4byte	0xfffffff7
+    820001f8:	0009                	.2byte	0x9
+    820001fa:	0000                	.2byte	0x0
+    820001fc:	0002                	.2byte	0x2
+    820001fe:	0000                	.2byte	0x0
+    82000200:	0058                	.2byte	0x58
+    82000202:	0000                	.2byte	0x0
+    82000204:	0046                	.2byte	0x46
+    82000206:	0000                	.2byte	0x0
+    82000208:	0045                	.2byte	0x45
+    8200020a:	0000                	.2byte	0x0
+    8200020c:	00000017          	auipc	zero,0x0
+    82000210:	0042                	.2byte	0x42
+    82000212:	0000                	.2byte	0x0
+    82000214:	0042                	.2byte	0x42
+    82000216:	0000                	.2byte	0x0
+    82000218:	fff5                	.2byte	0xfff5
+    8200021a:	ffff                	.2byte	0xffff
+    8200021c:	0032                	.2byte	0x32
+    8200021e:	0000                	.2byte	0x0
+    82000220:	00000043          	fmadd.s	ft0,ft0,ft0,ft0,rne
+    82000224:	0012                	.2byte	0x12
+    82000226:	0000                	.2byte	0x0
+    82000228:	ffc6                	.2byte	0xffc6
+    8200022a:	ffff                	.2byte	0xffff
+    8200022c:	004c                	.2byte	0x4c
+    8200022e:	0000                	.2byte	0x0
+    82000230:	001e                	.2byte	0x1e
+    82000232:	0000                	.2byte	0x0
+    82000234:	002d                	.2byte	0x2d
+    82000236:	0000                	.2byte	0x0
+    82000238:	0020                	.2byte	0x20
+    8200023a:	0000                	.2byte	0x0
+    8200023c:	0019                	.2byte	0x19
+    8200023e:	0000                	.2byte	0x0
+    82000240:	ffffffb7          	lui	t6,0xfffff
+    82000244:	0039                	.2byte	0x39
+    82000246:	0000                	.2byte	0x0
+    82000248:	ffbd                	.2byte	0xffbd
+    8200024a:	ffff                	.2byte	0xffff
+    8200024c:	fff2                	.2byte	0xfff2
+    8200024e:	ffff                	.2byte	0xffff
+    82000250:	0035                	.2byte	0x35
+    82000252:	0000                	.2byte	0x0
+    82000254:	ffdf ffff 0062      	.byte	0xdf, 0xff, 0xff, 0xff, 0x62, 0x00
+    8200025a:	0000                	.2byte	0x0
+    8200025c:	ffaa                	.2byte	0xffaa
+    8200025e:	ffff                	.2byte	0xffff
+    82000260:	ffc1                	.2byte	0xffc1
+    82000262:	ffff                	.2byte	0xffff
+    82000264:	0050                	.2byte	0x50
+    82000266:	0000                	.2byte	0x0
+    82000268:	ffffffd3          	.4byte	0xffffffd3
+    8200026c:	ffa8                	.2byte	0xffa8
+    8200026e:	ffff                	.2byte	0xffff
+    82000270:	0050                	.2byte	0x50
+    82000272:	0000                	.2byte	0x0
+    82000274:	ffc0                	.2byte	0xffc0
+    82000276:	ffff                	.2byte	0xffff
+    82000278:	003a                	.2byte	0x3a
+    8200027a:	0000                	.2byte	0x0
+    8200027c:	ffac                	.2byte	0xffac
+    8200027e:	ffff                	.2byte	0xffff
+    82000280:	ffc9                	.2byte	0xffc9
+    82000282:	ffff                	.2byte	0xffff
+    82000284:	ffd9                	.2byte	0xffd9
+    82000286:	ffff                	.2byte	0xffff
+    82000288:	fffffff3          	csrrci	t6,0xfff,31
+    8200028c:	ffe5                	.2byte	0xffe5
+    8200028e:	ffff                	.2byte	0xffff
+    82000290:	ffffffdb          	.4byte	0xffffffdb
+    82000294:	0008                	.2byte	0x8
+    82000296:	0000                	.2byte	0x0
+    82000298:	ffa0                	.2byte	0xffa0
+    8200029a:	ffff                	.2byte	0xffff
+    8200029c:	0054                	.2byte	0x54
+    8200029e:	0000                	.2byte	0x0
+    820002a0:	ffffffa7          	.4byte	0xffffffa7
+    820002a4:	001f 0000 ffae      	.byte	0x1f, 0x00, 0x00, 0x00, 0xae, 0xff
+    820002aa:	ffff                	.2byte	0xffff
+    820002ac:	003a                	.2byte	0x3a
+    820002ae:	0000                	.2byte	0x0
+    820002b0:	0051                	.2byte	0x51
+    820002b2:	0000                	.2byte	0x0
+    820002b4:	ffffffd7          	.4byte	0xffffffd7
+    820002b8:	ffc6                	.2byte	0xffc6
+    820002ba:	ffff                	.2byte	0xffff
+    820002bc:	0024                	.2byte	0x24
+    820002be:	0000                	.2byte	0x0
+    820002c0:	004c                	.2byte	0x4c
+    820002c2:	0000                	.2byte	0x0
+    820002c4:	ffb1                	.2byte	0xffb1
+    820002c6:	ffff                	.2byte	0xffff
+    820002c8:	ffffffe3          	bgeu	t6,t6,820002c6 <b+0x136>
+    820002cc:	00000017          	auipc	zero,0x0
+    820002d0:	0056                	.2byte	0x56
+    820002d2:	0000                	.2byte	0x0
+    820002d4:	ffd2                	.2byte	0xffd2
+    820002d6:	ffff                	.2byte	0xffff
+    820002d8:	0010                	.2byte	0x10
+    820002da:	0000                	.2byte	0x0
+    820002dc:	ffee                	.2byte	0xffee
+    820002de:	ffff                	.2byte	0xffff
+    820002e0:	0051                	.2byte	0x51
+    820002e2:	0000                	.2byte	0x0
+    820002e4:	005a                	.2byte	0x5a
+    820002e6:	0000                	.2byte	0x0
+    820002e8:	00000023          	sb	zero,0(zero) # 0 <_start-0x80000000>
+    820002ec:	ffa6                	.2byte	0xffa6
+    820002ee:	ffff                	.2byte	0xffff
+    820002f0:	0000002b          	.4byte	0x2b
+    820002f4:	00000037          	lui	zero,0x0
+    820002f8:	ffda                	.2byte	0xffda
+    820002fa:	ffff                	.2byte	0xffff
+    820002fc:	ffed                	.2byte	0xffed
+    820002fe:	ffff                	.2byte	0xffff
+    82000300:	ffd8                	.2byte	0xffd8
+    82000302:	ffff                	.2byte	0xffff
+    82000304:	0052                	.2byte	0x52
+    82000306:	0000                	.2byte	0x0
+    82000308:	ffb4                	.2byte	0xffb4
+    8200030a:	ffff                	.2byte	0xffff
+    8200030c:	0039                	.2byte	0x39
+    8200030e:	0000                	.2byte	0x0
+    82000310:	ffffffe3          	bgeu	t6,t6,8200030e <b+0x17e>
+    82000314:	fffe                	.2byte	0xfffe
+    82000316:	ffff                	.2byte	0xffff
+    82000318:	0000004f          	fnmadd.s	ft0,ft0,ft0,ft0,rne
+    8200031c:	ffd0                	.2byte	0xffd0
+    8200031e:	ffff                	.2byte	0xffff
 
-00000000800005f0 <ans>:
-    800005f0:	fffffadb          	0xfffffadb
-    800005f4:	0000288b          	0x288b
-    800005f8:	ffffe943          	fmadd.q	fs2,ft11,ft11,ft11,unknown
-    800005fc:	c80e                	sw	gp,16(sp)
-    800005fe:	ffff                	0xffff
-    80000600:	ef16                	sd	t0,408(sp)
-    80000602:	ffff                	0xffff
-    80000604:	f3d6                	sd	s5,480(sp)
-    80000606:	ffff                	0xffff
-    80000608:	d92c                	sw	a1,112(a0)
-    8000060a:	ffff                	0xffff
-    8000060c:	1b79                	addi	s6,s6,-2
-    8000060e:	0000                	unimp
-    80000610:	f8a5                	bnez	s1,80000580 <b+0x120>
-    80000612:	ffff                	0xffff
-    80000614:	e875                	bnez	s0,80000708 <ans+0x118>
-    80000616:	ffff                	0xffff
-    80000618:	a136                	fsd	fa3,128(sp)
-    8000061a:	ffff                	0xffff
-    8000061c:	fffffca3          	0xfffffca3
-    80000620:	0fcc                	addi	a1,sp,980
-    80000622:	0000                	unimp
-    80000624:	b290                	fsd	fa2,32(a3)
-    80000626:	ffff                	0xffff
-    80000628:	ff21                	bnez	a4,80000580 <b+0x120>
-    8000062a:	ffff                	0xffff
-    8000062c:	0376                	slli	t1,t1,0x1d
-    8000062e:	0000                	unimp
-    80000630:	d12c                	sw	a1,96(a0)
-    80000632:	ffff                	0xffff
-    80000634:	e6d6                	sd	s5,328(sp)
-    80000636:	ffff                	0xffff
-    80000638:	c9ea                	sw	s10,208(sp)
-    8000063a:	ffff                	0xffff
-    8000063c:	fbe2                	sd	s8,496(sp)
-    8000063e:	ffff                	0xffff
-    80000640:	00002637          	lui	a2,0x2
-    80000644:	e45f ffff fc6a      	0xfc6affffe45f
-    8000064a:	ffff                	0xffff
-    8000064c:	e8e9                	bnez	s1,8000071e <ans+0x12e>
-    8000064e:	ffff                	0xffff
-    80000650:	fc39                	bnez	s0,800005ae <b+0x14e>
-    80000652:	ffff                	0xffff
-    80000654:	e444                	sd	s1,136(s0)
-    80000656:	ffff                	0xffff
-    80000658:	390d                	addiw	s2,s2,-29
-    8000065a:	0000                	unimp
-    8000065c:	e27c                	sd	a5,192(a2)
-    8000065e:	ffff                	0xffff
-    80000660:	f291                	bnez	a3,80000564 <b+0x104>
-    80000662:	ffff                	0xffff
-    80000664:	00002587          	flw	fa1,0(zero) # 0 <_start-0x80000000>
-    80000668:	3e6c                	fld	fa1,248(a2)
-    8000066a:	0000                	unimp
-    8000066c:	fdf8                	sd	a4,248(a1)
-    8000066e:	ffff                	0xffff
-    80000670:	ffffcc0f          	0xffffcc0f
-    80000674:	00003ac3          	fmadd.s	fs5,ft0,ft0,ft0,rup
-    80000678:	1829                	addi	a6,a6,-22
-    8000067a:	0000                	unimp
-    8000067c:	f1ba                	sd	a4,224(sp)
-    8000067e:	ffff                	0xffff
-    80000680:	052d                	addi	a0,a0,11
-    80000682:	0000                	unimp
-    80000684:	1061                	c.nop	-8
-    80000686:	0000                	unimp
-    80000688:	421d                	li	tp,7
-    8000068a:	0000                	unimp
-    8000068c:	ba9f ffff 0a06      	0xa06ffffba9f
-    80000692:	0000                	unimp
-    80000694:	00000c73          	0xc73
-    80000698:	2808                	fld	fa0,16(s0)
-    8000069a:	0000                	unimp
-    8000069c:	1ef5                	addi	t4,t4,-3
-    8000069e:	0000                	unimp
-    800006a0:	18ae                	slli	a7,a7,0x2b
-    800006a2:	0000                	unimp
-    800006a4:	058d                	addi	a1,a1,3
-    800006a6:	0000                	unimp
-    800006a8:	3938                	fld	fa4,112(a0)
-    800006aa:	0000                	unimp
-    800006ac:	02bc                	addi	a5,sp,328
-    800006ae:	0000                	unimp
-    800006b0:	d05f ffff 043b      	0x43bffffd05f
-    800006b6:	0000                	unimp
-    800006b8:	cec5                	beqz	a3,80000770 <ans+0x180>
-    800006ba:	ffff                	0xffff
-    800006bc:	4a3e                	lw	s4,204(sp)
-    800006be:	0000                	unimp
-    800006c0:	51d8                	lw	a4,36(a1)
-    800006c2:	0000                	unimp
-    800006c4:	000048a7          	fsq	ft0,17(zero) # 11 <_start-0x7fffffef>
-    800006c8:	f9fd                	bnez	a1,800006be <ans+0xce>
-    800006ca:	ffff                	0xffff
-    800006cc:	1440                	addi	s0,sp,548
-    800006ce:	0000                	unimp
-    800006d0:	4400                	lw	s0,8(s0)
-    800006d2:	0000                	unimp
-    800006d4:	1a54                	addi	a3,sp,308
-    800006d6:	0000                	unimp
-    800006d8:	1878                	addi	a4,sp,60
-    800006da:	0000                	unimp
-    800006dc:	3b0a                	fld	fs6,160(sp)
-    800006de:	0000                	unimp
-    800006e0:	ce55                	beqz	a2,8000079c <_data+0x1c>
-    800006e2:	ffff                	0xffff
-    800006e4:	3b11                	addiw	s6,s6,-28
-    800006e6:	0000                	unimp
-    800006e8:	000026eb          	0x26eb
-    800006ec:	ffffca6b          	0xffffca6b
-    800006f0:	0000096b          	0x96b
-    800006f4:	f76c                	sd	a1,232(a4)
-    800006f6:	ffff                	0xffff
-    800006f8:	00001803          	lh	a6,0(zero) # 0 <_start-0x80000000>
-    800006fc:	f95e                	sd	s7,176(sp)
-    800006fe:	ffff                	0xffff
-    80000700:	fffff2c3          	fmadd.q	ft5,ft11,ft11,ft11
-    80000704:	2008                	fld	fa0,0(s0)
-    80000706:	0000                	unimp
-    80000708:	b5c1                	j	800005c8 <b+0x168>
-    8000070a:	ffff                	0xffff
-    8000070c:	3081                	addiw	ra,ra,-32
-    8000070e:	0000                	unimp
-    80000710:	0000165b          	0x165b
-    80000714:	ffffd3d3          	0xffffd3d3
-    80000718:	b4d6                	fsd	fs5,104(sp)
-    8000071a:	ffff                	0xffff
-    8000071c:	3d7c                	fld	fa5,248(a0)
-    8000071e:	0000                	unimp
-    80000720:	f131                	bnez	a0,80000664 <ans+0x74>
-    80000722:	ffff                	0xffff
-    80000724:	fffff093          	andi	ra,t6,-1
-    80000728:	ccb6                	sw	a3,88(sp)
-    8000072a:	ffff                	0xffff
-    8000072c:	ffffffeb          	0xffffffeb
-    80000730:	ffffcef3          	0xffffcef3
-    80000734:	e8ae                	sd	a1,80(sp)
-    80000736:	ffff                	0xffff
-    80000738:	d2ce                	sw	s3,100(sp)
-    8000073a:	ffff                	0xffff
-    8000073c:	ffffdd37          	lui	s10,0xffffd
-    80000740:	00002fc3          	fmadd.s	ft11,ft0,ft0,ft0,rdn
-    80000744:	1e86                	slli	t4,t4,0x21
-    80000746:	0000                	unimp
-    80000748:	ec1a                	sd	t1,24(sp)
-    8000074a:	ffff                	0xffff
-    8000074c:	11b4                	addi	a3,sp,232
-    8000074e:	0000                	unimp
-    80000750:	0000042f          	0x42f
-    80000754:	fffffae3          	bgeu	t6,t6,80000748 <ans+0x158>
-    80000758:	f475                	bnez	s0,80000744 <ans+0x154>
-    8000075a:	ffff                	0xffff
-    8000075c:	24a5                	addiw	s1,s1,9
-    8000075e:	0000                	unimp
-    80000760:	18e4                	addi	s1,sp,124
-    80000762:	0000                	unimp
-    80000764:	e50e                	sd	gp,136(sp)
-    80000766:	ffff                	0xffff
-    80000768:	239d                	addiw	t2,t2,7
-    8000076a:	0000                	unimp
-    8000076c:	1679                	addi	a2,a2,-2
-    8000076e:	0000                	unimp
-    80000770:	512a                	lw	sp,168(sp)
-    80000772:	0000                	unimp
-    80000774:	ffffec4b          	fnmsub.q	fs8,ft11,ft11,ft11,unknown
-    80000778:	00000417          	auipc	s0,0x0
-    8000077c:	2f52                	fld	ft10,272(sp)
+0000000082000320 <ans>:
+    82000320:	fffffadb          	.4byte	0xfffffadb
+    82000324:	0000288b          	.4byte	0x288b
+    82000328:	ffffe943          	.4byte	0xffffe943
+    8200032c:	c80e                	.2byte	0xc80e
+    8200032e:	ffff                	.2byte	0xffff
+    82000330:	ef16                	.2byte	0xef16
+    82000332:	ffff                	.2byte	0xffff
+    82000334:	f3d6                	.2byte	0xf3d6
+    82000336:	ffff                	.2byte	0xffff
+    82000338:	d92c                	.2byte	0xd92c
+    8200033a:	ffff                	.2byte	0xffff
+    8200033c:	1b79                	.2byte	0x1b79
+    8200033e:	0000                	.2byte	0x0
+    82000340:	f8a5                	.2byte	0xf8a5
+    82000342:	ffff                	.2byte	0xffff
+    82000344:	e875                	.2byte	0xe875
+    82000346:	ffff                	.2byte	0xffff
+    82000348:	a136                	.2byte	0xa136
+    8200034a:	ffff                	.2byte	0xffff
+    8200034c:	fffffca3          	.4byte	0xfffffca3
+    82000350:	0fcc                	.2byte	0xfcc
+    82000352:	0000                	.2byte	0x0
+    82000354:	b290                	.2byte	0xb290
+    82000356:	ffff                	.2byte	0xffff
+    82000358:	ff21                	.2byte	0xff21
+    8200035a:	ffff                	.2byte	0xffff
+    8200035c:	0376                	.2byte	0x376
+    8200035e:	0000                	.2byte	0x0
+    82000360:	d12c                	.2byte	0xd12c
+    82000362:	ffff                	.2byte	0xffff
+    82000364:	e6d6                	.2byte	0xe6d6
+    82000366:	ffff                	.2byte	0xffff
+    82000368:	c9ea                	.2byte	0xc9ea
+    8200036a:	ffff                	.2byte	0xffff
+    8200036c:	fbe2                	.2byte	0xfbe2
+    8200036e:	ffff                	.2byte	0xffff
+    82000370:	00002637          	lui	a2,0x2
+    82000374:	e45f ffff fc6a      	.byte	0x5f, 0xe4, 0xff, 0xff, 0x6a, 0xfc
+    8200037a:	ffff                	.2byte	0xffff
+    8200037c:	e8e9                	.2byte	0xe8e9
+    8200037e:	ffff                	.2byte	0xffff
+    82000380:	fc39                	.2byte	0xfc39
+    82000382:	ffff                	.2byte	0xffff
+    82000384:	e444                	.2byte	0xe444
+    82000386:	ffff                	.2byte	0xffff
+    82000388:	390d                	.2byte	0x390d
+    8200038a:	0000                	.2byte	0x0
+    8200038c:	e27c                	.2byte	0xe27c
+    8200038e:	ffff                	.2byte	0xffff
+    82000390:	f291                	.2byte	0xf291
+    82000392:	ffff                	.2byte	0xffff
+    82000394:	00002587          	flw	fa1,0(zero) # 0 <_start-0x80000000>
+    82000398:	3e6c                	.2byte	0x3e6c
+    8200039a:	0000                	.2byte	0x0
+    8200039c:	fdf8                	.2byte	0xfdf8
+    8200039e:	ffff                	.2byte	0xffff
+    820003a0:	ffffcc0f          	.4byte	0xffffcc0f
+    820003a4:	00003ac3          	fmadd.s	fs5,ft0,ft0,ft0,rup
+    820003a8:	1829                	.2byte	0x1829
+    820003aa:	0000                	.2byte	0x0
+    820003ac:	f1ba                	.2byte	0xf1ba
+    820003ae:	ffff                	.2byte	0xffff
+    820003b0:	052d                	.2byte	0x52d
+    820003b2:	0000                	.2byte	0x0
+    820003b4:	1061                	.2byte	0x1061
+    820003b6:	0000                	.2byte	0x0
+    820003b8:	421d                	.2byte	0x421d
+    820003ba:	0000                	.2byte	0x0
+    820003bc:	ba9f ffff 0a06      	.byte	0x9f, 0xba, 0xff, 0xff, 0x06, 0x0a
+    820003c2:	0000                	.2byte	0x0
+    820003c4:	00000c73          	.4byte	0xc73
+    820003c8:	2808                	.2byte	0x2808
+    820003ca:	0000                	.2byte	0x0
+    820003cc:	1ef5                	.2byte	0x1ef5
+    820003ce:	0000                	.2byte	0x0
+    820003d0:	18ae                	.2byte	0x18ae
+    820003d2:	0000                	.2byte	0x0
+    820003d4:	058d                	.2byte	0x58d
+    820003d6:	0000                	.2byte	0x0
+    820003d8:	3938                	.2byte	0x3938
+    820003da:	0000                	.2byte	0x0
+    820003dc:	02bc                	.2byte	0x2bc
+    820003de:	0000                	.2byte	0x0
+    820003e0:	d05f ffff 043b      	.byte	0x5f, 0xd0, 0xff, 0xff, 0x3b, 0x04
+    820003e6:	0000                	.2byte	0x0
+    820003e8:	cec5                	.2byte	0xcec5
+    820003ea:	ffff                	.2byte	0xffff
+    820003ec:	4a3e                	.2byte	0x4a3e
+    820003ee:	0000                	.2byte	0x0
+    820003f0:	51d8                	.2byte	0x51d8
+    820003f2:	0000                	.2byte	0x0
+    820003f4:	000048a7          	.4byte	0x48a7
+    820003f8:	f9fd                	.2byte	0xf9fd
+    820003fa:	ffff                	.2byte	0xffff
+    820003fc:	1440                	.2byte	0x1440
+    820003fe:	0000                	.2byte	0x0
+    82000400:	4400                	.2byte	0x4400
+    82000402:	0000                	.2byte	0x0
+    82000404:	1a54                	.2byte	0x1a54
+    82000406:	0000                	.2byte	0x0
+    82000408:	1878                	.2byte	0x1878
+    8200040a:	0000                	.2byte	0x0
+    8200040c:	3b0a                	.2byte	0x3b0a
+    8200040e:	0000                	.2byte	0x0
+    82000410:	ce55                	.2byte	0xce55
+    82000412:	ffff                	.2byte	0xffff
+    82000414:	3b11                	.2byte	0x3b11
+    82000416:	0000                	.2byte	0x0
+    82000418:	000026eb          	.4byte	0x26eb
+    8200041c:	ffffca6b          	.4byte	0xffffca6b
+    82000420:	0000096b          	.4byte	0x96b
+    82000424:	f76c                	.2byte	0xf76c
+    82000426:	ffff                	.2byte	0xffff
+    82000428:	00001803          	lh	a6,0(zero) # 0 <_start-0x80000000>
+    8200042c:	f95e                	.2byte	0xf95e
+    8200042e:	ffff                	.2byte	0xffff
+    82000430:	fffff2c3          	.4byte	0xfffff2c3
+    82000434:	2008                	.2byte	0x2008
+    82000436:	0000                	.2byte	0x0
+    82000438:	b5c1                	.2byte	0xb5c1
+    8200043a:	ffff                	.2byte	0xffff
+    8200043c:	3081                	.2byte	0x3081
+    8200043e:	0000                	.2byte	0x0
+    82000440:	0000165b          	.4byte	0x165b
+    82000444:	ffffd3d3          	.4byte	0xffffd3d3
+    82000448:	b4d6                	.2byte	0xb4d6
+    8200044a:	ffff                	.2byte	0xffff
+    8200044c:	3d7c                	.2byte	0x3d7c
+    8200044e:	0000                	.2byte	0x0
+    82000450:	f131                	.2byte	0xf131
+    82000452:	ffff                	.2byte	0xffff
+    82000454:	fffff093          	andi	ra,t6,-1
+    82000458:	ccb6                	.2byte	0xccb6
+    8200045a:	ffff                	.2byte	0xffff
+    8200045c:	ffffffeb          	.4byte	0xffffffeb
+    82000460:	ffffcef3          	.4byte	0xffffcef3
+    82000464:	e8ae                	.2byte	0xe8ae
+    82000466:	ffff                	.2byte	0xffff
+    82000468:	d2ce                	.2byte	0xd2ce
+    8200046a:	ffff                	.2byte	0xffff
+    8200046c:	ffffdd37          	lui	s10,0xffffd
+    82000470:	00002fc3          	fmadd.s	ft11,ft0,ft0,ft0,rdn
+    82000474:	1e86                	.2byte	0x1e86
+    82000476:	0000                	.2byte	0x0
+    82000478:	ec1a                	.2byte	0xec1a
+    8200047a:	ffff                	.2byte	0xffff
+    8200047c:	11b4                	.2byte	0x11b4
+    8200047e:	0000                	.2byte	0x0
+    82000480:	0000042f          	.4byte	0x42f
+    82000484:	fffffae3          	bgeu	t6,t6,82000478 <ans+0x158>
+    82000488:	f475                	.2byte	0xf475
+    8200048a:	ffff                	.2byte	0xffff
+    8200048c:	24a5                	.2byte	0x24a5
+    8200048e:	0000                	.2byte	0x0
+    82000490:	18e4                	.2byte	0x18e4
+    82000492:	0000                	.2byte	0x0
+    82000494:	e50e                	.2byte	0xe50e
+    82000496:	ffff                	.2byte	0xffff
+    82000498:	239d                	.2byte	0x239d
+    8200049a:	0000                	.2byte	0x0
+    8200049c:	1679                	.2byte	0x1679
+    8200049e:	0000                	.2byte	0x0
+    820004a0:	512a                	.2byte	0x512a
+    820004a2:	0000                	.2byte	0x0
+    820004a4:	ffffec4b          	.4byte	0xffffec4b
+    820004a8:	00000417          	auipc	s0,0x0
+    820004ac:	2f52                	.2byte	0x2f52
 	...
 
 Disassembly of section .bss:
 
-0000000080000780 <c>:
+00000000820004b0 <c>:
 	...
 
 Disassembly of section .comment:
 
 0000000000000000 <.comment>:
    0:	3a434347          	fmsub.d	ft6,ft6,ft4,ft7,rmm
-   4:	2820                	fld	fs0,80(s0)
-   6:	6255                	lui	tp,0x15
-   8:	6e75                	lui	t3,0x1d
-   a:	7574                	ld	a3,232(a0)
-   c:	3920                	fld	fs0,112(a0)
-   e:	342e                	fld	fs0,232(sp)
-  10:	302e                	fld	ft0,232(sp)
-  12:	312d                	addiw	sp,sp,-21
-  14:	6275                	lui	tp,0x1d
-  16:	6e75                	lui	t3,0x1d
-  18:	7574                	ld	a3,232(a0)
-  1a:	7e31                	lui	t3,0xfffec
-  1c:	3032                	fld	ft0,296(sp)
-  1e:	302e                	fld	ft0,232(sp)
-  20:	2934                	fld	fa3,80(a0)
-  22:	3920                	fld	fs0,112(a0)
-  24:	342e                	fld	fs0,232(sp)
-  26:	302e                	fld	ft0,232(sp)
+   4:	2820                	.2byte	0x2820
+   6:	6255                	.2byte	0x6255
+   8:	6e75                	.2byte	0x6e75
+   a:	7574                	.2byte	0x7574
+   c:	3120                	.2byte	0x3120
+   e:	2e31                	.2byte	0x2e31
+  10:	2e34                	.2byte	0x2e34
+  12:	2d30                	.2byte	0x2d30
+  14:	7531                	.2byte	0x7531
+  16:	7562                	.2byte	0x7562
+  18:	746e                	.2byte	0x746e
+  1a:	3175                	.2byte	0x3175
+  1c:	327e                	.2byte	0x327e
+  1e:	2e32                	.2byte	0x2e32
+  20:	3430                	.2byte	0x3430
+  22:	2029                	.2byte	0x2029
+  24:	3131                	.2byte	0x3131
+  26:	342e                	.2byte	0x342e
+  28:	302e                	.2byte	0x302e
 	...
+
+Disassembly of section .riscv.attributes:
+
+0000000000000000 <.riscv.attributes>:
+   0:	2d41                	.2byte	0x2d41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
+   8:	01007663          	bgeu	zero,a6,14 <_start-0x7fffffec>
+   c:	00000023          	sb	zero,0(zero) # 0 <_start-0x80000000>
+  10:	7205                	.2byte	0x7205
+  12:	3676                	.2byte	0x3676
+  14:	6934                	.2byte	0x6934
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	.2byte	0x5f30
+  1a:	326d                	.2byte	0x326d
+  1c:	3070                	.2byte	0x3070
+  1e:	615f 7032 5f30      	.byte	0x5f, 0x61, 0x32, 0x70, 0x30, 0x5f
+  24:	3266                	.2byte	0x3266
+  26:	3070                	.2byte	0x3070
+  28:	645f 7032 0030      	.byte	0x5f, 0x64, 0x32, 0x70, 0x30, 0x00

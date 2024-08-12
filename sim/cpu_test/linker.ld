@@ -8,10 +8,10 @@ SECTIONS {
   }
   etext = .;
   _etext = .;
-  .rodata : {
+  .rodata 0x81000000 : {
     *(.rodata*)
   }
-  .data : {
+  .data 0x82000000: {
     *(.data)
   }
   edata = .;

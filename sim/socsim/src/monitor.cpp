@@ -29,7 +29,7 @@ void isa_reg_display()
   }
 }
 
-void execute_once()
+int execute_once()
 {
   uint64_t cur_pc = cpu.pc;
   cpu.pc = core_run_once(); // next pc
@@ -45,7 +45,10 @@ void execute_once()
   memset(p++, ' ', 1);
   disassemble((char *)p, buffer + sizeof(buffer) - p, cur_pc, (uint8_t *)&instr, 4);
   printf("0x%x: %s\n", cur_pc, buffer);
-  difftest_step(cur_pc, cpu.pc);
+  if(!difftest_step(cur_pc, cpu.pc)) {
+    return 0;
+  }
+  return 1;
 }
 
 void execute(int n)
@@ -53,7 +56,9 @@ void execute(int n)
   for (unsigned int i = 0; i < n; i++)
   {
 
-    execute_once();
+    if(!execute_once()) {
+      return;
+    }
     for (auto e : watchpoints)
     {
       auto val = expr((char *)e.c_str());
@@ -116,7 +121,7 @@ word_t mem_read(word_t addr, size_t len, std::string &ori)
     if (tag == dut->core__DOT__dc0__DOT__line_tag[way][index])
     {
       target_way = way;
-      ori = "dcache";
+      ori = "dcache, way:" + std::to_string(way) + " block:" + std::to_string(index);
     }
     else if (tag == dut->core__DOT__ic0__DOT__line_tag[way][index])
     {
