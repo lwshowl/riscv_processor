@@ -5,11 +5,12 @@
 #include "include/difftest.h"
 #include "include/expr.h"
 
-extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-uint64_t core_run_once();
 void core_pass_registers(uint64_t *reg);
-extern std::map<uint64_t, uint64_t> imap;
+uint64_t core_run_once();
 std::set<std::string> watchpoints;
+extern std::map<uint64_t, uint64_t> imap;
+extern uintptr_t halt;
+extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 const char *regs[] = {
     "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -39,12 +40,19 @@ int execute_once()
   uint32_t instr = imap.at(cur_pc);
   uint8_t *inst = (uint8_t *)(&instr);
   uint8_t *p = buffer;
+
+  // halt
+  if (cur_pc == 0x8000000c) {
+    // printf("program finished!\n");
+    return 0;
+  }
+
   for (int i = 0; i < 4; i++)
     p += snprintf((char *)p, 4, " %02x", inst[i]);
 
-  memset(p++, ' ', 1);
-  disassemble((char *)p, buffer + sizeof(buffer) - p, cur_pc, (uint8_t *)&instr, 4);
-  printf("0x%x: %s\n", cur_pc, buffer);
+  // memset(p++, ' ', 1);
+  // disassemble((char *)p, buffer + sizeof(buffer) - p, cur_pc, (uint8_t *)&instr, 4);
+  // printf("0x%x: %s\n", cur_pc, buffer);
   if(!difftest_step(cur_pc, cpu.pc)) {
     return 0;
   }

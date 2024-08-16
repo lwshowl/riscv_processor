@@ -176,9 +176,8 @@ module core # (
   wire dmem_cache_req;
   wire [63:0] dmem_rw_addr;
   wire [63:0] dmem_rw_data;
-  wire mmio_rw;
   wire [63:0] mmio_addr;
-  wire [63:0] mmio_data_o;
+  wire [63:0] mmio_data;
   wire [3:0] mmio_burst_len;
   wire wb_rst;
   wire wb_wen;
@@ -214,8 +213,12 @@ module core # (
   wire [63:0] rs2val;
 
   wire regld_bubble;
+  wire axi_ready;
+  wire mmio_req;
+  wire mmio_rw;
+  wire mmio_valid;
 
-  assign dmem_axi_len = 8'd8;
+  assign dmem_axi_len = 8'd8; // 8 bursts
   assign pc_hold =  regld_bubble | ~ic_valid | dcache_hold;
   assign alu_rst = (pc_rel_branch | pc_abs_branch) | (regld_bubble & ~dcache_hold);
   assign alu_wen = ~dcache_hold;
@@ -233,15 +236,17 @@ module core # (
                         ((rs2 == alu_rd) | (rs1 == alu_rd)) &
                         (alu_rd != 0));
 
-  assign dcache_hold = (dmem_memr & ~dmem_r_valid) | (dmem_memw & ~dmem_w_valid);
+  assign dcache_hold = (dmem_memr & ~dmem_r_valid) | (dmem_memw & ~dmem_w_valid) | ~mmio_valid;
   assign wmask = (dmem_instrId == `i_sb) ? 1 :
                 (dmem_instrId == `i_sh) ? 2 :
                 (dmem_instrId == `i_sw) ? 4 :
                 (dmem_instrId == `i_sd) ? 8 : 0;
                 
-  assign mmio_rw = dmem_cache_req & dmem_rw_addr > 64'h0000000010000000 & dmem_rw_addr < 64'h000000001fffffff;
+  assign mmio_req = dmem_cache_req & dmem_rw_addr >= 64'h0000_0000_8300_0000;
   assign mmio_addr = dmem_rw_addr;
-  assign mmio_burst_len = 0;
+  assign mmio_data = dmem_rw_data;
+  assign mmio_rw = dmem_memw;
+
   assign dmem_rst = 1'b0;
   assign dmem_wen = ~dcache_hold;
   assign wb_rst = dcache_hold;
@@ -274,10 +279,17 @@ module core # (
     .clk(clk),
     .rst(rst),
 
+    .mmio_req(mmio_req),
+    .mmio_rw(mmio_rw),
+    .mmio_valid(mmio_valid),
+    .mmio_addr(mmio_addr),
+    .mmio_data(mmio_data),
+    .axi_ctrl_ready(axi_ready),
+
     .axi_req1(dmem_axi_req),
     .rw_req1(dmem_axi_rw),
     .addr1(dmem_axi_addr),
-    .data1(0),
+    .data1(dmem_rw_data),
     .rw_len1(dmem_axi_len),
     .data_o1(dmem_axi_data_i),
     .axi_done1(dmem_axi_done),
@@ -357,6 +369,7 @@ module core # (
     .clk(clk),
     .rst(rst),
     // core interfaces
+    .axi_ready(axi_ready),
     .dcache_req(1),
     .cache_rw(0),
     .core_addr_i(pc),
@@ -543,6 +556,7 @@ module core # (
     .clk(clk),
     .rst(rst),
     // core interfaces
+    .axi_ready(axi_ready),
     .dcache_req(dmem_cache_req),
     .cache_rw(dmem_cache_rw),
     .core_addr_i(dmem_result),

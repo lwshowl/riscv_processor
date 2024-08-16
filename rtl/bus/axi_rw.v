@@ -70,6 +70,7 @@ module axi_rw # (
     // external fifo interface
     output                              rfifo_wen,
     output                              wfifo_ren,
+    output reg                          axi_r_done,
 
     // Advanced eXtensible Interface
     input                               axi_aw_ready_i,
@@ -161,6 +162,7 @@ module axi_rw # (
             wr_state     <= S_WA_WAIT;
             reg_wr_addrs <= rw_addr_i;
             reg_w_len    <= rw_len_i - 8'd1;
+            // $display("start write");
           end
           reg_awvalid <= 1'b0;
           reg_wvalid  <= 1'b0;
@@ -169,22 +171,31 @@ module axi_rw # (
           wr_state <= S_WA_START;
         end
         S_WA_START: begin
-          wr_state <= S_WD_WAIT;
+          wr_state <= axi_aw_ready_i ? S_WD_PROC : S_WD_WAIT;
           reg_awvalid <= 1'b1;
           reg_wvalid <= 1'b1;
+          if (reg_w_len == 8'd0) begin
+            wr_state   <= S_WR_WAIT;
+            reg_w_last <= 1'b1;
+            // $display("w last");
+          end
+          // $display("start write addr: %x, data:%x", axi_aw_addr_o,axi_w_data_o);
         end
         S_WD_WAIT: begin
           if(axi_aw_ready_i) begin
             wr_state <= S_WD_PROC;
             reg_awvalid <= 1'b0;
+            // $display("start write wait");
           end
         end
         S_WD_PROC: begin
+          reg_awvalid <= 0;
           if(axi_w_ready_i) begin
+            // $display("axi write");
             if(reg_w_len == 8'd0) begin
               wr_state   <= S_WR_WAIT;
-              // reg_wvalid <= 1'b0;
               reg_w_last <= 1'b1;
+              // $display("w last");
             end
             else begin
               reg_w_len <= reg_w_len - 8'd1;
@@ -193,11 +204,14 @@ module axi_rw # (
         end
         S_WR_WAIT: begin
           reg_w_last <= 1'b0;
+          reg_wvalid <= 1'b0;
           if(axi_b_valid_i) begin
             wr_state <= S_WR_DONE;
+            // $display("axi write done");
           end
         end
         S_WR_DONE: begin
+          // $display("axi done");
           wr_state <= S_WR_IDLE;
         end
         default: begin
@@ -231,9 +245,11 @@ module axi_rw # (
       case(rd_state)
         S_RD_IDLE: begin
           if(rw_valid_i && read_req) begin
+            // $display("axi start read");
             rd_state <= S_RA_WAIT;
             reg_rd_addrs <= rw_addr_i;
             reg_rd_len <= rw_len_i - 8'd1;
+            // $display("read start");
           end
           reg_arvalid <= 1'b0;
         end
@@ -241,28 +257,38 @@ module axi_rw # (
           rd_state <= S_RA_START;
         end
         S_RA_START: begin
-          rd_state <= S_RD_WAIT;
+          rd_state <= axi_ar_ready_i ? S_RD_PROC : S_RD_WAIT;
+          axi_r_ready_o <= axi_ar_ready_i ? 1 : 0;
           reg_arvalid <= 1'b1;
+          // $display("read addr start: %x",axi_ar_addr_o);
         end
         S_RD_WAIT: begin
           if(axi_ar_ready_i) begin
             rd_state <= S_RD_PROC;
             reg_arvalid <= 1'b0;
             axi_r_ready_o <= 1;
+            // $display("read addr ready");
           end
         end
         S_RD_PROC: begin
+          reg_arvalid <= 1'b0;
           if(axi_r_valid_i) begin
             data_read_o <= axi_r_data_i;
             rfifo_wen   <= 1;
+            // $display("axi read: %x", axi_r_data_i);
+            // $display("read valid");
             if(axi_r_last_i) begin
               rd_state <= S_RD_DONE;
               axi_r_ready_o <= 0;
+              axi_r_done <= 1'b1;
+              // $display("axi r last");
             end
           end
         end
         S_RD_DONE: begin
+          // $display("axi done");
           rd_state <= S_RD_IDLE;
+          axi_r_done <= 0;
           rfifo_wen <= 0;
         end
         default: begin
@@ -297,7 +323,7 @@ module axi_rw # (
   assign axi_w_valid_o    = reg_wvalid;
   assign axi_w_data_o     = rw_w_data_i;
   assign axi_w_strb_o     = rw_size_i;
-  assign axi_w_last_o     = 1'b0;
+  assign axi_w_last_o     = reg_w_last;
   assign axi_w_user_o     = axi_user;                                                                         //初始化信号即可
 
   // 写应答通道

@@ -1,4 +1,4 @@
-
+#include "system.h"
 #define N 20
 
 int a[N] = {2, 12, 14, 6, 13, 15, 16, 10, 0, 18, 11, 19, 9, 1, 7, 5, 4, 3, 8, 17};
@@ -23,6 +23,15 @@ void bubble_sort()
 int main()
 {
     bubble_sort();
+    puts("after sort: ");
+    char number[10];
+    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
+    {
+        itoa(a[i], number);
+        puts(number);
+        puts(",");
+    }
+    puts("\n");
 
     // int i;
     // for (i = 0; i < N; i++)

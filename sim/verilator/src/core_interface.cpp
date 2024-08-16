@@ -7,9 +7,8 @@ void handleRisingEdge()
     // 上升沿以前,before write
     if (dut->clk == 0)
     {
-        mem_sigs.update_input(*mem_ref);
         step_verilator_sim();
-        dump_internals();
+        mem_sigs.update_input(*mem_ref);
         update_dnpc();
     }
 }
@@ -19,9 +18,10 @@ void handleFallingEdge()
     if (dut->clk == 1)
     {
         step_verilator_sim();
-        // 下降沿之后 获取slave 的输出，以便下一个上升沿使用
         mem.beat(mem_sigs_ref);
         mem_sigs.update_output(*mem_ref);
+        dump_internals();
+        // 下降沿之后 获取slave 的输出，以便下一个上升沿使用
     }
 }
 
@@ -33,17 +33,15 @@ void step_verilator_sim()
 
 void dump_internals()
 {
-// dump_wb();
-// dump_axi_ctl();
-// dump_axi();
-// dump_icache();
-// dump_pc();
-// dump_icache();
-// dump_decode();
-// dump_regfile();
-// dump_alu();
-#ifdef DUMP_CACHE
-#endif
+    // dump_wb();
+    // dump_axi_ctl();
+    // dump_axi();
+    // dump_pc();
+    // dump_icache();
+    // dump_icache();
+    // dump_decode();
+    // dump_regfile();
+    // dump_alu();
     // dump_dmem();
     // dump_dcache();
     // dump_axi_ctl();
@@ -57,23 +55,12 @@ uint64_t commit_instr()
     if (dut->clk == 0)
     {
         // 上升沿以前 通知slave
-        mem_sigs.update_input(*mem_ref);
-        step_verilator_sim();
-        dump_internals();
-        update_dnpc();
+        handleRisingEdge();
     }
     else
     {
-        step_verilator_sim();
-        // 下降沿之后 获取slave 的输出，以便下一个上升沿使用
-        mem.beat(mem_sigs_ref);
-        mem_sigs.update_output(*mem_ref);
-        // 上升沿以前 通知slave
-        mem_sigs.update_input(*mem_ref);
-        // 产生上升沿
-        step_verilator_sim();
-        dump_internals();
-        update_dnpc();
+        handleFallingEdge();
+        handleRisingEdge();
     }
     return pc;
 }

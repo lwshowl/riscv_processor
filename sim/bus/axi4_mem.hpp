@@ -61,13 +61,18 @@ class axi4_mem : public axi4_slave<A_WIDTH,D_WIDTH,ID_WIDTH>  {
     protected:
         axi_resp do_read(uint64_t start_addr, uint64_t size, uint8_t* buffer) {
             if (start_addr + size <= mem_size) {
-                memcpy(buffer,&mem[start_addr],size);
+                memcpy(buffer, &mem[start_addr], size);
                 return RESP_OKEY;
             }
-            else return RESP_DECERR;
+            return RESP_DECERR;
         }
         axi_resp do_write(uint64_t start_addr, uint64_t size, const uint8_t* buffer) {
-            if (start_addr + size <= mem_size) {
+            if (start_addr == 0x83000000) {
+                for (int i=0; i<size; i++) {
+                    putc(*(buffer + i), stdout);
+                }
+            }
+            else if (start_addr + size <= mem_size) {
                 memcpy(&mem[start_addr],buffer,size);
                 return RESP_OKEY;
             }

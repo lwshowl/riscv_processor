@@ -9,6 +9,7 @@ BUILD = ./build
 CXXFLAGS += -fno-builtin -ffreestanding -fno-rtti -fno-exceptions
 CXXFLAGS += -nostdlib 
 CXXFLAGS += -march=rv64g -mcmodel=medany -mstrict-align -fno-pic
+CXXFLAGS += -I./include
 
 all: $(TARGET).o start.o
 	@ echo linking objects

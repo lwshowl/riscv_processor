@@ -1,5 +1,5 @@
 .section entry, "ax"
-.global _start
+.global _start,halt
 .type _start, @function
 
 _start:
