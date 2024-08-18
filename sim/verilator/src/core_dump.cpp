@@ -104,28 +104,28 @@ void dump_dcache()
     int index = (dut->core__DOT__dmem_pc >> 6) & 0b111111;
 
     cout << " dcache pc: " << std::hex << (uint64_t)dut->core__DOT__dmem_pc
-        //  << " cache data: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_out[dut->core__DOT__dc0__DOT__hit_way]
-        //  << " dcache req: " << (uint64_t)dut->core__DOT__dmem_cache_req
+         //  << " cache data: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_out[dut->core__DOT__dc0__DOT__hit_way]
+         //  << " dcache req: " << (uint64_t)dut->core__DOT__dmem_cache_req
          << " dcache core addr: " << std::hex << (uint64_t)dut->core__DOT__dmem_result
-        //  << " dcache core data: " << std::hex << (uint64_t)dut->core__DOT__dmem_rs2val
-        //  << " dcache state: " << (uint64_t)dut->core__DOT__dc0__DOT__state
-        //  << " dcache rw: " << std::hex << (uint64_t)dut->core__DOT__dmem_memw
-        //  << " dcache cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
-        //  << " dcache dirty: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__line_dirty[dut->core__DOT__dc0__DOT__hit_way][index]
-        //  << " dcache req addr: " << std::hex << (uint64_t)dut->core__DOT__dmem_axi_addr
-        //  << " cache way wen: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_wen[dut->core__DOT__dc0__DOT__cur_replace_way]
-        //  << " cache ram wmask: " << (uint64_t)(dut->core__DOT__dc0__DOT__ram_write_mask)
-        //  << " cache way ramin: " << hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[dut->core__DOT__dc0__DOT__cur_replace_way]
-        //  << " cache w_addr: " << (uint64_t)(dut->core__DOT__dc0__DOT__ram_w_addr)
-        //  << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__dc0__DOT__presence_w)
-        //  << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__dc0__DOT__hit_way)
-        // << " current replacing: " << (uint64_t)(dut->core__DOT__dc0__DOT__cur_replace_way)
-        //  << " cache ram data: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[index]
-        //  << " cache fifo cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
-        //  << " cache fifo idx: " << std::hex << (uint64_t)dut->core__DOT__axi_fifo_idx
-        // << " node_ids:" << dut->core__DOT__dc0__DOT__node_id[0] << dut->core__DOT__dc0__DOT__node_id[1] <<  dut->core__DOT__dc0__DOT__node_id[2]
-        // << " plru_dirs:" << std::bitset<7>((uint64_t)dut->core__DOT__dc0__DOT__plru_dir)
-        << endl;
+         //  << " dcache core data: " << std::hex << (uint64_t)dut->core__DOT__dmem_rs2val
+         //  << " dcache state: " << (uint64_t)dut->core__DOT__dc0__DOT__state
+         //  << " dcache rw: " << std::hex << (uint64_t)dut->core__DOT__dmem_memw
+         //  << " dcache cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
+         //  << " dcache dirty: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__line_dirty[dut->core__DOT__dc0__DOT__hit_way][index]
+         //  << " dcache req addr: " << std::hex << (uint64_t)dut->core__DOT__dmem_axi_addr
+         //  << " cache way wen: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_wen[dut->core__DOT__dc0__DOT__cur_replace_way]
+         //  << " cache ram wmask: " << (uint64_t)(dut->core__DOT__dc0__DOT__ram_write_mask)
+         //  << " cache way ramin: " << hex << setfill('0') << setw(16) << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[dut->core__DOT__dc0__DOT__cur_replace_way]
+         //  << " cache w_addr: " << (uint64_t)(dut->core__DOT__dc0__DOT__ram_w_addr)
+         //  << " presence bits: " << std::bitset<8>((uint64_t)dut->core__DOT__dc0__DOT__presence_w)
+         //  << " cache hit_way: " << std::hex << (uint64_t)(dut->core__DOT__dc0__DOT__hit_way)
+         // << " current replacing: " << (uint64_t)(dut->core__DOT__dc0__DOT__cur_replace_way)
+         //  << " cache ram data: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__way_ram_in[index]
+         //  << " cache fifo cnt: " << std::hex << (uint64_t)dut->core__DOT__dc0__DOT__cnt
+         //  << " cache fifo idx: " << std::hex << (uint64_t)dut->core__DOT__axi_fifo_idx
+         // << " node_ids:" << dut->core__DOT__dc0__DOT__node_id[0] << dut->core__DOT__dc0__DOT__node_id[1] <<  dut->core__DOT__dc0__DOT__node_id[2]
+         // << " plru_dirs:" << std::bitset<7>((uint64_t)dut->core__DOT__dc0__DOT__plru_dir)
+         << endl;
 }
 
 void update_dnpc()
@@ -194,6 +194,8 @@ void dump_csr()
 void dump_pc()
 {
     cout << " pc out: " << hex << (uint64_t)dut->core__DOT__pc
+         << " pc dache: " << hex << (uint64_t)dut->core__DOT__dcache_hold
+         << " pc ic_valid: " << hex << (uint64_t)dut->core__DOT__ic0__DOT__presence_w
          << " pc abs_b: " << hex << (uint64_t)dut->core__DOT__pc_abs_branch
          << " pc rel_b: " << hex << (uint64_t)dut->core__DOT__pc_rel_branch
          << " pc buuble :" << (((uint64_t)dut->core__DOT__ic0__DOT__presence_w == 0) || dut->core__DOT__memory_bubble)

@@ -33,7 +33,7 @@ module dcache #(WAY_NUMBER = 8)
     // 4k bytes set , 64 bytes block for 64 blocks(lines)
     wire [5:0] index  = core_addr_i[11:6];
     wire [5:0] offset = core_addr_i[5:0];
-    wire [51:0] tag   = core_addr_i[63:12];
+    wire [63:0] tag   = {core_addr_i[63:6],6'b0};
 
     /* for set associative cache , block offset width is the width of numbers of bytes in a block
      block index width is the width of the number of the blocks ,which is TOTALSIZE / BLOCKSIZE
@@ -46,7 +46,7 @@ module dcache #(WAY_NUMBER = 8)
 
     // for each line , there is valid and tag field
     // tags are 52 bits long and each set has 64 blocks(lines) so there is 64 tags
-    reg [51:0] line_tag [WAY_NUMBER-1:0][63:0];
+    reg [63:0] line_tag [WAY_NUMBER-1:0][63:0];
     // valid bit for each block
     // same applies to every way
     reg line_valid [WAY_NUMBER-1:0][63:0];
@@ -63,7 +63,7 @@ module dcache #(WAY_NUMBER = 8)
 
     reg  [3:0]   ram_write_mask;
     reg  [63:0]  ram_w_addr;
-    reg  [63:0]  ram_addr;
+    reg  [63:6]  ram_addr;
     reg  [63:0]  ram_r_offset;
 
     // generate number of ram block for each way
@@ -175,6 +175,8 @@ module dcache #(WAY_NUMBER = 8)
     reg [3:0] state;
     reg [31:0] cnt;
     reg [3:0] plru_step_count;
+    reg [63:0] tag_reg;
+    reg [5:0] index_reg;
     reg [$clog2(WAY_NUMBER)-1:0] cur_replace_way;
     localparam state_check          = 4'd0;
     localparam state_write_dirty    = 4'd1;
@@ -212,7 +214,6 @@ module dcache #(WAY_NUMBER = 8)
                     ram_r_offset                            <= 0;
                     if (cache_hit) begin
                         if(cache_rw == `CACHE_WRITE) begin
-                            // $display("write way: %d, block:%d, offset:%d, data:%x, mask:%d",hit_way,index,offset,core_data_i, write_mask);
                             ram_w_addr                      <= core_addr_i;
                             way_ram_in[hit_way]             <= core_data_i;
                             store_addr_buffer               <= core_addr_i;
@@ -221,15 +222,14 @@ module dcache #(WAY_NUMBER = 8)
                             ram_write_mask                  <= write_mask;
                             // if write to cache , set dirty bits
                             line_dirty[hit_way][index]      <= 1;
-                        end 
-                        // else if(core_addr_i >= 64'h0000_0000_8100_0000) begin
-                        //     $display("read addr:%x way: %d, block:%d, offset:%d,data:%x, store_addr:%x, store_buffer:%x",core_addr_i,hit_way,index,offset,data_o,store_addr_buffer,store_buffer);
-                        // end
+                        end
                     end
                     // cache miss
                     else begin
                         // resolve plru
-                        ram_addr        <= core_addr_i;
+                        tag_reg         <= tag;
+                        ram_addr        <= core_addr_i[63:6];
+                        index_reg       <= index;
                         if (plru_step_count == 2) begin
                             plru_dir[1] <= ~plru_dir[1];
                             plru_step_count <= plru_step_count + 1;
@@ -247,20 +247,16 @@ module dcache #(WAY_NUMBER = 8)
                             plru_step_count <= plru_step_count + 1;
                         end
                         else if(plru_step_count == 3) begin
-                            // if (ram_w_addr >= 64'h0000_0000_8100_0000) begin
-                            //     $display("addr:%x replace way: %d, block:%d dirty:%d",
-                            //         ram_addr,way_replace,index,line_dirty[way_replace][index]);
-                            // end
                             way_wen[hit_way]    <= 0;
-                            axi_fifo_idx        <= 0;
                             cnt                 <= 0;
-                            plru_step_count     <= 0;
-                            axi_req             <= line_dirty[way_replace][index] ? 0 : 1;                   // if the line is dirty , request axi write later
-                            axi_rw              <= line_dirty[way_replace][index] ? `AXI_WRITE : `AXI_READ;
-                            axi_req_addr        <= ram_addr - {{58{1'b0}},offset};
+                            axi_req             <= line_dirty[way_replace][index_reg] ? 0 : 1;                   // if the line is dirty , request axi write later
+                            axi_rw              <= line_dirty[way_replace][index_reg] ? `AXI_WRITE : `AXI_READ;
+                            axi_req_addr        <= {ram_addr[63:6],6'b0};
                             cur_replace_way     <= way_replace;
                             if (axi_ready) begin
-                                state           <= line_dirty[way_replace][index] ? state_write_dirty : state_refill;
+                                plru_step_count <= 0;
+                                axi_fifo_idx    <= 0;
+                                state           <= line_dirty[way_replace][index_reg] ? state_write_dirty : state_refill;
                             end
                         end
                     end
@@ -274,7 +270,6 @@ module dcache #(WAY_NUMBER = 8)
             end
             // if the way being replaced is dirty , write back to ram first
             state_write_dirty: begin
-                // $display("write dirty");
                 axi_fifo_wen    <= 1;                               // send data to axi_ctl fifo
                 ram_r_offset    <= {{32{1'b0}},cnt} - {{58{1'b0}},offset};
                 axi_fifo_data_o <= way_ram_out[cur_replace_way];
@@ -300,23 +295,21 @@ module dcache #(WAY_NUMBER = 8)
             state_refill: begin
                 // request the entire line (which is the address of (address - offset) )
                 // refill the entire line
-                ram_w_addr    <= axi_req_addr;
+                ram_w_addr          <= axi_req_addr;
                 if (cnt == 32'd64) begin
                     state                                   <= state_check;
                     axi_fifo_done                           <= 1;
                     axi_req                                 <= 0;
-                    line_dirty[cur_replace_way][index]      <= 0;
-                    line_valid[cur_replace_way][index]      <= 1;
-                    line_tag[cur_replace_way][index]        <= tag;
+                    line_dirty[cur_replace_way][index_reg]      <= 0;
+                    line_valid[cur_replace_way][index_reg]      <= 1;
+                    line_tag[cur_replace_way][index_reg]        <= tag_reg;
                 end
                 // if the axi transcation has been finished , ready to fill the cache line
                 if(axi_done) begin
                     // write 8 bytes a time to cache_ram
-                    // $display("cache read addr:%x data:%x", ram_w_addr, axi_data_i);
                     ram_write_mask              <= 4'd8;
                     way_wen[cur_replace_way]    <= cnt == 32'd64 ? 0:1;
                     way_ram_in[cur_replace_way] <= axi_data_i;
-                    // $display("AXI data: %x", axi_data_i);
                     cnt                         <= way_wen[cur_replace_way] ? cnt + 8 : cnt;
                     ram_w_addr                  <= way_wen[cur_replace_way] ? axi_req_addr + {{32{1'b0}},cnt} : ram_w_addr;
                     axi_fifo_idx                <= way_wen[cur_replace_way] ? axi_fifo_idx + 64 : 0;

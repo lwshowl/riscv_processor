@@ -111,6 +111,8 @@ void execute_and_monitor()
                 std::cout << endl;
             }
             std::cout << endl;
+        } else {
+            continue;
         }
     } while (true);
 }

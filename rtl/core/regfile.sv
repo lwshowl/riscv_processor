@@ -1,4 +1,5 @@
 module regfile (input clk,
+                input rst,
                 input [63:0] wdata,
                 input [4:0] waddr,
                 input wen,
@@ -13,8 +14,14 @@ module regfile (input clk,
     assign r_out2 = r_addr2 == 0 ? 0 : r_addr2 == waddr ? wdata : registers[r_addr2];
 
     always_ff @(posedge clk) begin
-        if (wen)
+        if (rst) begin
+            for (integer i=0; i<32; i++) begin
+                registers[i] <= 0;
+            end
+        end
+        if (wen) begin
             registers[waddr] <= wdata;
+        end
     end
 
 endmodule

@@ -1,4 +1,5 @@
 #include "system.h"
+#include "klib.h"
 #define N 20
 
 int a[N] = {2, 12, 14, 6, 13, 15, 16, 10, 0, 18, 11, 19, 9, 1, 7, 5, 4, 3, 8, 17};
@@ -15,6 +16,7 @@ void bubble_sort()
                 t = a[i];
                 a[i] = a[i + 1];
                 a[i + 1] = t;
+                printf("swaping %d %d\n", i, i + 1);
             }
         }
     }
@@ -23,32 +25,10 @@ void bubble_sort()
 int main()
 {
     bubble_sort();
-    puts("after sort: ");
-    char number[10];
-    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
-    {
-        itoa(a[i], number);
-        puts(number);
-        puts(",");
+    printf("after sorting the array:");
+    for (int i=0; i<sizeof(a)/sizeof(a[0]); i++) {
+        printf("%d,", a[i]);
     }
-    puts("\n");
-
-    // int i;
-    // for (i = 0; i < N; i++)
-    // {
-    //     check(a[i] == i);
-    // }
-
-    // check(i == N);
-
-    // bubble_sort();
-
-    // for (i = 0; i < N; i++)
-    // {
-    //     check(a[i] == i);
-    // }
-
-    // check(i == N);
-
+    printf("\b\n");
     return 0;
 }

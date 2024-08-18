@@ -1,3 +1,6 @@
+#include "klib.h"
+#include "system.h"
+
 char *s[] = {
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
@@ -11,6 +14,9 @@ char str[20];
 
 int main()
 {
+    for(int i=0; i<6; i++) {
+        printf("%s\n",s[i]);
+    }
     check(strcmp(s[0], s[2]) == 0);
     check(strcmp(s[0], s[1]) < 0);
     check(strcmp(s[0] + 1, s[1] + 1) < 0);
@@ -20,6 +26,7 @@ int main()
     check(strcmp(strcat(strcpy(str, str1), s[3]), s[4]) == 0);
 
     check(memcmp(memset(str, '#', 5), s[5], 5) == 0);
+
 
     return 0;
 }

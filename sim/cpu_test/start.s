@@ -1,6 +1,7 @@
 .section entry, "ax"
-.global _start,halt
+.globl _start,halt
 .type _start, @function
+.type halt, @function
 
 _start:
     la      sp,     _stack_pointer

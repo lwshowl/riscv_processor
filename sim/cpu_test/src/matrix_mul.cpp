@@ -1,4 +1,4 @@
-#include "trap.h"
+#include "system.h"
 
 #define N 10
 

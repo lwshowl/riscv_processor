@@ -70,6 +70,8 @@ module core # (
   wire axi_fifo_wen;
   wire [8:0] axi_fifo_idx;
   wire axi_fifo_done;
+  wire ic_fifo_done;
+  wire dc_fifo_done;
   wire [63:0] axi_fifo_data_i;
 
   wire pc_rel_branch;
@@ -220,7 +222,7 @@ module core # (
 
   assign dmem_axi_len = 8'd8; // 8 bursts
   assign pc_hold =  regld_bubble | ~ic_valid | dcache_hold;
-  assign alu_rst = (pc_rel_branch | pc_abs_branch) | (regld_bubble & ~dcache_hold);
+  assign alu_rst = ((pc_rel_branch | pc_abs_branch) & ~dcache_hold) | (regld_bubble & ~dcache_hold);
   assign alu_wen = ~dcache_hold;
   assign dmem_cache_req = dmem_memr | dmem_memw;
   assign dmem_cache_rw = dmem_memw;
@@ -230,6 +232,7 @@ module core # (
   assign decode_wen = ~dcache_hold & ~regld_bubble;
   assign decode_exception = exception_to_decode;
   assign regfile_rst = pc_rel_branch | pc_abs_branch;
+  assign axi_fifo_done = ic_fifo_done | dc_fifo_done;
 
   assign regld_bubble = ((reg_w == 1 | mem_w == 1) & // reg
                         (alu_opcode == 7'b0000011) & //load
@@ -257,7 +260,7 @@ module core # (
 
   assign mepc_overri = wb_pc;
   assign mcause_overri = wb_instrId == `i_ecall ? 64'd11 : 64'd0;
-  assign wb_rf_wen = wb_regw & (wb_rd!= 0) & (wb_opcode != 7'b1100011);
+  assign wb_rf_wen = wb_regw & (wb_rd != 0) & (wb_pc != 0) & (wb_opcode != 7'b1100011);
   assign rf_write_val = (wb_opcode == 7'b0000011) ? wb_memdata :
           (wb_opcode == 7'b1110011) ? wb_csrval :
           (wb_instrId == `i_jal) ? wb_pc + 4 :
@@ -305,6 +308,7 @@ module core # (
     .cache_fifo_idx(axi_fifo_idx),
     .cache_fifo_data_i(axi_fifo_data_i),
     .cache_fifo_done(axi_fifo_done),
+
     .cache_fifo_wen(axi_fifo_wen),
     .axi_aw_ready (axi_aw_ready ),
     .axi_aw_valid (axi_aw_valid ),
@@ -389,7 +393,7 @@ module core # (
     .axi_fifo_data_o(),
     .axi_fifo_idx(axi_fifo_idx),
     .axi_fifo_wen(axi_fifo_wen),
-    .axi_fifo_done(axi_fifo_done)
+    .axi_fifo_done(ic_fifo_done)
   );
 
   reg_fetch_dec reg_fd(
@@ -422,6 +426,7 @@ module core # (
 
   regfile registerFile(
     .clk(clk),
+    .rst(rst),
     .wdata(rf_write_val),
     .waddr(wb_rd),
     .wen(wb_rf_wen),
@@ -574,7 +579,7 @@ module core # (
     .axi_fifo_data_o(axi_fifo_data_i),
     .axi_fifo_idx(axi_fifo_idx),
     .axi_fifo_wen(axi_fifo_wen),
-    .axi_fifo_done(axi_fifo_done)
+    .axi_fifo_done(dc_fifo_done)
   );
 
   CSR csr(

@@ -38,7 +38,6 @@ void dump_internals()
     // dump_axi();
     // dump_pc();
     // dump_icache();
-    // dump_icache();
     // dump_decode();
     // dump_regfile();
     // dump_alu();
@@ -46,7 +45,7 @@ void dump_internals()
     // dump_dcache();
     // dump_axi_ctl();
     // dump_wb();
-    // cout << endl;
+    // std::cout << std::endl;
 }
 
 uint64_t commit_instr()

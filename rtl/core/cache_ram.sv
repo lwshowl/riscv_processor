@@ -27,9 +27,6 @@ module cache_ram #(O_WIDTH = 64)
 
     always_ff @(posedge clk) begin
         if (wen) begin
-            // if (w_addr >= 64'h0000_0000_8100_0000) begin
-            //     // $display("writing block:%d, offset:%d",w_index,w_offset);
-            // end
             // at least write one byte
             mem[w_index][w_offset] <= data_in[7:0];
 
